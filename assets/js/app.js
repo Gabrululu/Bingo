@@ -121,32 +121,39 @@ function showPlayerCard() {
     document.getElementById('waiting-section').classList.add('hidden');
     document.getElementById('playing-section').classList.remove('hidden');
     const cardContainer = document.getElementById('playerCard');
-    cardContainer.innerHTML = `
-        <div class="card-header">
-            ${currentParticipant.name}
-        </div>
-        <div class="bingo-grid">
-            ${currentParticipant.card.map((term) => {
-                let displayTerm = term;
-                if (term.length > 12 && window.innerWidth < 480) {
-                    const abbreviations = {
-                        'Smart Contract': 'Smart C.',
-                        'Community Building': 'Community',
-                        'Token Gating': 'Token Gate',
-                        'Whitelist Marketing': 'Whitelist',
-                        'Influencer NFTs': 'Influencer',
-                        'Creator Economy': 'Creator Eco',
-                        'Engagement Mining': 'Engagement',
-                        'Metaverse Marketing': 'Metaverse',
-                        'Protocol Incentives': 'Protocol Inc',
-                        'Governance Tokens': 'Governance'
-                    };
-                    displayTerm = abbreviations[term] || term;
-                }
-                return `<button class="bingo-cell ${term === 'FREE' ? 'free' : ''}" onclick="toggleCell(this, '${term}')" ${term === 'FREE' ? 'disabled' : ''} data-term="${term}" title="${term}">${displayTerm}</button>`;
-            }).join('')}
-        </div>
-    `;
+    
+    // Build card HTML safely
+    let cardHTML = '<div class="card-header">' + currentParticipant.name + '</div>';
+    cardHTML += '<div class="bingo-grid">';
+    
+    currentParticipant.card.forEach((term) => {
+        let displayTerm = term;
+        if (term.length > 12 && window.innerWidth < 480) {
+            const abbreviations = {
+                'Smart Contract': 'Smart C.',
+                'Community Building': 'Community',
+                'Token Gating': 'Token Gate',
+                'Whitelist Marketing': 'Whitelist',
+                'Influencer NFTs': 'Influencer',
+                'Creator Economy': 'Creator Eco',
+                'Engagement Mining': 'Engagement',
+                'Metaverse Marketing': 'Metaverse',
+                'Protocol Incentives': 'Protocol Inc',
+                'Governance Tokens': 'Governance'
+            };
+            displayTerm = abbreviations[term] || term;
+        }
+        
+        const isFree = term === 'FREE';
+        const disabled = isFree ? 'disabled' : '';
+        const freeClass = isFree ? 'free' : '';
+        
+        cardHTML += '<button class="bingo-cell ' + freeClass + '" onclick="toggleCell(this, \'' + term + '\')" ' + disabled + ' data-term="' + term + '" title="' + term + '">' + displayTerm + '</button>';
+    });
+    
+    cardHTML += '</div>';
+    cardContainer.innerHTML = cardHTML;
+    
     addSwipeDetection(cardContainer);
 }
 
@@ -221,17 +228,26 @@ function updateParticipantsList() {
         container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay participantes registrados</p>';
         return;
     }
-    container.innerHTML = participants.map(participant => `
-        <div class="participant-item ${participant.card ? 'assigned' : ''}">
-            <div>
-                <div class="participant-name">${participant.name}</div>
-                <small style="color: #7f8c8d;">Registrado: ${new Date(participant.registered).toLocaleTimeString()}</small>
-            </div>
-            <div class="participant-status-badge ${participant.card ? 'status-assigned' : 'status-waiting'}">
-                ${participant.card ? 'Cartilla Asignada' : 'Esperando'}
-            </div>
-        </div>
-    `).join('');
+    
+    let participantsHTML = '';
+    participants.forEach(participant => {
+        const assignedClass = participant.card ? 'assigned' : '';
+        const statusClass = participant.card ? 'status-assigned' : 'status-waiting';
+        const statusText = participant.card ? 'Cartilla Asignada' : 'Esperando';
+        const registeredTime = new Date(participant.registered).toLocaleTimeString();
+        
+        participantsHTML += '<div class="participant-item ' + assignedClass + '">';
+        participantsHTML += '<div>';
+        participantsHTML += '<div class="participant-name">' + participant.name + '</div>';
+        participantsHTML += '<small style="color: #7f8c8d;">Registrado: ' + registeredTime + '</small>';
+        participantsHTML += '</div>';
+        participantsHTML += '<div class="participant-status-badge ' + statusClass + '">';
+        participantsHTML += statusText;
+        participantsHTML += '</div>';
+        participantsHTML += '</div>';
+    });
+    
+    container.innerHTML = participantsHTML;
 }
 
 // Game Management
