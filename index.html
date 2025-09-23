@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Web3 - MKT Community</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNjY3ZWVhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJjYXJkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmZmZmZjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZjhmOWZhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgCiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgCiAgPCEtLSBCaW5nbyBDYXJkIC0tPgogIDxyZWN0IHg9IjYiIHk9IjgiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9InVybCgjY2FyZCkiIHN0cm9rZT0iI2Y4ZjlmYSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KICA8L3N2Zz4K">
+    
+    <!-- Meta Tags Sociales -->
+    <meta name="description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
+    <meta name="keywords" content="bingo, web3, nft, defi, dao, blockchain, marketing, comunidad, juego">
+    <meta name="author" content="MKT Community">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tu-dominio.com/">
+    <meta property="og:title" content="Bingo Web3 - MKT Community">
+    <meta property="og:description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
+    <meta property="og:image" content="https://tu-dominio.com/favicon.svg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://tu-dominio.com/">
+    <meta property="twitter:title" content="Bingo Web3 - MKT Community">
+    <meta property="twitter:description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
+    <meta property="twitter:image" content="https://tu-dominio.com/favicon.svg">
+    
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #667eea 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='m0 40l40-40h-40v40z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '🚀';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2em;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 5px;
+            margin-top: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .community-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border-color: #ff6b6b;
+        }
+
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Participant Registration Styles */
+        .registration-form {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .registration-form h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .register-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .participant-status {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .participant-status.waiting {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .participant-status.assigned {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        /* Moderator Panel Styles */
+        .participants-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .participant-item.assigned {
+            border-left-color: #27ae60;
+        }
+
+        .participant-name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .participant-status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-waiting {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-assigned {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .moderator-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .control-btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        .control-btn.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+
+        /* Bingo Card Styles */
+        .player-card-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .bingo-card {
+            border: 3px solid #2c3e50;
+            border-radius: 15px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .bingo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #0abde3);
+            z-index: 1;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 50%, #9b59b6 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            position: relative;
+            border-bottom: 3px solid #34495e;
+        }
+
+        .card-header::after {
+            content: 'MKT Community';
+            display: block;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+            font-weight: normal;
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 2px;
+            background: #34495e;
+            padding: 2px;
+        }
+
+        .bingo-cell {
+            aspect-ratio: 1;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 3px;
+            color: #2c3e50;
+            min-height: 50px;
+            line-height: 1.1;
+            word-break: break-word;
+            hyphens: auto;
+        }
+
+        .bingo-cell:hover {
+            background: #ecf0f1;
+            transform: scale(0.95);
+        }
+
+        .bingo-cell.marked {
+            background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+            color: white;
+            transform: scale(0.9);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .bingo-cell.free {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            font-weight: bold;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .bingo-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bingo-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .bingo-btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .bingo-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .bingo-btn:hover::before {
+            left: 100%;
+        }
+
+        .bingo-btn.celebrating {
+            animation: bingoFlash 0.5s ease-in-out 3;
+        }
+
+        @keyframes bingoFlash {
+            0%, 100% { background: linear-gradient(45deg, #ff6b6b, #ee5a24); }
+            50% { background: linear-gradient(45deg, #feca57, #ff9ff3); }
+        }
+
+        /* Game Controls */
+        .game-controls {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .current-term {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+        }
+
+        .called-terms {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .called-term {
+            background: #28a745;
+            color: white;
+            padding: 6px;
+            border-radius: 4px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stat {
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 { 
+                font-size: 2em; 
+                margin-top: 20px;
+            }
+            
+            .header .community-name {
+                font-size: 1.2em;
+            }
+            
+            .mode-selector { 
+                flex-direction: column; 
+                align-items: center; 
+                gap: 10px;
+            }
+            
+            .mode-btn {
+                width: 200px;
+            }
+            
+            .moderator-controls { 
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .control-btn {
+                font-size: 12px;
+                padding: 10px 15px;
+            }
+            
+            /* Mobile Bingo Card Optimizations */
+            .player-card-container {
+                max-width: 100%;
+                padding: 0 5px;
+            }
+            
+            .bingo-card {
+                margin: 0 auto;
+                max-width: 350px;
+            }
+            
+            .bingo-grid {
+                gap: 1px;
+                padding: 1px;
+            }
+            
+            .bingo-cell {
+                font-size: 8px;
+                padding: 1px;
+                min-height: 60px;
+                font-weight: 700;
+                border-radius: 2px;
+            }
+            
+            .bingo-cell.free {
+                font-size: 9px;
+                font-weight: 800;
+            }
+            
+            .card-header {
+                font-size: 14px;
+                padding: 10px;
+            }
+            
+            .card-header::after {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+            
+            /* Better touch targets */
+            .bingo-cell:active {
+                transform: scale(0.85);
+                background: #3498db !important;
+            }
+            
+            /* Landscape orientation optimization */
+            @media (orientation: landscape) and (max-height: 500px) {
+                .header {
+                    margin-bottom: 15px;
+                }
+                
+                .header h1 {
+                    font-size: 1.5em;
+                    margin-top: 10px;
+                }
+                
+                .bingo-card {
+                    max-width: 300px;
+                }
+                
+                .bingo-cell {
+                    min-height: 45px;
+                    font-size: 7px;
+                }
+            }
+        }
+
+        /* Extra small screens */
+        @media (max-width: 480px) {
+            .content {
+                padding: 15px;
+                margin: 0 5px;
+            }
+            
+            .bingo-card {
+                max-width: 320px;
+                border-width: 2px;
+            }
+            
+            .bingo-cell {
+                font-size: 7px;
+                min-height: 55px;
+                padding: 0.5px;
+            }
+            
+            .bingo-cell.free {
+                font-size: 8px;
+            }
+            
+            .card-header {
+                font-size: 13px;
+                padding: 8px;
+            }
+            
+            .participant-status {
+                padding: 10px;
+                margin: 15px 0;
+            }
+            
+            .register-btn, .bingo-btn {
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 360px) {
+            .bingo-card {
+                max-width: 280px;
+            }
+            
+            .bingo-cell {
+                font-size: 6px;
+                min-height: 50px;
+            }
+            
+            .bingo-cell.free {
+                font-size: 7px;
+            }
+        }
+
+        /* Zoom-friendly adjustments */
+        .bingo-cell-zoom {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(3);
+            z-index: 1000;
+            background: white;
+            border: 3px solid #3498db;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="community-name">MKT COMMUNITY</div>
+            <h1>BINGO WEB3</h1>
+            <p>Marketing & Blockchain Edition</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode(event, 'participant')">🎮 Participante</button>
+            <button class="mode-btn" onclick="switchMode(event, 'moderator')">🎯 Moderador</button>
+        </div>
+
+        <!-- Participant Mode -->
+        <div id="participant-mode" class="content">
+            <div id="registration-section">
+                <div class="registration-form">
+                    <h2>¡Únete al Bingo Web3!</h2>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">Ingresa tu nombre para participar</p>
+                    
+                    <div class="form-group">
+                        <label for="participantName">Tu nombre:</label>
+                        <input type="text" id="participantName" placeholder="Ejemplo: Juan Pérez" maxlength="20">
+                    </div>
+                    
+                    <button class="register-btn" onclick="registerParticipant()">🚀 Registrarse</button>
+                </div>
+            </div>
+
+            <div id="waiting-section" class="hidden">
+                <div class="participant-status waiting">
+                    <h3>¡Registrado exitosamente!</h3>
+                    <p>Esperando que el moderador asigne las cartillas...</p>
+                    <div style="margin-top: 10px;">
+                        <strong>Tu nombre:</strong> <span id="registeredName"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="playing-section" class="hidden">
+                <div class="participant-status assigned">
+                    <h3>¡Tu cartilla está lista!</h3>
+                    <p>Marca los términos cuando el moderador los anuncie</p>
+                </div>
+                
+                <div class="player-card-container">
+                    <div id="playerCard" class="bingo-card"></div>
+                    
+                    <!-- Mobile Helper -->
+                    <div style="text-align: center; margin-top: 15px; padding: 10px; background: #e8f4fd; border-radius: 8px; font-size: 14px; color: #2c3e50;">
+                        <strong>💡 Tip:</strong> Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moderator Mode -->
+        <div id="moderator-mode" class="content hidden">
+            <div class="participants-list">
+                <h3>Participantes Registrados</h3>
+                <div id="participantsList"></div>
+                <div style="text-align: center; margin-top: 15px; color: #7f8c8d;">
+                    <span id="participantCount">0</span> participantes registrados
+                </div>
+            </div>
+
+            <div class="moderator-controls">
+                <button class="control-btn success" onclick="assignCards()">📋 Asignar Cartillas</button>
+                <button class="control-btn" onclick="startGame()">▶️ Iniciar Juego</button>
+                <button class="control-btn" onclick="callNextTerm()">🎯 Siguiente Término</button>
+                <button class="control-btn danger" onclick="resetGame()">🔄 Reiniciar</button>
+            </div>
+
+            <div class="game-controls">
+                <div class="current-term" id="currentTerm">
+                    Registra participantes y asigna cartillas para comenzar
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="termsCalledCount">0</div>
+                        <div>Términos Cantados</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="termsRemainingCount">90</div>
+                        <div>Términos Restantes</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>Términos Cantados:</h4>
+                    <div id="calledTermsList" class="called-terms"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/app.js" defer></script>
+        
+        const WEB3_MARKETING_TERMS = [
+            // Core Web3
+            "NFT", "DeFi", "DAO", "Smart Contract", "Blockchain", "Token", "Metaverso", "Web3",
+            "Cripto", "Wallet", "Mining", "Staking", "Yield", "Liquidity", "DEX", "CEX",
+            
+            // Marketing Web3 Specific
+            "Community Building", "Token Gating", "Whitelist Marketing", "Influencer NFTs", "Creator Economy",
+            "Social Tokens", "Fan Tokens", "Loyalty Rewards", "Gamification", "Play-to-Earn",
+            "Engagement Mining", "Creator Coins", "Branded NFTs", "Virtual Events", "Metaverse Marketing",
+            
+            // DeFi Marketing
+            "Yield Farming", "Liquidity Mining", "Staking Rewards", "Protocol Incentives", "Governance Tokens",
+            "Tokenomics Design", "Airdrop Campaign", "Retroactive Rewards", "Fee Sharing", "Revenue Share",
+            
+            // NFT Marketing
+            "Utility NFTs", "PFP Project", "Roadmap", "Mint Strategy", "Reveal Marketing", "Floor Price",
+            "Trait Rarity", "Collection Launch", "Exclusive Access", "Holder Benefits", "Secondary Sales",
+            
+            // Community & Social
+            "Discord Marketing", "Twitter Spaces", "Telegram Groups", "Ambassador Program", "Referral Program",
+            "Content Creation", "Meme Marketing", "Viral Campaigns", "KOL Marketing", "Community Rewards",
+            
+            // Technology Terms
+            "Layer 1", "Layer 2", "Cross-chain", "Interoperability", "Scalability", "Gas Optimization",
+            "Smart Contract Audit", "Security Tokens", "Compliance", "KYC/AML", "Regulatory Framework",
+            
+            // Trading & Finance
+            "Market Making", "AMM", "Order Book", "Slippage", "Impermanent Loss", "APR", "APY", "TVL",
+            "Volume", "Market Cap", "Fully Diluted Value", "Circulating Supply", "Token Distribution",
+            
+            // Trends & Culture
+            "HODL", "FOMO", "FUD", "Diamond Hands", "Paper Hands", "Whale", "Retail Investor", "Institutional",
+            "Bull Market", "Bear Market", "ATH", "ATL", "Pump", "Dump", "Moon", "Rekt"
+        ];
+
+        // Global State
+        let participants = [];
+        let gameState = {
+            started: false,
+            terms: [],
+            calledTerms: [],
+            currentIndex: 0
+        };
+        let currentParticipant = null;
+
+        // Mode Switching
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('participant-mode').classList.toggle('hidden', mode !== 'participant');
+            document.getElementById('moderator-mode').classList.toggle('hidden', mode !== 'moderator');
+            
+            if (mode === 'moderator') {
+                updateParticipantsList();
+            }
+        }
+
+        // Participant Registration
+        function registerParticipant() {
+            const name = document.getElementById('participantName').value.trim();
+            if (!name) {
+                showMobileAlert('Por favor ingresa tu nombre');
+                return;
+            }
+
+            // Check if name already exists
+            if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showMobileAlert('Este nombre ya está registrado. Usa otro nombre.');
+                return;
+            }
+
+            const participant = {
+                id: Date.now(),
+                name: name,
+                card: null,
+                registered: new Date()
+            };
+
+            participants.push(participant);
+            currentParticipant = participant;
+
+            document.getElementById('registeredName').textContent = name;
+            document.getElementById('registration-section').classList.add('hidden');
+            document.getElementById('waiting-section').classList.remove('hidden');
+
+            // Save to local storage for persistence
+            localStorage.setItem('mkt_bingo_participants', JSON.stringify(participants));
+            localStorage.setItem('mkt_current_participant', JSON.stringify(currentParticipant));
+            
+            console.log('Participant registered:', participant);
+        }
+
+        // Generate unique bingo card
+        function generateUniqueCard() {
+            const shuffled = [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5);
+            const cardTerms = shuffled.slice(0, 24);
+            cardTerms.splice(12, 0, 'FREE'); // Add FREE space in center
+            return cardTerms;
+        }
+
+        // Assign cards to all participants
+        function assignCards() {
+            if (participants.length === 0) {
+                showMobileAlert('No hay participantes registrados');
+                return;
+            }
+
+            participants.forEach(participant => {
+                if (!participant.card) {
+                    participant.card = generateUniqueCard();
+                }
+            });
+
+            localStorage.setItem('mkt_bingo_participants', JSON.stringify(participants));
+            updateParticipantsList();
+            
+            // Notify current participant if they have a card now
+            if (currentParticipant) {
+                // Refresh current participant from updated participants list
+                const updatedParticipant = participants.find(p => p.id === currentParticipant.id);
+                if (updatedParticipant && updatedParticipant.card) {
+                    currentParticipant = updatedParticipant;
+                    localStorage.setItem('mkt_current_participant', JSON.stringify(currentParticipant));
+                    showPlayerCard();
+                }
+            }
+
+            showMobileAlert(`✅ Se asignaron cartillas a ${participants.length} participantes`);
+            console.log('Cards assigned to participants:', participants.length);
+        }
+
+        // Show player's card with mobile optimizations
+        function showPlayerCard() {
+            if (!currentParticipant || !currentParticipant.card) return;
+
+            document.getElementById('waiting-section').classList.add('hidden');
+            document.getElementById('playing-section').classList.remove('hidden');
+
+            const cardContainer = document.getElementById('playerCard');
+            cardContainer.innerHTML = `
+                <div class="card-header">
+                    ${currentParticipant.name}
+                </div>
+                <div class="bingo-grid">
+                    ${currentParticipant.card.map((term, index) => {
+                        // Optimize text for mobile display
+                        let displayTerm = term;
+                        if (term.length > 12 && window.innerWidth < 480) {
+                            // Abbreviate long terms for very small screens
+                            const abbreviations = {
+                                'Smart Contract': 'Smart C.',
+                                'Community Building': 'Community',
+                                'Token Gating': 'Token Gate',
+                                'Whitelist Marketing': 'Whitelist',
+                                'Influencer NFTs': 'Influencer',
+                                'Creator Economy': 'Creator Eco',
+                                'Engagement Mining': 'Engagement',
+                                'Metaverse Marketing': 'Metaverse',
+                                'Protocol Incentives': 'Protocol Inc',
+                                'Governance Tokens': 'Governance'
+                            };
+                            displayTerm = abbreviations[term] || term;
+                        }
+                        
+                        return `<button class="bingo-cell ${term === 'FREE' ? 'free' : ''}" 
+                            onclick="toggleCell(this, '${term}')" 
+                            ${term === 'FREE' ? 'disabled' : ''}
+                            data-term="${term}"
+                            title="${term}">
+                            ${displayTerm}
+                        </button>`;
+                    }).join('')}
+                </div>
+            `;
+            
+            // Add swipe detection for mobile
+            addSwipeDetection(cardContainer);
+        }
+
+        // Add swipe detection for better mobile interaction
+        function addSwipeDetection(element) {
+            let startY = 0;
+            let startX = 0;
+            
+            element.addEventListener('touchstart', function(e) {
+                startY = e.touches[0].clientY;
+                startX = e.touches[0].clientX;
+            }, { passive: true });
+            
+            element.addEventListener('touchend', function(e) {
+                if (!startY || !startX) return;
+                
+                let endY = e.changedTouches[0].clientY;
+                let endX = e.changedTouches[0].clientX;
+                let diffY = startY - endY;
+                let diffX = startX - endX;
+                
+                // Detect swipe gestures (minimal implementation)
+                if (Math.abs(diffY) > Math.abs(diffX)) {
+                    if (diffY > 50) {
+                        // Swipe up - could scroll to game controls
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    } else if (diffY < -50) {
+                        // Swipe down - could scroll to top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+                
+                startY = 0;
+                startX = 0;
+            }, { passive: true });
+        }
+
+        // Toggle cell marking with enhanced mobile feedback
+        function toggleCell(cell, term) {
+            if (term === 'FREE') return;
+            
+            console.log('Attempting to toggle cell:', term);
+            console.log('Called terms:', gameState.calledTerms);
+            
+            // Only allow marking if term has been called
+            if (!gameState.calledTerms.includes(term)) {
+                showMobileAlert('⚠️ Este término aún no ha sido cantado');
+                return;
+            }
+            
+            cell.classList.toggle('marked');
+            
+            // Add haptic feedback for mobile (if supported)
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            // Visual feedback
+            cell.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                cell.style.transform = '';
+            }, 150);
+            
+            console.log('Cell toggled:', term, 'Marked:', cell.classList.contains('marked'));
+        }
+
+        // Mobile-friendly alert system
+        function showMobileAlert(message) {
+            // Create custom alert for better mobile experience
+            const alertDiv = document.createElement('div');
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: #ff6b6b;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                max-width: 80%;
+                text-align: center;
+            `;
+            alertDiv.textContent = message;
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 2000);
+        }
+
+        // Update participants list for moderator
+        function updateParticipantsList() {
+            const container = document.getElementById('participantsList');
+            const countSpan = document.getElementById('participantCount');
+            
+            countSpan.textContent = participants.length;
+            
+            if (participants.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay participantes registrados</p>';
+                return;
+            }
+
+            container.innerHTML = participants.map(participant => `
+                <div class="participant-item ${participant.card ? 'assigned' : ''}">
+                    <div>
+                        <div class="participant-name">${participant.name}</div>
+                        <small style="color: #7f8c8d;">Registrado: ${participant.registered.toLocaleTimeString()}</small>
+                    </div>
+                    <div class="participant-status-badge ${participant.card ? 'status-assigned' : 'status-waiting'}">
+                        ${participant.card ? 'Cartilla Asignada' : 'Esperando'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Game Management
+        function startGame() {
+            if (participants.length === 0) {
+                showMobileAlert('No hay participantes registrados');
+                return;
+            }
+            
+            if (!participants.every(p => p.card)) {
+                showMobileAlert('Primero asigna cartillas a todos los participantes');
+                return;
+            }
+
+            gameState.terms = [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5);
+            gameState.calledTerms = [];
+            gameState.currentIndex = 0;
+            gameState.started = true;
+
+            document.getElementById('currentTerm').textContent = '🎮 Juego iniciado - Presiona "Siguiente Término"';
+            updateGameStats();
+            
+            // Save game state
+            localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
+            
+            console.log('Game started with', participants.length, 'participants');
+        }
+
+        function callNextTerm() {
+            if (!gameState.started) {
+                showMobileAlert('Primero inicia el juego');
+                return;
+            }
+
+            if (gameState.currentIndex >= gameState.terms.length) {
+                document.getElementById('currentTerm').textContent = '🎯 ¡Todos los términos han sido cantados!';
+                return;
+            }
+
+            const nextTerm = gameState.terms[gameState.currentIndex];
+            gameState.calledTerms.push(nextTerm);
+            gameState.currentIndex++;
+
+            document.getElementById('currentTerm').innerHTML = `🎯 <strong>"${nextTerm}"</strong>`;
+            
+            // Add to called terms list
+            const calledContainer = document.getElementById('calledTermsList');
+            const termDiv = document.createElement('div');
+            termDiv.className = 'called-term';
+            termDiv.textContent = nextTerm;
+            calledContainer.appendChild(termDiv);
+
+            updateGameStats();
+            
+            // Save updated game state
+            localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
+            
+            console.log('Term called:', nextTerm, 'Remaining:', gameState.terms.length - gameState.currentIndex);
+        }
+
+        function updateGameStats() {
+            document.getElementById('termsCalledCount').textContent = gameState.calledTerms.length;
+            document.getElementById('termsRemainingCount').textContent = gameState.terms.length - gameState.currentIndex;
+        }
+
+        function resetGame() {
+            const confirmed = confirm('¿Estás seguro de reiniciar el juego? Se perderán todos los datos.');
+            if (!confirmed) return;
+            
+            participants = [];
+            gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
+            currentParticipant = null;
+            
+            // Clear localStorage
+            localStorage.removeItem('mkt_bingo_participants');
+            localStorage.removeItem('mkt_current_participant');
+            localStorage.removeItem('mkt_bingo_gamestate');
+            
+            // Reset UI elements
+            document.getElementById('calledTermsList').innerHTML = '';
+            document.getElementById('currentTerm').textContent = 'Registra participantes y asigna cartillas para comenzar';
+            updateParticipantsList();
+            updateGameStats();
+            
+            // Reset participant view
+            document.getElementById('registration-section').classList.remove('hidden');
+            document.getElementById('waiting-section').classList.add('hidden');
+            document.getElementById('playing-section').classList.add('hidden');
+            document.getElementById('participantName').value = '';
+            
+            console.log('Game reset completed');
+        }
+
+        function claimBingo() {
+            if (!currentParticipant) return;
+            
+            const playerName = currentParticipant.name;
+            
+            // Use mobile-friendly alert
+            showMobileAlert(`¡${playerName} ha cantado BINGO! 🎉`);
+            
+            // Add celebration effect
+            createCelebrationEffect();
+            
+            // You could add validation logic here to check if they actually have bingo
+        }
+
+        // Create celebration effect for mobile
+        function createCelebrationEffect() {
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: fixed;
+                        top: -10px;
+                        left: ${Math.random() * 100}%;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        border-radius: 50%;
+                        animation: fall 3s linear forwards;
+                        z-index: 1000;
+                        pointer-events: none;
+                    `;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 100);
+            }
+            
+            // Add CSS animation for falling confetti
+            if (!document.getElementById('confetti-style')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-style';
+                style.textContent = `
+                    @keyframes fall {
+                        to {
+                            transform: translateY(100vh) rotate(360deg);
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Load saved data on page load
+        window.onload = function() {
+            console.log('Loading saved data...');
+            
+            const savedParticipants = localStorage.getItem('mkt_bingo_participants');
+            const savedCurrentParticipant = localStorage.getItem('mkt_current_participant');
+            const savedGameState = localStorage.getItem('mkt_bingo_gamestate');
+            
+            if (savedParticipants) {
+                try {
+                    participants = JSON.parse(savedParticipants);
+                    participants.forEach(p => {
+                        if (p.registered) p.registered = new Date(p.registered);
+                    });
+                    console.log('Loaded participants:', participants.length);
+                } catch (e) {
+                    console.error('Error loading participants:', e);
+                    participants = [];
+                }
+            }
+            
+            if (savedCurrentParticipant) {
+                try {
+                    currentParticipant = JSON.parse(savedCurrentParticipant);
+                    if (currentParticipant.registered) {
+                        currentParticipant.registered = new Date(currentParticipant.registered);
+                    }
+                    
+                    // Update current participant from participants list if exists
+                    const updatedParticipant = participants.find(p => p.id === currentParticipant.id);
+                    if (updatedParticipant) {
+                        currentParticipant = updatedParticipant;
+                    }
+                    
+                    document.getElementById('registeredName').textContent = currentParticipant.name;
+                    
+                    if (currentParticipant.card) {
+                        showPlayerCard();
+                    } else {
+                        document.getElementById('registration-section').classList.add('hidden');
+                        document.getElementById('waiting-section').classList.remove('hidden');
+                    }
+                    console.log('Loaded current participant:', currentParticipant.name);
+                } catch (e) {
+                    console.error('Error loading current participant:', e);
+                    currentParticipant = null;
+                }
+            }
+            
+            if (savedGameState) {
+                try {
+                    gameState = JSON.parse(savedGameState);
+                    // Restore called terms display
+                    if (gameState.calledTerms && gameState.calledTerms.length > 0) {
+                        const calledContainer = document.getElementById('calledTermsList');
+                        calledContainer.innerHTML = '';
+                        gameState.calledTerms.forEach(term => {
+                            const termDiv = document.createElement('div');
+                            termDiv.className = 'called-term';
+                            termDiv.textContent = term;
+                            calledContainer.appendChild(termDiv);
+                        });
+                        
+                        if (gameState.started) {
+                            document.getElementById('currentTerm').textContent = '🎮 Juego en progreso - Continúa cantando términos';
+                        }
+                    }
+                    console.log('Loaded game state:', gameState);
+                } catch (e) {
+                    console.error('Error loading game state:', e);
+                    gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
+                }
+            }
+            
+            updateGameStats();
+            updateParticipantsList();
+            console.log('Data loading completed');
+        };
+    </script>
+</body>
+</html>
+
+
