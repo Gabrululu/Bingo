@@ -34,15 +34,87 @@ const WEB3_MARKETING_TERMS = [
     "Bull Market", "Bear Market", "ATH", "ATL", "Pump", "Dump", "Moon", "Rekt"
 ];
 
+// Storage configuration
+const STORAGE_VERSION = 'v2';
+const STORAGE_KEY = `mkt_bingo_${STORAGE_VERSION}`;
+
 // Global State
 let participants = [];
+let currentParticipant = null;
 let gameState = {
     started: false,
     terms: [],
     calledTerms: [],
     currentIndex: 0
 };
-let currentParticipant = null;
+
+// Storage management with versioning
+function loadState() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { participants: [], current: null };
+    
+    try {
+        const data = JSON.parse(raw);
+        return {
+            participants: data.participants || [],
+            current: data.current || null
+        };
+    } catch (error) {
+        console.warn('Error loading state, using defaults:', error);
+        return { participants: [], current: null };
+    }
+}
+
+function saveState() {
+    const state = {
+        participants: participants,
+        current: currentParticipant,
+        version: STORAGE_VERSION,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// Migrate old storage format if needed
+function migrateStorage() {
+    const oldParticipants = localStorage.getItem('mkt_bingo_participants');
+    const oldCurrent = localStorage.getItem('mkt_current_participant');
+    
+    if (oldParticipants || oldCurrent) {
+        console.log('Migrating from old storage format...');
+        
+        if (oldParticipants) {
+            try {
+                const oldData = JSON.parse(oldParticipants);
+                participants = oldData.map(p => ({
+                    ...p,
+                    id: p.id || uid() // Ensure all have proper IDs
+                }));
+            } catch (error) {
+                console.warn('Error migrating participants:', error);
+            }
+        }
+        
+        if (oldCurrent) {
+            try {
+                currentParticipant = JSON.parse(oldCurrent);
+                if (currentParticipant && !currentParticipant.id) {
+                    currentParticipant.id = uid();
+                }
+            } catch (error) {
+                console.warn('Error migrating current participant:', error);
+            }
+        }
+        
+        saveState();
+        
+        // Clean up old keys
+        localStorage.removeItem('mkt_bingo_participants');
+        localStorage.removeItem('mkt_current_participant');
+        
+        console.log('Migration completed');
+    }
+}
 
 // Mode Switching
 function switchMode(event, mode) {
@@ -57,6 +129,11 @@ function switchMode(event, mode) {
     }
 }
 
+// Generate secure unique ID
+function uid() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 // Participant Registration
 function registerParticipant() {
     const name = document.getElementById('participantName').value.trim();
@@ -69,7 +146,7 @@ function registerParticipant() {
         return;
     }
     const participant = {
-        id: Date.now(),
+        id: uid(),
         name: name,
         card: null,
         registered: new Date()
@@ -79,13 +156,22 @@ function registerParticipant() {
     document.getElementById('registeredName').textContent = name;
     document.getElementById('registration-section').classList.add('hidden');
     document.getElementById('waiting-section').classList.remove('hidden');
-    localStorage.setItem('mkt_bingo_participants', JSON.stringify(participants));
-    localStorage.setItem('mkt_current_participant', JSON.stringify(currentParticipant));
+    saveState();
+}
+
+// Fisher-Yates shuffle algorithm (unbiased)
+function shuffle(array) {
+    const shuffled = array.slice(); // Create a copy
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }
 
 // Generate unique bingo card
 function generateUniqueCard() {
-    const shuffled = [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5);
+    const shuffled = shuffle(WEB3_MARKETING_TERMS);
     const cardTerms = shuffled.slice(0, 24);
     cardTerms.splice(12, 0, 'FREE');
     return cardTerms;
@@ -102,58 +188,75 @@ function assignCards() {
             participant.card = generateUniqueCard();
         }
     });
-    localStorage.setItem('mkt_bingo_participants', JSON.stringify(participants));
+    saveState();
     updateParticipantsList();
     if (currentParticipant) {
         const updatedParticipant = participants.find(p => p.id === currentParticipant.id);
         if (updatedParticipant && updatedParticipant.card) {
             currentParticipant = updatedParticipant;
-            localStorage.setItem('mkt_current_participant', JSON.stringify(currentParticipant));
+            saveState();
             showPlayerCard();
         }
     }
     showMobileAlert(`✅ Se asignaron cartillas a ${participants.length} participantes`);
 }
 
-// Show player's card
+// Show player's card - Using DOM API for safety
 function showPlayerCard() {
     if (!currentParticipant || !currentParticipant.card) return;
     document.getElementById('waiting-section').classList.add('hidden');
     document.getElementById('playing-section').classList.remove('hidden');
-    const cardContainer = document.getElementById('playerCard');
     
-    // Build card HTML safely
-    let cardHTML = '<div class="card-header">' + currentParticipant.name + '</div>';
-    cardHTML += '<div class="bingo-grid">';
+    const cardContainer = document.getElementById('playerCard');
+    cardContainer.innerHTML = ''; // Clear first
+    
+    // Create card header
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    header.textContent = currentParticipant.name;
+    cardContainer.appendChild(header);
+    
+    // Create bingo grid
+    const grid = document.createElement('div');
+    grid.className = 'bingo-grid';
     
     currentParticipant.card.forEach((term) => {
-        let displayTerm = term;
-        if (term.length > 12 && window.innerWidth < 480) {
-            const abbreviations = {
-                'Smart Contract': 'Smart C.',
-                'Community Building': 'Community',
-                'Token Gating': 'Token Gate',
-                'Whitelist Marketing': 'Whitelist',
-                'Influencer NFTs': 'Influencer',
-                'Creator Economy': 'Creator Eco',
-                'Engagement Mining': 'Engagement',
-                'Metaverse Marketing': 'Metaverse',
-                'Protocol Incentives': 'Protocol Inc',
-                'Governance Tokens': 'Governance'
-            };
-            displayTerm = abbreviations[term] || term;
+        const cell = document.createElement('button');
+        cell.className = 'bingo-cell';
+        cell.setAttribute('data-term', term);
+        cell.setAttribute('title', term);
+        
+        // Handle FREE space
+        if (term === 'FREE') {
+            cell.classList.add('free');
+            cell.disabled = true;
+            cell.textContent = 'FREE';
+        } else {
+            // Optimize text for mobile display
+            let displayTerm = term;
+            if (term.length > 12 && window.innerWidth < 480) {
+                const abbreviations = {
+                    'Smart Contract': 'Smart C.',
+                    'Community Building': 'Community',
+                    'Token Gating': 'Token Gate',
+                    'Whitelist Marketing': 'Whitelist',
+                    'Influencer NFTs': 'Influencer',
+                    'Creator Economy': 'Creator Eco',
+                    'Engagement Mining': 'Engagement',
+                    'Metaverse Marketing': 'Metaverse',
+                    'Protocol Incentives': 'Protocol Inc',
+                    'Governance Tokens': 'Governance'
+                };
+                displayTerm = abbreviations[term] || term;
+            }
+            cell.textContent = displayTerm;
+            cell.addEventListener('click', () => toggleCell(cell, term));
         }
         
-        const isFree = term === 'FREE';
-        const disabled = isFree ? 'disabled' : '';
-        const freeClass = isFree ? 'free' : '';
-        
-        cardHTML += '<button class="bingo-cell ' + freeClass + '" onclick="toggleCell(this, \'' + term + '\')" ' + disabled + ' data-term="' + term + '" title="' + term + '">' + displayTerm + '</button>';
+        grid.appendChild(cell);
     });
     
-    cardHTML += '</div>';
-    cardContainer.innerHTML = cardHTML;
-    
+    cardContainer.appendChild(grid);
     addSwipeDetection(cardContainer);
 }
 
@@ -219,35 +322,59 @@ function showMobileAlert(message) {
     setTimeout(() => { alertDiv.remove(); }, 2000);
 }
 
-// Update participants list
+// Update participants list - Using DOM API for safety
 function updateParticipantsList() {
     const container = document.getElementById('participantsList');
     const countSpan = document.getElementById('participantCount');
     countSpan.textContent = participants.length;
+    
+    // Clear container
+    container.innerHTML = '';
+    
     if (participants.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #7f8c8d;">No hay participantes registrados</p>';
+        const emptyMsg = document.createElement('p');
+        emptyMsg.style.textAlign = 'center';
+        emptyMsg.style.color = '#7f8c8d';
+        emptyMsg.textContent = 'No hay participantes registrados';
+        container.appendChild(emptyMsg);
         return;
     }
     
-    let participantsHTML = '';
     participants.forEach(participant => {
-        const assignedClass = participant.card ? 'assigned' : '';
-        const statusClass = participant.card ? 'status-assigned' : 'status-waiting';
-        const statusText = participant.card ? 'Cartilla Asignada' : 'Esperando';
-        const registeredTime = new Date(participant.registered).toLocaleTimeString();
+        const item = document.createElement('div');
+        item.className = 'participant-item';
+        if (participant.card) {
+            item.classList.add('assigned');
+        }
         
-        participantsHTML += '<div class="participant-item ' + assignedClass + '">';
-        participantsHTML += '<div>';
-        participantsHTML += '<div class="participant-name">' + participant.name + '</div>';
-        participantsHTML += '<small style="color: #7f8c8d;">Registrado: ' + registeredTime + '</small>';
-        participantsHTML += '</div>';
-        participantsHTML += '<div class="participant-status-badge ' + statusClass + '">';
-        participantsHTML += statusText;
-        participantsHTML += '</div>';
-        participantsHTML += '</div>';
+        // Left side - name and time
+        const leftDiv = document.createElement('div');
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'participant-name';
+        nameDiv.textContent = participant.name;
+        leftDiv.appendChild(nameDiv);
+        
+        const timeSmall = document.createElement('small');
+        timeSmall.style.color = '#7f8c8d';
+        timeSmall.textContent = 'Registrado: ' + new Date(participant.registered).toLocaleTimeString();
+        leftDiv.appendChild(timeSmall);
+        
+        // Right side - status badge
+        const badgeDiv = document.createElement('div');
+        badgeDiv.className = 'participant-status-badge';
+        if (participant.card) {
+            badgeDiv.classList.add('status-assigned');
+            badgeDiv.textContent = 'Cartilla Asignada';
+        } else {
+            badgeDiv.classList.add('status-waiting');
+            badgeDiv.textContent = 'Esperando';
+        }
+        
+        item.appendChild(leftDiv);
+        item.appendChild(badgeDiv);
+        container.appendChild(item);
     });
-    
-    container.innerHTML = participantsHTML;
 }
 
 // Game Management
@@ -360,30 +487,16 @@ function createCelebrationEffect() {
 
 // Init
 document.addEventListener('DOMContentLoaded', function() {
-    const savedParticipants = localStorage.getItem('mkt_bingo_participants');
-    const savedCurrentParticipant = localStorage.getItem('mkt_current_participant');
+    // Migrate old storage first
+    migrateStorage();
+    
+    // Load current state
+    const state = loadState();
+    participants = state.participants;
+    currentParticipant = state.current;
+    
+    // Load game state
     const savedGameState = localStorage.getItem('mkt_bingo_gamestate');
-    if (savedParticipants) {
-        try {
-            participants = JSON.parse(savedParticipants);
-        } catch (_) { participants = []; }
-    }
-    if (savedCurrentParticipant) {
-        try {
-            currentParticipant = JSON.parse(savedCurrentParticipant);
-            const updatedParticipant = participants.find(p => p.id === (currentParticipant && currentParticipant.id));
-            if (updatedParticipant) currentParticipant = updatedParticipant;
-            if (currentParticipant) {
-                document.getElementById('registeredName').textContent = currentParticipant.name || '';
-                if (currentParticipant.card) {
-                    showPlayerCard();
-                } else {
-                    document.getElementById('registration-section').classList.add('hidden');
-                    document.getElementById('waiting-section').classList.remove('hidden');
-                }
-            }
-        } catch (_) { currentParticipant = null; }
-    }
     if (savedGameState) {
         try {
             gameState = JSON.parse(savedGameState);
@@ -402,6 +515,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (_) {
             gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
+        }
+    }
+    
+    if (currentParticipant) {
+        document.getElementById('registeredName').textContent = currentParticipant.name || '';
+        if (currentParticipant.card) {
+            showPlayerCard();
+        } else {
+            document.getElementById('registration-section').classList.add('hidden');
+            document.getElementById('waiting-section').classList.remove('hidden');
         }
     }
     updateGameStats();

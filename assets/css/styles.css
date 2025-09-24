@@ -639,4 +639,106 @@ body::before {
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
+/* Enhanced Mobile UX */
+@media (max-width: 768px) {
+    .bingo-cell {
+        font-size: 11px;
+        padding: 8px 4px;
+        min-height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        word-break: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .bingo-cell.free {
+        font-size: 10px;
+        font-weight: bold;
+    }
+    
+    .form-group input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 15px;
+    }
+    
+    .register-btn {
+        padding: 15px 25px;
+        font-size: 18px;
+        width: 100%;
+        margin-top: 15px;
+    }
+    
+    .participant-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+    
+    .participant-name {
+        font-size: 16px;
+        margin-bottom: 4px;
+    }
+    
+    .participant-status-badge {
+        margin-top: 8px;
+        align-self: flex-end;
+    }
+    
+    .game-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .mode-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+    }
+    
+    .control-btn {
+        min-height: 48px;
+        padding: 12px 20px;
+    }
+    
+    .bingo-cell {
+        min-height: 48px;
+    }
+}
+
+/* Toast notifications */
+.mobile-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    font-size: 16px;
+    z-index: 1000;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
 
