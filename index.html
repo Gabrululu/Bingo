@@ -33,8 +33,8 @@
     <!-- Firebase SDK v9+ (Modular) -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, arrayUnion, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         
         // Firebase Configuration
         const firebaseConfig = {
@@ -58,13 +58,14 @@
         window.firebaseCreateUserWithEmailAndPassword = createUserWithEmailAndPassword;
         window.firebaseSignInWithEmailAndPassword = signInWithEmailAndPassword;
         window.firebaseSignOut = signOut;
+        window.firebaseSignInAnonymously = signInAnonymously;
         window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseCollection = collection;
         window.firebaseAddDoc = addDoc;
         window.firebaseDoc = doc;
         window.firebaseOnSnapshot = onSnapshot;
         window.firebaseUpdateDoc = updateDoc;
-        window.firebaseArrayUnion = arrayUnion;
+        window.firebaseSetDoc = setDoc;
         window.firebaseServerTimestamp = serverTimestamp;
         
         console.log('Firebase v9+ initialized successfully');

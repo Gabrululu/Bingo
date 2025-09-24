@@ -184,7 +184,7 @@ async function createRoomWithFirebase() {
         }
         
         const roomCode = generateRoomCode();
-        const shareUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+        const shareUrl = window.location.origin + window.location.pathname + '#/play/' + roomCode;
         
         // Create room in Firestore
         const roomData = {
@@ -296,6 +296,20 @@ let roomParticipants = [];
 // Generate unique ID
 function uid() {
     return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+
+// Extract room code from URL (supports ?room=CODE or #/play/CODE)
+function getRoomCodeFromURL() {
+    // hash route: #/play/{code}
+    if (window.location.hash && window.location.hash.startsWith('#/play/')) {
+        const parts = window.location.hash.split('/');
+        const code = parts[2] || '';
+        return code || null;
+    }
+    // query param fallback
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('room');
+    return q || null;
 }
 
 // Generate room code
@@ -989,8 +1003,7 @@ function syncRoomData() {
 }
 
 function checkURLForRoom() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomCode = urlParams.get('room');
+    const roomCode = getRoomCodeFromURL();
     
     if (roomCode) {
         // Check if this is the moderator (creator) of the room

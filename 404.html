@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=index.html">
+</head>
+<body>
+  <script>
+    // Redirige preservando query/hash para GitHub Pages SPA
+    var base = location.pathname.replace(/[^\/]+$/, '');
+    location.replace(base + 'index.html' + location.search + location.hash);
+  </script>
+</body>
+</html>
+
