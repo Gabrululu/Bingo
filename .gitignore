@@ -1,3 +1,7 @@
+# Dependencias de Node.js
+node_modules/
+package-lock.json
+
 # Archivos temporales
 *.tmp
 *.temp

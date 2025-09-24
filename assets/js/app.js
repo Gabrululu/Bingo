@@ -1,3 +1,195 @@
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCgWVgfDgYOLCXvMoI6B8cKtc1lt0E2jOc",
+    authDomain: "bingo-d2f28.firebaseapp.com",
+    projectId: "bingo-d2f28",
+    storageBucket: "bingo-d2f28.firebasestorage.app",
+    messagingSenderId: "786733165579",
+    appId: "1:786733165579:web:a5339c73eaf1d31c3eeb0e",
+    measurementId: "G-17C462BPND"
+};
+
+// Initialize Firebase
+let auth, db;
+let currentUser = null;
+let firebaseRoomId = null;
+
+// Initialize Firebase when DOM is loaded
+function initializeFirebase() {
+    try {
+        // Wait for Firebase to be loaded from the module
+        if (window.firebaseAuth && window.firebaseDb) {
+            auth = window.firebaseAuth;
+            db = window.firebaseDb;
+            
+            // Listen for auth state changes
+            window.firebaseOnAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    showModeratorDashboard();
+                } else {
+                    currentUser = null;
+                    showModeratorLogin();
+                }
+            });
+            
+            console.log('Firebase v9+ initialized successfully');
+        } else {
+            console.log('Firebase not loaded yet, retrying...');
+            setTimeout(initializeFirebase, 100);
+        }
+    } catch (error) {
+        console.log('Firebase initialization error:', error);
+        // Fallback to localStorage mode
+        showModeratorLogin();
+    }
+}
+
+// Firebase Authentication Functions
+async function loginWithGoogle() {
+    try {
+        if (!auth || !window.firebaseSignInWithPopup) {
+            showMobileAlert('❌ Firebase no está configurado. Usando modo local.');
+            // Fallback to local mode
+            showModeratorDashboard();
+            return;
+        }
+        
+        const provider = new window.firebaseGoogleAuthProvider();
+        const result = await window.firebaseSignInWithPopup(auth, provider);
+        
+        // Save user to Firestore
+        const userRef = window.firebaseDoc(db, 'users', result.user.uid);
+        await window.firebaseUpdateDoc(userRef, {
+            email: result.user.email,
+            name: result.user.displayName,
+            role: 'moderator',
+            lastLogin: window.firebaseServerTimestamp()
+        }).catch(async () => {
+            // If document doesn't exist, create it
+            await window.firebaseAddDoc(window.firebaseCollection(db, 'users'), {
+                uid: result.user.uid,
+                email: result.user.email,
+                name: result.user.displayName,
+                role: 'moderator',
+                lastLogin: window.firebaseServerTimestamp()
+            });
+        });
+        
+        showMobileAlert('✅ Sesión iniciada con Google');
+    } catch (error) {
+        console.error('Login error:', error);
+        showMobileAlert('❌ Error al iniciar sesión: ' + error.message);
+    }
+}
+
+async function logoutModerator() {
+    try {
+        if (auth && window.firebaseSignOut) {
+            await window.firebaseSignOut(auth);
+        }
+        showMobileAlert('🚪 Sesión cerrada');
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+}
+
+// UI Functions for Firebase
+function showModeratorLogin() {
+    document.getElementById('moderator-login').classList.remove('hidden');
+    document.getElementById('moderator-dashboard').classList.add('hidden');
+}
+
+function showModeratorDashboard() {
+    document.getElementById('moderator-login').classList.add('hidden');
+    document.getElementById('moderator-dashboard').classList.remove('hidden');
+    
+    if (currentUser) {
+        document.getElementById('moderatorName').textContent = currentUser.displayName || 'Moderador';
+    }
+}
+
+// Firebase Room Management
+async function createRoomWithFirebase() {
+    try {
+        if (!currentUser) {
+            showMobileAlert('❌ Debes iniciar sesión primero');
+            return;
+        }
+        
+        const roomCode = generateRoomCode();
+        const shareUrl = window.location.origin + window.location.pathname + '?room=' + roomCode;
+        
+        // Create room in Firestore
+        const roomData = {
+            code: roomCode,
+            moderatorId: currentUser.uid,
+            moderatorName: currentUser.displayName || 'Moderador',
+            moderatorEmail: currentUser.email,
+            status: 'active',
+            createdAt: window.firebaseServerTimestamp(),
+            gameState: {
+                started: false,
+                terms: [],
+                calledTerms: [],
+                currentIndex: 0
+            },
+            participants: []
+        };
+        
+        const docRef = await window.firebaseAddDoc(window.firebaseCollection(db, 'rooms'), roomData);
+        firebaseRoomId = docRef.id;
+        
+        // Update UI
+        document.getElementById('roomCode').textContent = roomCode;
+        document.getElementById('shareLink').value = shareUrl;
+        document.getElementById('roomInfo').classList.remove('hidden');
+        document.getElementById('createRoomBtn').classList.add('hidden');
+        document.getElementById('shareBtn').classList.remove('hidden');
+        
+        // Setup real-time listener
+        setupRealtimeListener();
+        
+        showMobileAlert('🎮 Sala creada con Firebase: ' + roomCode);
+        
+    } catch (error) {
+        console.error('Error creating room:', error);
+        showMobileAlert('❌ Error al crear sala: ' + error.message);
+    }
+}
+
+// Real-time listener for participants
+function setupRealtimeListener() {
+    if (!firebaseRoomId || !db || !window.firebaseOnSnapshot) return;
+    
+    const roomRef = window.firebaseDoc(db, 'rooms', firebaseRoomId);
+    window.firebaseOnSnapshot(roomRef, (doc) => {
+        if (doc.exists()) {
+            const roomData = doc.data();
+            updateParticipantsFromFirebase(roomData.participants);
+            
+            // Update game state if needed
+            if (roomData.gameState) {
+                gameState = roomData.gameState;
+                updateGameStats();
+            }
+        }
+    });
+}
+
+function updateParticipantsFromFirebase(firebaseParticipants) {
+    // Convert Firebase participants to local format
+    participants = firebaseParticipants.map(p => ({
+        id: p.participantId,
+        name: p.name,
+        card: p.card || null,
+        registered: p.joinedAt ? p.joinedAt.toDate() : new Date(),
+        roomId: firebaseRoomId
+    }));
+    
+    updateParticipantsList();
+}
+
 // Web3 Marketing Terms
 const WEB3_MARKETING_TERMS = [
     "NFT", "DeFi", "DAO", "Smart Contract", "Blockchain", "Token", "Metaverso", "Web3",
@@ -742,6 +934,10 @@ function checkURLForRoom() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Firebase first
+    initializeFirebase();
+    
+    // Then initialize existing functionality
     loadFromStorage();
     checkURLForRoom();
     

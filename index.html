@@ -29,6 +29,46 @@
     <meta property="twitter:image" content="https://tu-dominio.com/favicon.svg">
     
     <link rel="stylesheet" href="assets/css/styles.css">
+    
+    <!-- Firebase SDK v9+ (Modular) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, arrayUnion, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgWVgfDgYOLCXvMoI6B8cKtc1lt0E2jOc",
+            authDomain: "bingo-d2f28.firebaseapp.com",
+            projectId: "bingo-d2f28",
+            storageBucket: "bingo-d2f28.firebasestorage.app",
+            messagingSenderId: "786733165579",
+            appId: "1:786733165579:web:a5339c73eaf1d31c3eeb0e",
+            measurementId: "G-17C462BPND"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.firebaseSignInWithPopup = signInWithPopup;
+        window.firebaseGoogleAuthProvider = GoogleAuthProvider;
+        window.firebaseSignOut = signOut;
+        window.firebaseOnAuthStateChanged = onAuthStateChanged;
+        window.firebaseCollection = collection;
+        window.firebaseAddDoc = addDoc;
+        window.firebaseDoc = doc;
+        window.firebaseOnSnapshot = onSnapshot;
+        window.firebaseUpdateDoc = updateDoc;
+        window.firebaseArrayUnion = arrayUnion;
+        window.firebaseServerTimestamp = serverTimestamp;
+        
+        console.log('Firebase v9+ initialized successfully');
+    </script>
 </head>
 <body>
     <div class="container">
@@ -49,31 +89,52 @@
         <!-- Moderator Section -->
         <div id="moderator-section" class="moderator-section hidden">
             <h3>🎯 Panel de Moderador</h3>
-            <div class="moderator-controls">
-                <button id="createRoomBtn" class="control-btn" onclick="createRoom()">🎮 Crear Nueva Sala</button>
-                <button id="shareBtn" class="control-btn hidden" onclick="shareGame()">📤 Compartir Enlace</button>
+            
+            <!-- Login Section -->
+            <div id="moderator-login" class="moderator-login">
+                <h4>🔐 Iniciar Sesión como Moderador</h4>
+                <p>Necesitas iniciar sesión para crear y gestionar salas</p>
+                <button id="googleLoginBtn" class="control-btn" onclick="loginWithGoogle()">
+                    🔑 Iniciar con Google
+                </button>
+                <div id="loginStatus" class="login-status hidden">
+                    <p>✅ Sesión iniciada</p>
+                </div>
             </div>
             
-            <div id="roomInfo" class="room-info hidden">
-                <div class="room-code">
-                    <label>Código de Sala:</label>
-                    <div class="code-display">
-                        <span id="roomCode">----</span>
-                        <button onclick="copyRoomCode()" class="copy-btn">📋</button>
-                    </div>
+            <!-- Dashboard Section -->
+            <div id="moderator-dashboard" class="moderator-dashboard hidden">
+                <div class="moderator-info">
+                    <h4>👋 Hola, <span id="moderatorName">Moderador</span></h4>
+                    <button class="control-btn secondary" onclick="logoutModerator()">🚪 Cerrar Sesión</button>
                 </div>
-                <div class="share-link">
-                    <label>Enlace de Compartir:</label>
-                    <div class="link-display">
-                        <input type="text" id="shareLink" readonly>
-                        <button onclick="copyShareLink()" class="copy-btn">📋</button>
-                    </div>
+                
+                <div class="moderator-controls">
+                    <button id="createRoomBtn" class="control-btn" onclick="createRoomWithFirebase()">🎮 Crear Nueva Sala</button>
+                    <button id="shareBtn" class="control-btn hidden" onclick="shareGame()">📤 Compartir Enlace</button>
                 </div>
-                <div class="share-instructions">
-                    <p>💡 <strong>Instrucciones:</strong></p>
-                    <p>1. Copia el enlace de arriba</p>
-                    <p>2. Compártelo por WhatsApp, Telegram, etc.</p>
-                    <p>3. Los participantes se unirán automáticamente</p>
+                
+                <div id="roomInfo" class="room-info hidden">
+                    <div class="room-code">
+                        <label>Código de Sala:</label>
+                        <div class="code-display">
+                            <span id="roomCode">----</span>
+                            <button onclick="copyRoomCode()" class="copy-btn">📋</button>
+                        </div>
+                    </div>
+                    <div class="share-link">
+                        <label>Enlace de Compartir:</label>
+                        <div class="link-display">
+                            <input type="text" id="shareLink" readonly>
+                            <button onclick="copyShareLink()" class="copy-btn">📋</button>
+                        </div>
+                    </div>
+                    <div class="share-instructions">
+                        <p>💡 <strong>Instrucciones:</strong></p>
+                        <p>1. Copia el enlace de arriba</p>
+                        <p>2. Compártelo por WhatsApp, Telegram, etc.</p>
+                        <p>3. Los participantes se unirán automáticamente</p>
+                    </div>
                 </div>
             </div>
         </div>

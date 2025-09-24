@@ -786,6 +786,64 @@ body::before {
     margin-bottom: 20px;
 }
 
+.moderator-login {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.moderator-login h4 {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+}
+
+.moderator-login p {
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+
+.login-status {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(76, 175, 80, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.login-status p {
+    margin: 0;
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.moderator-dashboard {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.moderator-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.moderator-info h4 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.moderator-info .control-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
 .room-info {
     background: rgba(255, 255, 255, 0.1);
     padding: 20px;
