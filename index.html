@@ -43,6 +43,35 @@
             <button class="mode-btn" onclick="switchMode(event, 'moderator')">🎯 Moderador</button>
         </div>
 
+        <!-- Share Game Section -->
+        <div id="share-section" class="share-section hidden">
+            <h3>🔗 Compartir Juego</h3>
+            <div class="share-controls">
+                <button id="generateRoomBtn" class="control-btn" onclick="generateRoom()">🎮 Crear Sala</button>
+                <button id="shareBtn" class="control-btn hidden" onclick="shareGame()">📤 Compartir Enlace</button>
+            </div>
+            <div id="roomInfo" class="room-info hidden">
+                <div class="room-code">
+                    <label>Código de Sala:</label>
+                    <div class="code-display">
+                        <span id="roomCode">----</span>
+                        <button onclick="copyRoomCode()" class="copy-btn">📋</button>
+                    </div>
+                </div>
+                <div class="share-link">
+                    <label>Enlace de Compartir:</label>
+                    <div class="link-display">
+                        <input type="text" id="shareLink" readonly>
+                        <button onclick="copyShareLink()" class="copy-btn">📋</button>
+                    </div>
+                </div>
+                <div class="qr-code">
+                    <canvas id="qrCanvas" width="150" height="150"></canvas>
+                    <p>Escanea para unirse</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Participant Mode -->
         <div id="participant-mode" class="content">
             <div id="registration-section">

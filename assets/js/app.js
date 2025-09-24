@@ -24,9 +24,24 @@ let participants = [];
 let currentParticipant = null;
 let gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
 
+// Room Management
+let roomId = null;
+let isModerator = false;
+let roomParticipants = [];
+
 // Generate unique ID
 function uid() {
     return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+}
+
+// Generate room code
+function generateRoomCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 6; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
 }
 
 // Mode Switching
@@ -37,9 +52,155 @@ function switchMode(event, mode) {
     }
     document.getElementById('participant-mode').classList.toggle('hidden', mode !== 'participant');
     document.getElementById('moderator-mode').classList.toggle('hidden', mode !== 'moderator');
+    document.getElementById('share-section').classList.toggle('hidden', mode !== 'moderator');
+    
     if (mode === 'moderator') {
+        isModerator = true;
         updateParticipantsList();
+        if (!roomId) {
+            document.getElementById('generateRoomBtn').classList.remove('hidden');
+        }
+    } else {
+        isModerator = false;
     }
+}
+
+// Room Management Functions
+function generateRoom() {
+    roomId = generateRoomCode();
+    const shareUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
+    
+    document.getElementById('roomCode').textContent = roomId;
+    document.getElementById('shareLink').value = shareUrl;
+    document.getElementById('roomInfo').classList.remove('hidden');
+    document.getElementById('generateRoomBtn').classList.add('hidden');
+    document.getElementById('shareBtn').classList.remove('hidden');
+    
+    // Generate QR Code
+    generateQRCode(shareUrl);
+    
+    // Save room info
+    localStorage.setItem('mkt_bingo_room', JSON.stringify({
+        id: roomId,
+        url: shareUrl,
+        created: new Date()
+    }));
+    
+    showMobileAlert('🎮 Sala creada: ' + roomId);
+}
+
+function shareGame() {
+    const shareUrl = document.getElementById('shareLink').value;
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Bingo Web3 - MKT Community',
+            text: '¡Únete a mi juego de Bingo Web3! Código: ' + roomId,
+            url: shareUrl
+        }).catch(err => console.log('Error sharing:', err));
+    } else {
+        copyShareLink();
+    }
+}
+
+function copyRoomCode() {
+    const roomCode = document.getElementById('roomCode').textContent;
+    navigator.clipboard.writeText(roomCode).then(() => {
+        showMobileAlert('📋 Código copiado: ' + roomCode);
+    }).catch(() => {
+        showMobileAlert('❌ No se pudo copiar el código');
+    });
+}
+
+function copyShareLink() {
+    const shareLink = document.getElementById('shareLink');
+    shareLink.select();
+    shareLink.setSelectionRange(0, 99999);
+    
+    try {
+        document.execCommand('copy');
+        showMobileAlert('📋 Enlace copiado al portapapeles');
+    } catch (err) {
+        navigator.clipboard.writeText(shareLink.value).then(() => {
+            showMobileAlert('📋 Enlace copiado');
+        }).catch(() => {
+            showMobileAlert('❌ No se pudo copiar el enlace');
+        });
+    }
+}
+
+function generateQRCode(text) {
+    const canvas = document.getElementById('qrCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Simple QR Code generation (basic implementation)
+    const size = 150;
+    const moduleSize = 5;
+    const modules = Math.floor(size / moduleSize);
+    
+    // Clear canvas
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, size, size);
+    
+    // Generate simple pattern based on text hash
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
+    }
+    
+    ctx.fillStyle = 'black';
+    for (let x = 0; x < modules; x++) {
+        for (let y = 0; y < modules; y++) {
+            if ((hash + x * y) % 3 === 0) {
+                ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
+            }
+        }
+    }
+    
+    // Add border
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, size, size);
+}
+
+function joinRoom(roomCode) {
+    if (!roomCode) return false;
+    
+    roomId = roomCode;
+    isModerator = false;
+    
+    // Load room participants
+    loadRoomParticipants();
+    
+    showMobileAlert('🎮 Te uniste a la sala: ' + roomCode);
+    return true;
+}
+
+function loadRoomParticipants() {
+    // Simulate loading participants from room
+    const savedRoom = localStorage.getItem('mkt_bingo_room_' + roomId);
+    if (savedRoom) {
+        try {
+            const roomData = JSON.parse(savedRoom);
+            roomParticipants = roomData.participants || [];
+            participants = [...roomParticipants];
+            updateParticipantsList();
+        } catch (e) {
+            console.error('Error loading room participants:', e);
+        }
+    }
+}
+
+function saveRoomParticipants() {
+    if (!roomId) return;
+    
+    const roomData = {
+        id: roomId,
+        participants: participants,
+        lastUpdated: new Date()
+    };
+    
+    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify(roomData));
 }
 
 // Participant Registration
@@ -57,14 +218,22 @@ function registerParticipant() {
         id: uid(),
         name: name,
         card: null,
-        registered: new Date()
+        registered: new Date(),
+        roomId: roomId
     };
     participants.push(participant);
     currentParticipant = participant;
     document.getElementById('registeredName').textContent = name;
     document.getElementById('registration-section').classList.add('hidden');
     document.getElementById('waiting-section').classList.remove('hidden');
+    
+    // Save to storage and sync with room
     saveToStorage();
+    if (roomId) {
+        saveRoomParticipants();
+        // Notify moderator if in room
+        notifyModerator('new_participant', participant);
+    }
 }
 
 // Fisher-Yates shuffle
@@ -381,9 +550,76 @@ function loadFromStorage() {
     }
 }
 
+// Notification and Sync Functions
+function notifyModerator(type, data) {
+    if (!roomId) return;
+    
+    const notification = {
+        type: type,
+        data: data,
+        timestamp: new Date(),
+        roomId: roomId
+    };
+    
+    // Store notification for moderator to see
+    const notifications = JSON.parse(localStorage.getItem('mkt_bingo_notifications_' + roomId) || '[]');
+    notifications.push(notification);
+    localStorage.setItem('mkt_bingo_notifications_' + roomId, JSON.stringify(notifications));
+    
+    // Trigger storage event for cross-tab communication
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'mkt_bingo_notifications_' + roomId,
+        newValue: JSON.stringify(notifications)
+    }));
+}
+
+function checkForNotifications() {
+    if (!roomId || !isModerator) return;
+    
+    const notifications = JSON.parse(localStorage.getItem('mkt_bingo_notifications_' + roomId) || '[]');
+    const lastCheck = localStorage.getItem('mkt_bingo_last_check_' + roomId) || 0;
+    
+    notifications.forEach(notification => {
+        if (new Date(notification.timestamp) > new Date(lastCheck)) {
+            if (notification.type === 'new_participant') {
+                showMobileAlert('👤 Nuevo participante: ' + notification.data.name);
+                updateParticipantsList();
+            }
+        }
+    });
+    
+    localStorage.setItem('mkt_bingo_last_check_' + roomId, new Date().toISOString());
+}
+
+function syncRoomData() {
+    if (!roomId) return;
+    
+    // Check for updates every 2 seconds
+    setInterval(() => {
+        if (isModerator) {
+            checkForNotifications();
+        } else {
+            // Participants check for room updates
+            loadRoomParticipants();
+        }
+    }, 2000);
+}
+
+function checkURLForRoom() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomCode = urlParams.get('room');
+    
+    if (roomCode) {
+        joinRoom(roomCode);
+        // Auto-switch to participant mode when joining a room
+        document.querySelector('.mode-btn[onclick*="participant"]').click();
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadFromStorage();
+    checkURLForRoom();
     
     if (currentParticipant) {
         document.getElementById('registeredName').textContent = currentParticipant.name || '';
@@ -396,4 +632,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     updateGameStats();
     updateParticipantsList();
+    
+    // Start room sync
+    syncRoomData();
 });

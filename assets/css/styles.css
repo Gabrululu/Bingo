@@ -741,4 +741,149 @@ body::before {
     }
 }
 
+/* Share Game Section */
+.share-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.share-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.share-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.room-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.room-code, .share-link {
+    margin-bottom: 20px;
+}
+
+.room-code label, .share-link label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.code-display, .link-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+}
+
+.code-display span {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.link-display input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2c3e50;
+    max-width: 300px;
+}
+
+.copy-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.qr-code {
+    margin-top: 20px;
+}
+
+.qr-code canvas {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    background: white;
+    margin: 0 auto;
+    display: block;
+}
+
+.qr-code p {
+    margin-top: 10px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Mobile optimizations for share section */
+@media (max-width: 768px) {
+    .share-section {
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .share-section h3 {
+        font-size: 20px;
+    }
+    
+    .share-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .code-display, .link-display {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .code-display span {
+        font-size: 20px;
+        padding: 8px 16px;
+        min-width: 100px;
+    }
+    
+    .link-display input {
+        width: 100%;
+        max-width: 280px;
+        font-size: 12px;
+    }
+    
+    .qr-code canvas {
+        width: 120px;
+        height: 120px;
+    }
+}
+
 
