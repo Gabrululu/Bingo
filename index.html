@@ -46,28 +46,12 @@
             <button class="mode-btn" onclick="switchMode(event, 'moderator')">🎯 Moderador</button>
         </div>
 
-        <!-- Share Game Section -->
-        <div id="share-section" class="share-section hidden">
-            <h3>🔗 Compartir Juego</h3>
-            <div class="share-controls">
-                <button id="generateRoomBtn" class="control-btn" onclick="generateRoom()">🎮 Crear Sala</button>
-                <button id="joinRoomBtn" class="control-btn" onclick="showJoinRoomForm()">🔑 Unirse a Sala</button>
+        <!-- Moderator Section -->
+        <div id="moderator-section" class="moderator-section hidden">
+            <h3>🎯 Panel de Moderador</h3>
+            <div class="moderator-controls">
+                <button id="createRoomBtn" class="control-btn" onclick="createRoom()">🎮 Crear Nueva Sala</button>
                 <button id="shareBtn" class="control-btn hidden" onclick="shareGame()">📤 Compartir Enlace</button>
-            </div>
-            
-            <!-- Join Room Form -->
-            <div id="joinRoomForm" class="join-room-form hidden">
-                <h4>🔑 Unirse como Moderador</h4>
-                <div class="form-group">
-                    <label for="roomCodeInput">Código de Sala:</label>
-                    <input type="text" id="roomCodeInput" placeholder="Ejemplo: ABC123" maxlength="6" style="text-transform: uppercase;">
-                </div>
-                <div class="form-group">
-                    <label for="moderatorName">Tu Nombre:</label>
-                    <input type="text" id="moderatorName" placeholder="Ejemplo: María Moderadora" maxlength="20">
-                </div>
-                <button class="control-btn" onclick="joinAsModerator()">🎯 Unirse como Moderador</button>
-                <button class="control-btn secondary" onclick="hideJoinRoomForm()">❌ Cancelar</button>
             </div>
             
             <div id="roomInfo" class="room-info hidden">

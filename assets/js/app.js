@@ -46,40 +46,54 @@ function generateRoomCode() {
 
 // Mode Switching
 function switchMode(event, mode) {
-    // Only allow mode switching for moderators
-    if (!isModerator && roomId) {
-        showMobileAlert('⚠️ Solo el moderador puede cambiar de modo');
-        return;
-    }
-    
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
+    
+    // Show/hide sections based on mode
     document.getElementById('participant-mode').classList.toggle('hidden', mode !== 'participant');
     document.getElementById('moderator-mode').classList.toggle('hidden', mode !== 'moderator');
-    document.getElementById('share-section').classList.toggle('hidden', mode !== 'moderator');
+    document.getElementById('moderator-section').classList.toggle('hidden', mode !== 'moderator');
     
     if (mode === 'moderator') {
         isModerator = true;
         updateParticipantsList();
         
-        // Show appropriate buttons
-        if (!roomId) {
-            document.getElementById('generateRoomBtn').classList.remove('hidden');
-            document.getElementById('joinRoomBtn').classList.remove('hidden');
-        } else {
-            document.getElementById('generateRoomBtn').classList.add('hidden');
-            document.getElementById('joinRoomBtn').classList.add('hidden');
-            document.getElementById('shareBtn').classList.remove('hidden');
-        }
+        // Check if moderator has an active room
+        checkModeratorSession();
     } else {
         isModerator = false;
     }
 }
 
+function checkModeratorSession() {
+    const savedRoom = localStorage.getItem('mkt_bingo_room');
+    if (savedRoom) {
+        try {
+            const roomData = JSON.parse(savedRoom);
+            if (roomData.moderator && roomData.id) {
+                // Restore moderator session
+                roomId = roomData.id;
+                document.getElementById('roomCode').textContent = roomData.id;
+                document.getElementById('shareLink').value = roomData.url;
+                document.getElementById('roomInfo').classList.remove('hidden');
+                document.getElementById('createRoomBtn').classList.add('hidden');
+                document.getElementById('shareBtn').classList.remove('hidden');
+                
+                // Load existing participants
+                loadRoomParticipants();
+                
+                showMobileAlert('🎮 Sala restaurada: ' + roomData.id);
+            }
+        } catch (e) {
+            console.error('Error restoring session:', e);
+        }
+    }
+}
+
 // Room Management Functions
-function generateRoom() {
+function createRoom() {
     roomId = generateRoomCode();
     isModerator = true; // Creator is always moderator
     
@@ -88,8 +102,7 @@ function generateRoom() {
     document.getElementById('roomCode').textContent = roomId;
     document.getElementById('shareLink').value = shareUrl;
     document.getElementById('roomInfo').classList.remove('hidden');
-    document.getElementById('generateRoomBtn').classList.add('hidden');
-    document.getElementById('joinRoomBtn').classList.add('hidden');
+    document.getElementById('createRoomBtn').classList.add('hidden');
     document.getElementById('shareBtn').classList.remove('hidden');
     
     // Save room info with moderator flag
@@ -97,8 +110,7 @@ function generateRoom() {
         id: roomId,
         url: shareUrl,
         created: new Date(),
-        moderator: true,
-        moderatorName: 'Moderador'
+        moderator: true
     }));
     
     // Initialize room participants storage
@@ -108,75 +120,7 @@ function generateRoom() {
         lastUpdated: new Date()
     }));
     
-    // Ensure moderator controls are visible
-    showModeratorControls();
-    
     showMobileAlert('🎮 Sala creada: ' + roomId + ' (Eres el moderador)');
-}
-
-function showJoinRoomForm() {
-    document.getElementById('joinRoomForm').classList.remove('hidden');
-    document.getElementById('generateRoomBtn').classList.add('hidden');
-    document.getElementById('joinRoomBtn').classList.add('hidden');
-}
-
-function hideJoinRoomForm() {
-    document.getElementById('joinRoomForm').classList.add('hidden');
-    document.getElementById('generateRoomBtn').classList.remove('hidden');
-    document.getElementById('joinRoomBtn').classList.remove('hidden');
-}
-
-function joinAsModerator() {
-    const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
-    const moderatorName = document.getElementById('moderatorName').value.trim();
-    
-    if (!roomCode || roomCode.length !== 6) {
-        showMobileAlert('❌ Ingresa un código de sala válido (6 caracteres)');
-        return;
-    }
-    
-    if (!moderatorName) {
-        showMobileAlert('❌ Ingresa tu nombre como moderador');
-        return;
-    }
-    
-    // Check if room exists
-    const roomData = localStorage.getItem('mkt_bingo_room_' + roomCode);
-    if (!roomData) {
-        showMobileAlert('❌ No existe una sala con ese código');
-        return;
-    }
-    
-    try {
-        const room = JSON.parse(roomData);
-        roomId = roomCode;
-        isModerator = true;
-        
-        // Save moderator session
-        localStorage.setItem('mkt_bingo_room', JSON.stringify({
-            id: roomId,
-            url: window.location.origin + window.location.pathname + '?room=' + roomId,
-            created: new Date(),
-            moderator: true,
-            moderatorName: moderatorName
-        }));
-        
-        // Update UI
-        document.getElementById('roomCode').textContent = roomId;
-        document.getElementById('shareLink').value = window.location.origin + window.location.pathname + '?room=' + roomId;
-        document.getElementById('roomInfo').classList.remove('hidden');
-        document.getElementById('joinRoomForm').classList.add('hidden');
-        document.getElementById('shareBtn').classList.remove('hidden');
-        
-        showModeratorControls();
-        loadRoomParticipants();
-        
-        showMobileAlert('🎯 Te uniste como moderador a la sala: ' + roomId);
-        
-    } catch (e) {
-        showMobileAlert('❌ Error al unirse a la sala');
-        console.error('Error joining room:', e);
-    }
 }
 
 function shareGame() {
@@ -247,15 +191,10 @@ function hideModeratorControls() {
         modeSelector.style.display = 'none';
     }
     
-    // Hide share section for participants
-    const shareSection = document.getElementById('share-section');
-    if (shareSection) {
-        shareSection.style.display = 'none';
-    }
-    
     // Force participant mode
     document.getElementById('participant-mode').classList.remove('hidden');
     document.getElementById('moderator-mode').classList.add('hidden');
+    document.getElementById('moderator-section').classList.add('hidden');
     
     // Update mode buttons
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
@@ -270,12 +209,6 @@ function showModeratorControls() {
     const modeSelector = document.querySelector('.mode-selector');
     if (modeSelector) {
         modeSelector.style.display = 'flex';
-    }
-    
-    // Show share section for moderators
-    const shareSection = document.getElementById('share-section');
-    if (shareSection) {
-        shareSection.style.display = 'block';
     }
     
     // Show moderator status
@@ -767,21 +700,12 @@ function checkURLForRoom() {
             try {
                 const roomData = JSON.parse(savedRoom);
                 if (roomData.id === roomCode && roomData.moderator) {
-                    // This is the moderator, show full controls
+                    // This is the moderator, restore session
                     isModerator = true;
                     roomId = roomCode;
-                    showModeratorControls();
                     
-                    // Restore room info
-                    document.getElementById('roomCode').textContent = roomCode;
-                    document.getElementById('shareLink').value = roomData.url;
-                    document.getElementById('roomInfo').classList.remove('hidden');
-                    document.getElementById('generateRoomBtn').classList.add('hidden');
-                    document.getElementById('joinRoomBtn').classList.add('hidden');
-                    document.getElementById('shareBtn').classList.remove('hidden');
-                    
-                    // Load existing participants
-                    loadRoomParticipants();
+                    // Switch to moderator mode
+                    document.querySelector('.mode-btn[onclick*="moderator"]').click();
                     
                     showMobileAlert('🎮 Sala cargada: ' + roomCode + ' (Eres el moderador)');
                     return;
@@ -789,14 +713,6 @@ function checkURLForRoom() {
             } catch (e) {
                 console.error('Error loading room data:', e);
             }
-        }
-        
-        // Check if room exists and show join option
-        const roomData = localStorage.getItem('mkt_bingo_room_' + roomCode);
-        if (roomData) {
-            // Room exists, show join as moderator option
-            showMobileAlert('🔑 Sala encontrada: ' + roomCode + '. Cambia a modo Moderador para unirte.');
-            return;
         }
         
         // This is a participant joining the room
@@ -811,18 +727,9 @@ function checkURLForRoom() {
                     // Restore moderator session
                     isModerator = true;
                     roomId = roomData.id;
-                    showModeratorControls();
                     
-                    // Restore room info
-                    document.getElementById('roomCode').textContent = roomData.id;
-                    document.getElementById('shareLink').value = roomData.url;
-                    document.getElementById('roomInfo').classList.remove('hidden');
-                    document.getElementById('generateRoomBtn').classList.add('hidden');
-                    document.getElementById('joinRoomBtn').classList.add('hidden');
-                    document.getElementById('shareBtn').classList.remove('hidden');
-                    
-                    // Load existing participants
-                    loadRoomParticipants();
+                    // Switch to moderator mode
+                    document.querySelector('.mode-btn[onclick*="moderator"]').click();
                     
                     showMobileAlert('🎮 Sesión restaurada: ' + roomData.id + ' (Eres el moderador)');
                 }

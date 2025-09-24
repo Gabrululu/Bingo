@@ -762,8 +762,8 @@ body::before {
     }
 }
 
-/* Share Game Section */
-.share-section {
+/* Moderator Section */
+.moderator-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 20px;
@@ -772,13 +772,13 @@ body::before {
     text-align: center;
 }
 
-.share-section h3 {
+.moderator-section h3 {
     margin: 0 0 20px 0;
     font-size: 24px;
     font-weight: bold;
 }
 
-.share-controls {
+.moderator-controls {
     display: flex;
     gap: 15px;
     justify-content: center;
