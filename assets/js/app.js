@@ -46,6 +46,12 @@ function generateRoomCode() {
 
 // Mode Switching
 function switchMode(event, mode) {
+    // Only allow mode switching for moderators
+    if (!isModerator && roomId) {
+        showMobileAlert('⚠️ Solo el moderador puede cambiar de modo');
+        return;
+    }
+    
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
@@ -68,6 +74,8 @@ function switchMode(event, mode) {
 // Room Management Functions
 function generateRoom() {
     roomId = generateRoomCode();
+    isModerator = true; // Creator is always moderator
+    
     const shareUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
     
     document.getElementById('roomCode').textContent = roomId;
@@ -83,10 +91,14 @@ function generateRoom() {
     localStorage.setItem('mkt_bingo_room', JSON.stringify({
         id: roomId,
         url: shareUrl,
-        created: new Date()
+        created: new Date(),
+        moderator: true
     }));
     
-    showMobileAlert('🎮 Sala creada: ' + roomId);
+    // Ensure moderator controls are visible
+    showModeratorControls();
+    
+    showMobileAlert('🎮 Sala creada: ' + roomId + ' (Eres el moderador)');
 }
 
 function shareGame() {
@@ -169,11 +181,67 @@ function joinRoom(roomCode) {
     roomId = roomCode;
     isModerator = false;
     
+    // Hide moderator controls for participants
+    hideModeratorControls();
+    
     // Load room participants
     loadRoomParticipants();
     
     showMobileAlert('🎮 Te uniste a la sala: ' + roomCode);
     return true;
+}
+
+function hideModeratorControls() {
+    // Hide mode selector for participants
+    const modeSelector = document.querySelector('.mode-selector');
+    if (modeSelector) {
+        modeSelector.style.display = 'none';
+    }
+    
+    // Hide share section for participants
+    const shareSection = document.getElementById('share-section');
+    if (shareSection) {
+        shareSection.style.display = 'none';
+    }
+    
+    // Force participant mode
+    document.getElementById('participant-mode').classList.remove('hidden');
+    document.getElementById('moderator-mode').classList.add('hidden');
+    
+    // Update mode buttons
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector('.mode-btn[onclick*="participant"]').classList.add('active');
+    
+    // Show participant status
+    showRoomStatus('participant', '👤 Participante en sala: ' + roomId);
+}
+
+function showModeratorControls() {
+    // Show mode selector for moderators
+    const modeSelector = document.querySelector('.mode-selector');
+    if (modeSelector) {
+        modeSelector.style.display = 'flex';
+    }
+    
+    // Show share section for moderators
+    const shareSection = document.getElementById('share-section');
+    if (shareSection) {
+        shareSection.style.display = 'block';
+    }
+    
+    // Show moderator status
+    showRoomStatus('moderator', '🎯 Moderador de sala: ' + roomId);
+}
+
+function showRoomStatus(type, text) {
+    const roomStatus = document.getElementById('room-status');
+    const roomStatusText = document.getElementById('room-status-text');
+    
+    if (roomStatus && roomStatusText) {
+        roomStatus.classList.remove('hidden', 'moderator', 'participant');
+        roomStatus.classList.add(type);
+        roomStatusText.textContent = text;
+    }
 }
 
 function loadRoomParticipants() {
@@ -183,8 +251,12 @@ function loadRoomParticipants() {
         try {
             const roomData = JSON.parse(savedRoom);
             roomParticipants = roomData.participants || [];
-            participants = [...roomParticipants];
-            updateParticipantsList();
+            
+            // If this is the moderator, update the participants list
+            if (isModerator) {
+                participants = [...roomParticipants];
+                updateParticipantsList();
+            }
         } catch (e) {
             console.error('Error loading room participants:', e);
         }
@@ -201,6 +273,12 @@ function saveRoomParticipants() {
     };
     
     localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify(roomData));
+    
+    // Trigger update for all participants in the room
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'mkt_bingo_room_' + roomId,
+        newValue: JSON.stringify(roomData)
+    }));
 }
 
 // Participant Registration
@@ -610,9 +688,26 @@ function checkURLForRoom() {
     const roomCode = urlParams.get('room');
     
     if (roomCode) {
+        // Check if this is the moderator (creator) of the room
+        const savedRoom = localStorage.getItem('mkt_bingo_room');
+        if (savedRoom) {
+            try {
+                const roomData = JSON.parse(savedRoom);
+                if (roomData.id === roomCode && roomData.moderator) {
+                    // This is the moderator, show full controls
+                    isModerator = true;
+                    roomId = roomCode;
+                    showModeratorControls();
+                    showMobileAlert('🎮 Sala cargada: ' + roomCode + ' (Eres el moderador)');
+                    return;
+                }
+            } catch (e) {
+                console.error('Error loading room data:', e);
+            }
+        }
+        
+        // This is a participant joining the room
         joinRoom(roomCode);
-        // Auto-switch to participant mode when joining a room
-        document.querySelector('.mode-btn[onclick*="participant"]').click();
     }
 }
 
@@ -635,4 +730,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Start room sync
     syncRoomData();
+    
+    // Listen for storage events for real-time sync
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'mkt_bingo_room_' + roomId) {
+            // Room participants updated
+            loadRoomParticipants();
+        } else if (e.key === 'mkt_bingo_notifications_' + roomId) {
+            // New notification
+            if (isModerator) {
+                checkForNotifications();
+            }
+        }
+    });
 });

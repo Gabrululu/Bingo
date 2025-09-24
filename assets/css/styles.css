@@ -77,6 +77,27 @@ body::before {
     font-style: italic;
 }
 
+.room-status {
+    margin-top: 15px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.room-status.moderator {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    box-shadow: 0 3px 10px rgba(255, 107, 107, 0.3);
+}
+
+.room-status.participant {
+    background: linear-gradient(45deg, #48dbfb, #0abde3);
+    color: white;
+    box-shadow: 0 3px 10px rgba(72, 219, 251, 0.3);
+}
+
 .mode-selector {
     display: flex;
     justify-content: center;
