@@ -77,7 +77,7 @@
             <div class="community-name">MKT COMMUNITY</div>
             <h1>BINGO WEB3</h1>
             <p>Marketing & Blockchain Edition</p>
-            <div style="text-align:center; margin: 10px 0 20px;">
+            <div id="moderator-cta" style="text-align:center; margin: 10px 0 20px;">
                 <button class="control-btn" onclick="(function(){
                     const modeSelector = document.querySelector('.mode-selector');
                     if (modeSelector) modeSelector.classList.add('hidden');
@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        <div class="mode-selector">
+        <div class="mode-selector hidden">
             <button class="mode-btn active" onclick="switchMode(event, 'participant')">🎮 Participante</button>
             <button class="mode-btn" onclick="switchMode(event, 'moderator')">🎯 Moderador</button>
         </div>
@@ -163,7 +163,7 @@
         </div>
 
         <!-- Participant Mode -->
-        <div id="participant-mode" class="content">
+        <div id="participant-mode" class="content hidden">
             <div id="registration-section">
                 <div class="registration-form">
                     <h2>¡Únete al Bingo Web3!</h2>

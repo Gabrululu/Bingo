@@ -27,6 +27,10 @@ function initializeFirebase() {
                 if (user) {
                     currentUser = user;
                     showModeratorDashboard();
+                    // Intentar restaurar sesión de moderador y listeners
+                    try {
+                        checkModeratorSession();
+                    } catch (_) {}
                 } else {
                     currentUser = null;
                     showModeratorLogin();
@@ -160,13 +164,27 @@ async function logoutModerator() {
 
 // UI Functions for Firebase
 function showModeratorLogin() {
+    // Mostrar solo login y CTA, esconder todo lo demás
     document.getElementById('moderator-login').classList.remove('hidden');
     document.getElementById('moderator-dashboard').classList.add('hidden');
+    const modeSelector = document.querySelector('.mode-selector');
+    if (modeSelector) modeSelector.classList.add('hidden');
+    const participantMode = document.getElementById('participant-mode');
+    if (participantMode) participantMode.classList.add('hidden');
+    const moderatorCta = document.getElementById('moderator-cta');
+    if (moderatorCta) moderatorCta.classList.remove('hidden');
 }
 
 function showModeratorDashboard() {
+    // Ocultar login, mostrar dashboard centrado
     document.getElementById('moderator-login').classList.add('hidden');
     document.getElementById('moderator-dashboard').classList.remove('hidden');
+    const moderatorCta = document.getElementById('moderator-cta');
+    if (moderatorCta) moderatorCta.classList.add('hidden');
+    const modeSelector = document.querySelector('.mode-selector');
+    if (modeSelector) modeSelector.classList.add('hidden');
+    const participantMode = document.getElementById('participant-mode');
+    if (participantMode) participantMode.classList.add('hidden');
     
     if (currentUser) {
         const displayName = currentUser.displayName || 
@@ -229,16 +247,27 @@ async function createRoomWithFirebase() {
 function setupRealtimeListener() {
     if (!firebaseRoomId || !db || !window.firebaseOnSnapshot) return;
     
-    const roomRef = window.firebaseDoc(db, 'rooms', firebaseRoomId);
-    window.firebaseOnSnapshot(roomRef, (doc) => {
-        if (doc.exists()) {
-            const roomData = doc.data();
-            updateParticipantsFromFirebase(roomData.participants);
-            
-            // Update game state if needed
-            if (roomData.gameState) {
-                gameState = roomData.gameState;
-                updateGameStats();
+    // Escuchar participantes como subcolección
+    const partsCol = window.firebaseCollection(db, 'rooms/' + firebaseRoomId + '/participants');
+    window.firebaseOnSnapshot(partsCol, (snap) => {
+        const arr = [];
+        snap.forEach(docSnap => arr.push(docSnap.data()));
+        updateParticipantsFromFirebase(arr);
+    });
+
+    // Escuchar estado del juego
+    const stateRef = window.firebaseDoc(db, 'rooms/' + firebaseRoomId + '/state/current');
+    window.firebaseOnSnapshot(stateRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const s = docSnap.data();
+            gameState.started = !!s.started;
+            gameState.terms = Array.isArray(s.terms) ? s.terms : [];
+            gameState.calledTerms = Array.isArray(s.calledTerms) ? s.calledTerms : [];
+            gameState.currentIndex = typeof s.currentIndex === 'number' ? s.currentIndex : 0;
+            updateGameStats();
+            if (gameState.started && gameState.calledTerms.length) {
+                const last = gameState.calledTerms[gameState.calledTerms.length - 1];
+                document.getElementById('currentTerm').textContent = '🎯 "' + last + '"';
             }
         }
     });
@@ -644,6 +673,34 @@ function assignCards() {
         showMobileAlert('No hay participantes registrados');
         return;
     }
+    // Si hay Firestore y sala activa, crear cartillas en subcolección y marcar participantes
+    const activeRoom = firebaseRoomId || roomId;
+    if (activeRoom && db && window.firebaseSetDoc) {
+        participants.forEach(async (p) => {
+            if (!p.card) {
+                const cells = generateUniqueCard();
+                const cardId = p.id; // 1:1 con uid del participante
+                const cardRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/cards/' + cardId);
+                await window.firebaseSetDoc(cardRef, {
+                    participantId: p.id,
+                    cells,
+                    createdAt: window.firebaseServerTimestamp()
+                }, { merge: true });
+                // actualizar participante con cardId y status
+                const partRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/participants/' + p.id);
+                await window.firebaseSetDoc(partRef, {
+                    cardId,
+                    status: 'assigned'
+                }, { merge: true });
+                p.card = cells;
+            }
+        });
+        saveToStorage();
+        updateParticipantsList();
+        showMobileAlert('✅ Cartillas asignadas');
+        return;
+    }
+    // Fallback local
     participants.forEach(participant => {
         if (!participant.card) {
             participant.card = generateUniqueCard();
@@ -811,6 +868,19 @@ function startGame() {
     document.getElementById('currentTerm').textContent = '🎮 Juego iniciado - Presiona "Siguiente Término"';
     updateGameStats();
     localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
+    // Persistir en Firestore si hay sala
+    const activeRoom = firebaseRoomId || roomId;
+    if (activeRoom && db && window.firebaseSetDoc) {
+        const stateRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/state/current');
+        window.firebaseSetDoc(stateRef, {
+            started: true,
+            terms: gameState.terms,
+            calledTerms: [],
+            currentIndex: 0,
+            startedAt: window.firebaseServerTimestamp(),
+            status: 'live'
+        }, { merge: true });
+    }
 }
 
 function callNextTerm() {
@@ -833,6 +903,15 @@ function callNextTerm() {
     calledContainer.appendChild(termDiv);
     updateGameStats();
     localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
+    // Persistir avance en Firestore
+    const activeRoom = firebaseRoomId || roomId;
+    if (activeRoom && db && window.firebaseSetDoc) {
+        const stateRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/state/current');
+        window.firebaseSetDoc(stateRef, {
+            calledTerms: gameState.calledTerms,
+            currentIndex: gameState.currentIndex
+        }, { merge: true });
+    }
 }
 
 function updateGameStats() {
