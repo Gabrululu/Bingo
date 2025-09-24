@@ -46,23 +46,29 @@ function initializeFirebase() {
 }
 
 // Firebase Authentication Functions
-async function loginWithGoogle() {
+async function loginWithEmail() {
     try {
-        if (!auth || !window.firebaseSignInWithPopup) {
+        const email = document.getElementById('moderatorEmail').value.trim();
+        const password = document.getElementById('moderatorPassword').value;
+        
+        if (!email || !password) {
+            showMobileAlert('❌ Por favor completa todos los campos');
+            return;
+        }
+        
+        if (!auth || !window.firebaseSignInWithEmailAndPassword) {
             showMobileAlert('❌ Firebase no está configurado. Usando modo local.');
-            // Fallback to local mode
             showModeratorDashboard();
             return;
         }
         
-        const provider = new window.firebaseGoogleAuthProvider();
-        const result = await window.firebaseSignInWithPopup(auth, provider);
+        const result = await window.firebaseSignInWithEmailAndPassword(auth, email, password);
         
         // Save user to Firestore
         const userRef = window.firebaseDoc(db, 'users', result.user.uid);
         await window.firebaseUpdateDoc(userRef, {
             email: result.user.email,
-            name: result.user.displayName,
+            name: result.user.displayName || email.split('@')[0],
             role: 'moderator',
             lastLogin: window.firebaseServerTimestamp()
         }).catch(async () => {
@@ -70,16 +76,74 @@ async function loginWithGoogle() {
             await window.firebaseAddDoc(window.firebaseCollection(db, 'users'), {
                 uid: result.user.uid,
                 email: result.user.email,
-                name: result.user.displayName,
+                name: result.user.displayName || email.split('@')[0],
                 role: 'moderator',
                 lastLogin: window.firebaseServerTimestamp()
             });
         });
         
-        showMobileAlert('✅ Sesión iniciada con Google');
+        showMobileAlert('✅ Sesión iniciada correctamente');
+        
     } catch (error) {
         console.error('Login error:', error);
-        showMobileAlert('❌ Error al iniciar sesión: ' + error.message);
+        if (error.code === 'auth/user-not-found') {
+            showMobileAlert('❌ Usuario no encontrado. Regístrate primero.');
+        } else if (error.code === 'auth/wrong-password') {
+            showMobileAlert('❌ Contraseña incorrecta');
+        } else if (error.code === 'auth/invalid-email') {
+            showMobileAlert('❌ Email inválido');
+        } else {
+            showMobileAlert('❌ Error al iniciar sesión: ' + error.message);
+        }
+    }
+}
+
+async function registerWithEmail() {
+    try {
+        const email = document.getElementById('moderatorEmail').value.trim();
+        const password = document.getElementById('moderatorPassword').value;
+        
+        if (!email || !password) {
+            showMobileAlert('❌ Por favor completa todos los campos');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showMobileAlert('❌ La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+        
+        if (!auth || !window.firebaseCreateUserWithEmailAndPassword) {
+            showMobileAlert('❌ Firebase no está configurado. Usando modo local.');
+            showModeratorDashboard();
+            return;
+        }
+        
+        const result = await window.firebaseCreateUserWithEmailAndPassword(auth, email, password);
+        
+        // Save user to Firestore
+        await window.firebaseAddDoc(window.firebaseCollection(db, 'users'), {
+            uid: result.user.uid,
+            email: result.user.email,
+            name: email.split('@')[0],
+            role: 'moderator',
+            createdAt: window.firebaseServerTimestamp(),
+            lastLogin: window.firebaseServerTimestamp()
+        });
+        
+        showMobileAlert('✅ Usuario registrado e iniciado sesión');
+        
+    } catch (error) {
+        console.error('Registration error:', error);
+        if (error.code === 'auth/email-already-in-use') {
+            showMobileAlert('❌ Este email ya está registrado. Inicia sesión.');
+        } else if (error.code === 'auth/weak-password') {
+            showMobileAlert('❌ La contraseña es muy débil');
+        } else if (error.code === 'auth/invalid-email') {
+            showMobileAlert('❌ Email inválido');
+        } else {
+            showMobileAlert('❌ Error al registrarse: ' + error.message);
+        }
     }
 }
 
@@ -105,7 +169,9 @@ function showModeratorDashboard() {
     document.getElementById('moderator-dashboard').classList.remove('hidden');
     
     if (currentUser) {
-        document.getElementById('moderatorName').textContent = currentUser.displayName || 'Moderador';
+        const displayName = currentUser.displayName || 
+                           (currentUser.email ? currentUser.email.split('@')[0] : 'Moderador');
+        document.getElementById('moderatorName').textContent = displayName;
     }
 }
 

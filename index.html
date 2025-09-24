@@ -33,7 +33,7 @@
     <!-- Firebase SDK v9+ (Modular) -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
         import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, arrayUnion, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         
         // Firebase Configuration
@@ -55,8 +55,8 @@
         // Make Firebase available globally
         window.firebaseAuth = auth;
         window.firebaseDb = db;
-        window.firebaseSignInWithPopup = signInWithPopup;
-        window.firebaseGoogleAuthProvider = GoogleAuthProvider;
+        window.firebaseCreateUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.firebaseSignInWithEmailAndPassword = signInWithEmailAndPassword;
         window.firebaseSignOut = signOut;
         window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseCollection = collection;
@@ -94,9 +94,22 @@
             <div id="moderator-login" class="moderator-login">
                 <h4>🔐 Iniciar Sesión como Moderador</h4>
                 <p>Necesitas iniciar sesión para crear y gestionar salas</p>
-                <button id="googleLoginBtn" class="control-btn" onclick="loginWithGoogle()">
-                    🔑 Iniciar con Google
-                </button>
+                
+                <div class="login-form">
+                    <div class="form-group">
+                        <label for="moderatorEmail">📧 Email:</label>
+                        <input type="email" id="moderatorEmail" placeholder="tu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="moderatorPassword">🔒 Contraseña:</label>
+                        <input type="password" id="moderatorPassword" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                    <div class="login-buttons">
+                        <button class="control-btn" onclick="loginWithEmail()">🚪 Iniciar Sesión</button>
+                        <button class="control-btn secondary" onclick="registerWithEmail()">📝 Registrarse</button>
+                    </div>
+                </div>
+                
                 <div id="loginStatus" class="login-status hidden">
                     <p>✅ Sesión iniciada</p>
                 </div>
