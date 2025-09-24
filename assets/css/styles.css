@@ -887,6 +887,56 @@ body::before {
     margin-bottom: 10px;
 }
 
+.join-room-form {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.join-room-form h4 {
+    margin: 0 0 20px 0;
+    text-align: center;
+    font-size: 18px;
+}
+
+.join-room-form .form-group {
+    margin-bottom: 15px;
+}
+
+.join-room-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.join-room-form input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #2c3e50;
+    box-sizing: border-box;
+}
+
+.join-room-form .control-btn {
+    margin: 5px;
+    padding: 10px 20px;
+}
+
+.control-btn.secondary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.control-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 /* Mobile optimizations for share section */
 @media (max-width: 768px) {
     .share-section {
