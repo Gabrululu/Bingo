@@ -76,6 +76,15 @@
             <div class="community-name">MKT COMMUNITY</div>
             <h1>BINGO WEB3</h1>
             <p>Marketing & Blockchain Edition</p>
+            <div style="text-align:center; margin: 10px 0 20px;">
+                <button class="control-btn" onclick="(function(){
+                    const modeSelector = document.querySelector('.mode-selector');
+                    if (modeSelector) modeSelector.classList.add('hidden');
+                    document.getElementById('moderator-section').classList.remove('hidden');
+                    document.getElementById('participant-mode').classList.add('hidden');
+                    document.getElementById('moderator-mode').classList.remove('hidden');
+                })()">Acceder como Moderador</button>
+            </div>
             <div id="room-status" class="room-status hidden">
                 <span id="room-status-text"></span>
             </div>

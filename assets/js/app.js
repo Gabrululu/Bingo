@@ -244,12 +244,18 @@ function setupRealtimeListener() {
 }
 
 function updateParticipantsFromFirebase(firebaseParticipants) {
-    // Convert Firebase participants to local format
-    participants = firebaseParticipants.map(p => ({
+    // Convert Firebase participants to local format with deduplication
+    const seen = new Set();
+    participants = (firebaseParticipants || []).filter(p => {
+        const key = (p.participantId || '') + '|' + (p.name || '');
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    }).map(p => ({
         id: p.participantId,
         name: p.name,
         card: p.card || null,
-        registered: p.joinedAt ? p.joinedAt.toDate() : new Date(),
+        registered: p.joinedAt && typeof p.joinedAt.toDate === 'function' ? p.joinedAt.toDate() : new Date(),
         roomId: firebaseRoomId
     }));
     
@@ -523,35 +529,70 @@ function saveRoomParticipants() {
 }
 
 // Participant Registration
-function registerParticipant() {
-    const name = document.getElementById('participantName').value.trim();
+async function registerParticipant() {
+    const input = document.getElementById('participantName');
+    const name = input.value.trim();
     if (!name) {
         showMobileAlert('Por favor ingresa tu nombre');
         return;
     }
+
+    // Attempt Firestore registration if joining via link
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const urlRoom = params.get('room');
+        if (urlRoom && window.firebaseDb && window.firebaseOnSnapshot) {
+            const roomsCol = window.firebaseCollection(window.firebaseDb, 'rooms');
+            const unsubscribe = window.firebaseOnSnapshot(roomsCol, async (snapshot) => {
+                let targetId = null;
+                snapshot.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d && d.code === urlRoom) targetId = docSnap.id;
+                });
+                if (!targetId) return; // wait until found
+                unsubscribe();
+
+                const roomRef = window.firebaseDoc(window.firebaseDb, 'rooms', targetId);
+                // read latest and append
+                let latest;
+                const off = window.firebaseOnSnapshot(roomRef, (docSnap) => { latest = docSnap.data(); });
+                await new Promise(r => setTimeout(r, 100));
+                if (typeof off === 'function') off();
+
+                const list = Array.isArray(latest?.participants) ? latest.participants.slice() : [];
+                const payload = { participantId: uid(), name, joinedAt: window.firebaseServerTimestamp() };
+                list.push(payload);
+                await window.firebaseUpdateDoc(roomRef, { participants: list });
+
+                // local update
+                participants.push({ id: payload.participantId, name, card: null, registered: new Date(), roomId: targetId });
+                currentParticipant = participants[participants.length - 1];
+                document.getElementById('registeredName').textContent = name;
+                document.getElementById('registration-section').classList.add('hidden');
+                document.getElementById('waiting-section').classList.remove('hidden');
+                saveToStorage();
+                showMobileAlert('✅ Registro completado');
+            });
+            return;
+        }
+    } catch (e) {
+        console.error('Firestore registration error:', e);
+    }
+
+    // Local fallback
     if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
         showMobileAlert('Este nombre ya está registrado. Usa otro nombre.');
         return;
     }
-    const participant = {
-        id: uid(),
-        name: name,
-        card: null,
-        registered: new Date(),
-        roomId: roomId
-    };
+    const participant = { id: uid(), name, card: null, registered: new Date(), roomId: roomId };
     participants.push(participant);
     currentParticipant = participant;
     document.getElementById('registeredName').textContent = name;
     document.getElementById('registration-section').classList.add('hidden');
     document.getElementById('waiting-section').classList.remove('hidden');
-    
-    // Save to storage and sync with room
     saveToStorage();
     if (roomId) {
-        // Add participant to room
         addParticipantToRoom(participant);
-        // Notify moderator
         notifyModerator('new_participant', participant);
     }
 }
@@ -1006,6 +1047,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Then initialize existing functionality
     loadFromStorage();
     checkURLForRoom();
+    // If joining via shared link, force participant UI
+    try {
+        const params = new URLSearchParams(window.location.search);
+        const urlRoom = params.get('room');
+        if (urlRoom) {
+            const modeSelector = document.querySelector('.mode-selector');
+            if (modeSelector) modeSelector.classList.add('hidden');
+            const modSection = document.getElementById('moderator-section');
+            if (modSection) modSection.classList.add('hidden');
+            const modMode = document.getElementById('moderator-mode');
+            if (modMode) modMode.classList.add('hidden');
+            const partMode = document.getElementById('participant-mode');
+            if (partMode) partMode.classList.remove('hidden');
+        }
+    } catch (e) { }
     
     if (currentParticipant) {
         document.getElementById('registeredName').textContent = currentParticipant.name || '';
