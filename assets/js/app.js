@@ -164,7 +164,9 @@ async function logoutModerator() {
 
 // UI Functions for Firebase
 function showModeratorLogin() {
-    // Mostrar solo login y CTA, esconder todo lo demás
+    // Mostrar solo el formulario de login del moderador
+    const modSection = document.getElementById('moderator-section');
+    if (modSection) modSection.classList.remove('hidden');
     document.getElementById('moderator-login').classList.remove('hidden');
     document.getElementById('moderator-dashboard').classList.add('hidden');
     const modeSelector = document.querySelector('.mode-selector');
@@ -176,7 +178,7 @@ function showModeratorLogin() {
 }
 
 function showModeratorDashboard() {
-    // Ocultar login, mostrar dashboard centrado
+    // Ocultar login, mostrar dashboard (solo crear sala hasta que exista)
     document.getElementById('moderator-login').classList.add('hidden');
     document.getElementById('moderator-dashboard').classList.remove('hidden');
     const moderatorCta = document.getElementById('moderator-cta');
@@ -185,12 +187,34 @@ function showModeratorDashboard() {
     if (modeSelector) modeSelector.classList.add('hidden');
     const participantMode = document.getElementById('participant-mode');
     if (participantMode) participantMode.classList.add('hidden');
+
+    // Ocultar paneles avanzados hasta que exista una sala
+    const roomInfo = document.getElementById('roomInfo');
+    if (roomInfo) roomInfo.classList.add('hidden');
+    const shareBtn = document.getElementById('shareBtn');
+    if (shareBtn) shareBtn.classList.add('hidden');
+    const createBtn = document.getElementById('createRoomBtn');
+    if (createBtn) createBtn.classList.remove('hidden');
+    const moderatorMode = document.getElementById('moderator-mode');
+    if (moderatorMode) moderatorMode.classList.add('hidden');
     
     if (currentUser) {
         const displayName = currentUser.displayName || 
                            (currentUser.email ? currentUser.email.split('@')[0] : 'Moderador');
         document.getElementById('moderatorName').textContent = displayName;
     }
+}
+
+// Abrir login explícitamente desde CTA
+function openModeratorLogin() {
+    const modeSelector = document.querySelector('.mode-selector');
+    if (modeSelector) modeSelector.classList.add('hidden');
+    const participantMode = document.getElementById('participant-mode');
+    if (participantMode) participantMode.classList.add('hidden');
+    const modSection = document.getElementById('moderator-section');
+    if (modSection) modSection.classList.remove('hidden');
+    document.getElementById('moderator-login').classList.remove('hidden');
+    document.getElementById('moderator-dashboard').classList.add('hidden');
 }
 
 // Firebase Room Management
@@ -231,6 +255,9 @@ async function createRoomWithFirebase() {
         document.getElementById('roomInfo').classList.remove('hidden');
         document.getElementById('createRoomBtn').classList.add('hidden');
         document.getElementById('shareBtn').classList.remove('hidden');
+        // Mostrar panel del moderador ahora que hay sala
+        const moderatorMode = document.getElementById('moderator-mode');
+        if (moderatorMode) moderatorMode.classList.remove('hidden');
         
         // Setup real-time listener
         setupRealtimeListener();
