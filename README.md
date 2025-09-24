@@ -1,6 +1,6 @@
 # 🎯 Bingo Web3 - MKT Community
 
-Un bingo interactivo diseñado específicamente para comunidades de marketing y blockchain, con términos de Web3, DeFi, NFT y más.
+Un bingo interactivo diseñado específicamente para comunidades Web3
 
 ## 🚀 Características
 
@@ -43,30 +43,9 @@ bingo/
 5. Canta términos uno por uno
 6. Verifica ganadores
 
-## 🛠️ Instalación y Uso
 
-### Opción 1: Uso Local
-1. Descarga todos los archivos
-2. Abre `index.html` en tu navegador
-3. ¡Listo para jugar!
-
-### Opción 2: Servidor Web
-1. Sube todos los archivos a tu servidor web
-2. Asegúrate de mantener la estructura de carpetas
-3. Accede desde cualquier dispositivo
-
-### Opción 3: GitHub Pages
-1. Sube el proyecto a un repositorio de GitHub
-2. Activa GitHub Pages en la configuración
-3. Tu bingo estará disponible en `https://tu-usuario.github.io/tu-repo`
 
 ## 🌐 Despliegue en la Web
-
-### Netlify (Recomendado)
-1. Ve a [netlify.com](https://netlify.com)
-2. Arrastra la carpeta del proyecto a la zona de deploy
-3. Tu sitio estará disponible en una URL como `https://random-name.netlify.app`
-4. Puedes personalizar el dominio en la configuración
 
 ### Vercel
 1. Ve a [vercel.com](https://vercel.com)
@@ -119,28 +98,6 @@ Edita el contenido en `index.html`:
 <p>Tu descripción</p>
 ```
 
-## 🔧 Funcionalidades Técnicas
-
-- **LocalStorage**: Persistencia de datos entre sesiones
-- **Touch Events**: Soporte completo para dispositivos táctiles
-- **Responsive Grid**: Cartillas adaptables a cualquier pantalla
-- **Progressive Enhancement**: Funciona sin JavaScript (básico)
-- **SEO Ready**: Meta tags optimizados para redes sociales
-
-## 🐛 Solución de Problemas
-
-### El favicon no aparece
-- Verifica que `favicon.svg` esté en la raíz del proyecto
-- Limpia la caché del navegador
-
-### Los datos no se guardan
-- Verifica que localStorage esté habilitado
-- No uses modo incógnito para el moderador
-
-### Problemas en móvil
-- Asegúrate de usar HTTPS en producción
-- Verifica que el viewport meta tag esté presente
-
 ## 📄 Licencia
 
 Este proyecto es de código abierto. Úsalo libremente para tu comunidad.
@@ -155,11 +112,6 @@ Este proyecto es de código abierto. Úsalo libremente para tu comunidad.
 4. Push a la rama
 5. Abre un Pull Request
 
-## 📞 Soporte
-
-Si tienes problemas o preguntas:
-- Abre un issue en GitHub
-- Contacta a la comunidad MKT
 
 ---
 
