@@ -186,7 +186,7 @@ async function createRoomWithFirebase() {
         const roomCode = generateRoomCode();
         const shareUrl = window.location.origin + window.location.pathname + '#/play/' + roomCode;
         
-        // Create room in Firestore
+        // Create room in Firestore (doc id = roomCode)
         const roomData = {
             code: roomCode,
             moderatorId: currentUser.uid,
@@ -203,8 +203,9 @@ async function createRoomWithFirebase() {
             participants: []
         };
         
-        const docRef = await window.firebaseAddDoc(window.firebaseCollection(db, 'rooms'), roomData);
-        firebaseRoomId = docRef.id;
+        const roomDocRef = window.firebaseDoc(db, 'rooms', roomCode);
+        await window.firebaseSetDoc(roomDocRef, roomData);
+        firebaseRoomId = roomCode;
         
         // Update UI
         document.getElementById('roomCode').textContent = roomCode;
@@ -553,40 +554,27 @@ async function registerParticipant() {
 
     // Attempt Firestore registration if joining via link
     try {
-        const params = new URLSearchParams(window.location.search);
-        const urlRoom = params.get('room');
-        if (urlRoom && window.firebaseDb && window.firebaseOnSnapshot) {
-            const roomsCol = window.firebaseCollection(window.firebaseDb, 'rooms');
-            const unsubscribe = window.firebaseOnSnapshot(roomsCol, async (snapshot) => {
-                let targetId = null;
-                snapshot.forEach(docSnap => {
-                    const d = docSnap.data();
-                    if (d && d.code === urlRoom) targetId = docSnap.id;
-                });
-                if (!targetId) return; // wait until found
-                unsubscribe();
+        const urlRoom = getRoomCodeFromURL();
+        if (urlRoom && window.firebaseDb && window.firebaseSignInAnonymously && window.firebaseSetDoc) {
+            try { await window.firebaseSignInAnonymously(auth); } catch(_) {}
+            const uidAuth = (auth && auth.currentUser) ? auth.currentUser.uid : uid();
+            const partsDoc = window.firebaseDoc(window.firebaseDb, 'rooms/' + urlRoom + '/participants/' + uidAuth);
+            await window.firebaseSetDoc(partsDoc, {
+                participantId: uidAuth,
+                uid: uidAuth,
+                name,
+                joinedAt: window.firebaseServerTimestamp(),
+                status: 'waiting',
+                card: null
+            }, { merge: true });
 
-                const roomRef = window.firebaseDoc(window.firebaseDb, 'rooms', targetId);
-                // read latest and append
-                let latest;
-                const off = window.firebaseOnSnapshot(roomRef, (docSnap) => { latest = docSnap.data(); });
-                await new Promise(r => setTimeout(r, 100));
-                if (typeof off === 'function') off();
-
-                const list = Array.isArray(latest?.participants) ? latest.participants.slice() : [];
-                const payload = { participantId: uid(), name, joinedAt: window.firebaseServerTimestamp() };
-                list.push(payload);
-                await window.firebaseUpdateDoc(roomRef, { participants: list });
-
-                // local update
-                participants.push({ id: payload.participantId, name, card: null, registered: new Date(), roomId: targetId });
-                currentParticipant = participants[participants.length - 1];
-                document.getElementById('registeredName').textContent = name;
-                document.getElementById('registration-section').classList.add('hidden');
-                document.getElementById('waiting-section').classList.remove('hidden');
-                saveToStorage();
-                showMobileAlert('✅ Registro completado');
-            });
+            participants.push({ id: uidAuth, name, card: null, registered: new Date(), roomId: urlRoom });
+            currentParticipant = participants[participants.length - 1];
+            document.getElementById('registeredName').textContent = name;
+            document.getElementById('registration-section').classList.add('hidden');
+            document.getElementById('waiting-section').classList.remove('hidden');
+            saveToStorage();
+            showMobileAlert('✅ Registro completado');
             return;
         }
     } catch (e) {
