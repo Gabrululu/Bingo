@@ -868,6 +868,25 @@ body::before {
     opacity: 0.9;
 }
 
+.share-instructions {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    text-align: left;
+}
+
+.share-instructions p {
+    margin: 5px 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.share-instructions p:first-child {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
 /* Mobile optimizations for share section */
 @media (max-width: 768px) {
     .share-section {

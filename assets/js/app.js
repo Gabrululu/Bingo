@@ -84,15 +84,19 @@ function generateRoom() {
     document.getElementById('generateRoomBtn').classList.add('hidden');
     document.getElementById('shareBtn').classList.remove('hidden');
     
-    // Generate QR Code
-    generateQRCode(shareUrl);
-    
-    // Save room info
+    // Save room info with moderator flag
     localStorage.setItem('mkt_bingo_room', JSON.stringify({
         id: roomId,
         url: shareUrl,
         created: new Date(),
         moderator: true
+    }));
+    
+    // Initialize room participants storage
+    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify({
+        id: roomId,
+        participants: [],
+        lastUpdated: new Date()
     }));
     
     // Ensure moderator controls are visible
@@ -142,37 +146,8 @@ function copyShareLink() {
 }
 
 function generateQRCode(text) {
-    const canvas = document.getElementById('qrCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Simple QR Code generation (basic implementation)
-    const size = 150;
-    const moduleSize = 5;
-    const modules = Math.floor(size / moduleSize);
-    
-    // Clear canvas
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, size, size);
-    
-    // Generate simple pattern based on text hash
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-        hash = ((hash << 5) - hash + text.charCodeAt(i)) & 0xffffffff;
-    }
-    
-    ctx.fillStyle = 'black';
-    for (let x = 0; x < modules; x++) {
-        for (let y = 0; y < modules; y++) {
-            if ((hash + x * y) % 3 === 0) {
-                ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
-            }
-        }
-    }
-    
-    // Add border
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(0, 0, size, size);
+    // QR Code functionality removed - using simple link sharing instead
+    return;
 }
 
 function joinRoom(roomCode) {
@@ -245,7 +220,8 @@ function showRoomStatus(type, text) {
 }
 
 function loadRoomParticipants() {
-    // Simulate loading participants from room
+    if (!roomId) return;
+    
     const savedRoom = localStorage.getItem('mkt_bingo_room_' + roomId);
     if (savedRoom) {
         try {
@@ -308,10 +284,32 @@ function registerParticipant() {
     // Save to storage and sync with room
     saveToStorage();
     if (roomId) {
-        saveRoomParticipants();
-        // Notify moderator if in room
+        // Add participant to room
+        addParticipantToRoom(participant);
+        // Notify moderator
         notifyModerator('new_participant', participant);
     }
+}
+
+function addParticipantToRoom(participant) {
+    if (!roomId) return;
+    
+    // Get current room data
+    const roomData = JSON.parse(localStorage.getItem('mkt_bingo_room_' + roomId) || '{"participants": []}');
+    
+    // Add new participant
+    roomData.participants = roomData.participants || [];
+    roomData.participants.push(participant);
+    roomData.lastUpdated = new Date();
+    
+    // Save updated room data
+    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify(roomData));
+    
+    // Trigger storage event for cross-tab communication
+    window.dispatchEvent(new StorageEvent('storage', {
+        key: 'mkt_bingo_room_' + roomId,
+        newValue: JSON.stringify(roomData)
+    }));
 }
 
 // Fisher-Yates shuffle
@@ -672,15 +670,16 @@ function checkForNotifications() {
 function syncRoomData() {
     if (!roomId) return;
     
-    // Check for updates every 2 seconds
+    // Check for updates every 1 second for better responsiveness
     setInterval(() => {
         if (isModerator) {
             checkForNotifications();
+            loadRoomParticipants(); // Refresh participants list
         } else {
             // Participants check for room updates
             loadRoomParticipants();
         }
-    }, 2000);
+    }, 1000);
 }
 
 function checkURLForRoom() {
@@ -698,6 +697,14 @@ function checkURLForRoom() {
                     isModerator = true;
                     roomId = roomCode;
                     showModeratorControls();
+                    
+                    // Restore room info
+                    document.getElementById('roomCode').textContent = roomCode;
+                    document.getElementById('shareLink').value = roomData.url;
+                    document.getElementById('roomInfo').classList.remove('hidden');
+                    document.getElementById('generateRoomBtn').classList.add('hidden');
+                    document.getElementById('shareBtn').classList.remove('hidden');
+                    
                     showMobileAlert('🎮 Sala cargada: ' + roomCode + ' (Eres el moderador)');
                     return;
                 }
