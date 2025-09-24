@@ -116,6 +116,11 @@ function migrateStorage() {
     }
 }
 
+// Generate secure unique ID
+function uid() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 // Mode Switching
 function switchMode(event, mode) {
     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
@@ -127,11 +132,6 @@ function switchMode(event, mode) {
     if (mode === 'moderator') {
         updateParticipantsList();
     }
-}
-
-// Generate secure unique ID
-function uid() {
-    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 // Participant Registration
@@ -286,7 +286,7 @@ function addSwipeDetection(element) {
     }, { passive: true });
 }
 
-// Toggle cell
+// Toggle cell marking
 function toggleCell(cell, term) {
     if (term === 'FREE') return;
     if (!gameState.calledTerms.includes(term)) {
@@ -294,29 +294,19 @@ function toggleCell(cell, term) {
         return;
     }
     cell.classList.toggle('marked');
-    if (navigator.vibrate) navigator.vibrate(50);
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
     cell.style.transform = 'scale(0.9)';
-    setTimeout(() => { cell.style.transform = ''; }, 150);
+    setTimeout(() => {
+        cell.style.transform = '';
+    }, 150);
 }
 
-// Mobile alert
+// Mobile-friendly alert system
 function showMobileAlert(message) {
     const alertDiv = document.createElement('div');
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #ff6b6b;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 10px;
-        font-weight: bold;
-        z-index: 1000;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        max-width: 80%;
-        text-align: center;
-    `;
+    alertDiv.className = 'mobile-alert';
     alertDiv.textContent = message;
     document.body.appendChild(alertDiv);
     setTimeout(() => { alertDiv.remove(); }, 2000);
@@ -387,7 +377,7 @@ function startGame() {
         showMobileAlert('Primero asigna cartillas a todos los participantes');
         return;
     }
-    gameState.terms = [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5);
+    gameState.terms = shuffle(WEB3_MARKETING_TERMS);
     gameState.calledTerms = [];
     gameState.currentIndex = 0;
     gameState.started = true;
@@ -408,7 +398,7 @@ function callNextTerm() {
     const nextTerm = gameState.terms[gameState.currentIndex];
     gameState.calledTerms.push(nextTerm);
     gameState.currentIndex++;
-    document.getElementById('currentTerm').innerHTML = `🎯 <strong>"${nextTerm}"</strong>`;
+    document.getElementById('currentTerm').innerHTML = `🎯 "${nextTerm}"`;
     const calledContainer = document.getElementById('calledTermsList');
     const termDiv = document.createElement('div');
     termDiv.className = 'called-term';
@@ -429,8 +419,7 @@ function resetGame() {
     participants = [];
     gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
     currentParticipant = null;
-    localStorage.removeItem('mkt_bingo_participants');
-    localStorage.removeItem('mkt_current_participant');
+    localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem('mkt_bingo_gamestate');
     document.getElementById('calledTermsList').innerHTML = '';
     document.getElementById('currentTerm').textContent = 'Registra participantes y asigna cartillas para comenzar';
@@ -449,7 +438,7 @@ function claimBingo() {
     createCelebrationEffect();
 }
 
-// Celebration effect
+// Create celebration effect
 function createCelebrationEffect() {
     const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
     for (let i = 0; i < 15; i++) {
@@ -530,5 +519,3 @@ document.addEventListener('DOMContentLoaded', function() {
     updateGameStats();
     updateParticipantsList();
 });
-
-
