@@ -34,7 +34,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, deleteDoc, serverTimestamp, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, deleteDoc, serverTimestamp, getDocs, query, where, orderBy, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         
         // Firebase Configuration
         const firebaseConfig = {
@@ -72,6 +72,7 @@
         window.firebaseQuery = query;
         window.firebaseWhere = where;
         window.firebaseOrderBy = orderBy;
+        window.firebaseGetDoc = getDoc;
         
         console.log('Firebase v9+ initialized successfully');
     </script>

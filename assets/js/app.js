@@ -383,7 +383,7 @@ async function joinRoomAsParticipant(roomId) {
         
         // Check if already registered
         const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
-        const participantSnap = await participantRef.get();
+        const participantSnap = await window.firebaseGetDoc(participantRef);
         
         if (participantSnap.exists()) {
             // Already registered, show waiting/playing section
@@ -419,23 +419,27 @@ async function registerParticipant() {
     }
     
     try {
-        // Sign in anonymously if not already authenticated
+        // 1) Asegura sesión anónima
         if (!currentUser) {
             await window.firebaseSignInAnonymously(window.firebaseAuth);
         }
+        const uid = currentUser.uid;
         
+        // 2) Ruta correcta: subcolección de la sala
+        const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${uid}`);
+        
+        // 3) Payload que cumple las rules
         const participantData = {
-            uid: currentUser.uid,
-            name: name,
-            status: 'waiting',
+            uid: uid,
+            name: name.trim(),
             joinedAt: window.firebaseServerTimestamp(),
+            status: 'waiting',
             cardId: null
         };
         
-        const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${currentUser.uid}`);
-        await window.firebaseSetDoc(participantRef, participantData);
+        await window.firebaseSetDoc(participantRef, participantData, { merge: true });
         
-        currentParticipant = { id: currentUser.uid, ...participantData };
+        currentParticipant = { id: uid, ...participantData };
         
         document.getElementById('registeredName').textContent = name;
         document.getElementById('registration-section').classList.add('hidden');
@@ -444,8 +448,12 @@ async function registerParticipant() {
         console.log('Participant registered:', name);
         
     } catch (error) {
-        console.error('Error registering participant:', error);
-        alert('Error al registrarse: ' + error.message);
+        console.error('JOIN_FAIL', { 
+            roomId: route.roomId, 
+            uid: currentUser?.uid, 
+            err: error 
+        });
+        alert(`No pudimos registrarte: ${error.code || error.message}`);
     }
 }
 
@@ -570,7 +578,7 @@ function showPlayerCard() {
     
     // Get card data from Firestore
     const cardRef = window.firebaseDoc(window.firebaseDb, `rooms/${getCurrentRoute().roomId}/cards/${currentParticipant.cardId}`);
-    cardRef.get().then((cardSnap) => {
+    window.firebaseGetDoc(cardRef).then((cardSnap) => {
         if (cardSnap.exists()) {
             const cardData = cardSnap.data();
             displayPlayerCard(cardData.cells);
