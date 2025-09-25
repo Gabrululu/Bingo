@@ -406,8 +406,8 @@ async function joinRoomAsParticipant(roomId) {
 }
 
 async function registerParticipant() {
-    const name = document.getElementById('participantName').value.trim();
-    if (!name) {
+    const rawName = document.getElementById('participantName').value;
+    if (!rawName) {
         alert('Por favor ingresa tu nombre');
         return;
     }
@@ -419,33 +419,55 @@ async function registerParticipant() {
     }
     
     try {
-        // 1) Asegura sesión anónima
+        // 1) sesión anónima
         if (!currentUser) {
             await window.firebaseSignInAnonymously(window.firebaseAuth);
         }
         const uid = currentUser.uid;
         
-        // 2) Ruta correcta: subcolección de la sala
-        const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${uid}`);
+        // 2) limpiar nombre y limitar longitud
+        const name = rawName.trim().slice(0, 40);
+        if (!name) {
+            alert('El nombre no puede estar vacío');
+            return;
+        }
         
-        // 3) Payload que cumple las rules
-        const participantData = {
-            uid: uid,
-            name: name.trim(),
-            joinedAt: window.firebaseServerTimestamp(),
-            status: 'waiting',
-            cardId: null
-        };
+        // 3) docID = uid (¡clave para pasar la rule!)
+        const pRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${uid}`);
         
-        await window.firebaseSetDoc(participantRef, participantData, { merge: true });
+        // Debug log
+        console.log({
+            roomId: route.roomId,
+            uid: currentUser?.uid,
+            path: `rooms/${route.roomId}/participants/${currentUser?.uid}`,
+            payload: {
+                uid: currentUser?.uid,
+                name: name,
+                status: "waiting",
+                cardId: null
+            }
+        });
         
-        currentParticipant = { id: uid, ...participantData };
+        // 4) payload EXACTO que pide la rule
+        await window.firebaseSetDoc(
+            pRef,
+            {
+                uid: uid,
+                name: name,
+                joinedAt: window.firebaseServerTimestamp(),
+                status: "waiting",   // no cambies el string
+                cardId: null         // requerido o ausente, aquí lo ponemos null
+            },
+            { merge: true }
+        );
+        
+        currentParticipant = { id: uid, name: name, status: "waiting", cardId: null };
         
         document.getElementById('registeredName').textContent = name;
         document.getElementById('registration-section').classList.add('hidden');
         document.getElementById('waiting-section').classList.remove('hidden');
         
-        console.log('Participant registered:', name);
+        console.log('Participant registered successfully:', name);
         
     } catch (error) {
         console.error('JOIN_FAIL', { 
