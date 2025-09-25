@@ -1,1200 +1,737 @@
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCgWVgfDgYOLCXvMoI6B8cKtc1lt0E2jOc",
-    authDomain: "bingo-d2f28.firebaseapp.com",
-    projectId: "bingo-d2f28",
-    storageBucket: "bingo-d2f28.firebasestorage.app",
-    messagingSenderId: "786733165579",
-    appId: "1:786733165579:web:a5339c73eaf1d31c3eeb0e",
-    measurementId: "G-17C462BPND"
-};
+// Web3 Marketing Terms for Bingo
+const WEB3_MARKETING_TERMS = [
+    // Core Web3
+    "NFT", "DeFi", "DAO", "Smart Contract", "Blockchain", "Token", "Metaverso", "Web3", "Cripto", "Wallet", "Mining", "Staking", "Yield", "Liquidity", "DEX", "CEX",
+    
+    // Marketing Web3 Specific
+    "Community Building", "Token Gating", "Whitelist Marketing", "Influencer NFTs", "Creator Economy", "Social Tokens", "Fan Tokens", "Loyalty Rewards", "Gamification", "Play-to-Earn", "Engagement Mining", "Creator Coins", "Branded NFTs", "Virtual Events", "Metaverse Marketing",
+    
+    // DeFi Marketing
+    "Yield Farming", "Liquidity Mining", "Staking Rewards", "Protocol Incentives", "Governance Tokens", "Tokenomics Design", "Airdrop Campaign", "Retroactive Rewards", "Fee Sharing", "Revenue Share",
+    
+    // NFT Marketing
+    "Utility NFTs", "PFP Project", "Roadmap", "Mint Strategy", "Reveal Marketing", "Floor Price", "Trait Rarity", "Collection Launch", "Exclusive Access", "Holder Benefits", "Secondary Sales",
+    
+    // Community & Social
+    "Discord Marketing", "Twitter Spaces", "Telegram Groups", "Ambassador Program", "Referral Program", "Content Creation", "Meme Marketing", "Viral Campaigns", "KOL Marketing", "Community Rewards",
+    
+    // Technology Terms
+    "Layer 1", "Layer 2", "Cross-chain", "Interoperability", "Scalability", "Gas Optimization", "Smart Contract Audit", "Security Tokens", "Compliance", "KYC/AML", "Regulatory Framework",
+    
+    // Trading & Finance
+    "Market Making", "AMM", "Order Book", "Slippage", "Impermanent Loss", "APR", "APY", "TVL", "Volume", "Market Cap", "Fully Diluted Value", "Circulating Supply", "Token Distribution",
+    
+    // Trends & Culture
+    "HODL", "FOMO", "FUD", "Diamond Hands", "Paper Hands", "Whale", "Retail Investor", "Institutional", "Bull Market", "Bear Market", "ATH", "ATL", "Pump", "Dump", "Moon", "Rekt"
+];
 
-// Initialize Firebase
-let auth, db;
+// Global State
 let currentUser = null;
-let firebaseRoomId = null;
+let currentRoom = null;
+let participants = [];
+let gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
+let currentParticipant = null;
+let roomsListener = null;
+let participantsListener = null;
+let gameStateListener = null;
 
-// Initialize Firebase when DOM is loaded
-function initializeFirebase() {
-    try {
-        // Wait for Firebase to be loaded from the module
-        if (window.firebaseAuth && window.firebaseDb) {
-            auth = window.firebaseAuth;
-            db = window.firebaseDb;
-            
-            // Listen for auth state changes
-            window.firebaseOnAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    showModeratorDashboard();
-                    // Intentar restaurar sesión de moderador y listeners
-                    try {
-                        checkModeratorSession();
-                    } catch (_) {}
-                } else {
-                    currentUser = null;
-                    showModeratorLogin();
-                }
-            });
-            
-            console.log('Firebase v9+ initialized successfully');
-        } else {
-            console.log('Firebase not loaded yet, retrying...');
-            setTimeout(initializeFirebase, 100);
-        }
-    } catch (error) {
-        console.log('Firebase initialization error:', error);
-        // Fallback to localStorage mode
-        showModeratorLogin();
+// Route Management
+function getCurrentRoute() {
+    const hash = window.location.hash;
+    if (hash.startsWith('#/play/')) {
+        return { type: 'play', roomId: hash.replace('#/play/', '') };
+    } else if (hash.startsWith('#/moderator/')) {
+        return { type: 'moderator-room', roomId: hash.replace('#/moderator/', '') };
+    } else if (hash === '#/moderator') {
+        return { type: 'moderator' };
+    } else {
+        return { type: 'landing' };
     }
 }
 
-// Firebase Authentication Functions
-async function loginWithEmail() {
+function navigateTo(route) {
+    if (route.type === 'play') {
+        window.location.hash = `#/play/${route.roomId}`;
+    } else if (route.type === 'moderator-room') {
+        window.location.hash = `#/moderator/${route.roomId}`;
+    } else if (route.type === 'moderator') {
+        window.location.hash = '#/moderator';
+    } else {
+        window.location.hash = '';
+    }
+}
+
+// UI Management
+function showSection(sectionId) {
+    document.querySelectorAll('.moderator-section, .content, #landing-page').forEach(section => {
+        section.classList.add('hidden');
+    });
+    document.getElementById(sectionId)?.classList.remove('hidden');
+}
+
+function hideModeratorUI() {
+    document.querySelectorAll('#moderator-login, #moderator-dashboard').forEach(el => {
+        el.classList.add('hidden');
+    });
+}
+
+function showModeratorLogin() {
+    showSection('moderator-login');
+}
+
+function showModeratorDashboard() {
+    showSection('moderator-dashboard');
+    loadMyRooms();
+}
+
+function showParticipantMode() {
+    showSection('participant-mode');
+    hideModeratorUI();
+}
+
+function showLandingPage() {
+    showSection('landing-page');
+    hideModeratorUI();
+}
+
+// Firebase Initialization
+async function initializeFirebase() {
     try {
-        const email = document.getElementById('moderatorEmail').value.trim();
-        const password = document.getElementById('moderatorPassword').value;
-        
-        if (!email || !password) {
-            showMobileAlert('❌ Por favor completa todos los campos');
-            return;
+        // Wait for Firebase to be available
+        while (!window.firebaseAuth) {
+            await new Promise(resolve => setTimeout(resolve, 100));
         }
         
-        if (!auth || !window.firebaseSignInWithEmailAndPassword) {
-            showMobileAlert('❌ Firebase no está configurado. Usando modo local.');
-            showModeratorDashboard();
-            return;
-        }
+        console.log('Firebase initialized');
         
-        const result = await window.firebaseSignInWithEmailAndPassword(auth, email, password);
-        
-        // Save user to Firestore
-        const userRef = window.firebaseDoc(db, 'users', result.user.uid);
-        await window.firebaseUpdateDoc(userRef, {
-            email: result.user.email,
-            name: result.user.displayName || email.split('@')[0],
-            role: 'moderator',
-            lastLogin: window.firebaseServerTimestamp()
-        }).catch(async () => {
-            // If document doesn't exist, create it
-            await window.firebaseAddDoc(window.firebaseCollection(db, 'users'), {
-                uid: result.user.uid,
-                email: result.user.email,
-                name: result.user.displayName || email.split('@')[0],
-                role: 'moderator',
-                lastLogin: window.firebaseServerTimestamp()
-            });
+        // Listen for auth state changes
+        window.firebaseOnAuthStateChanged(window.firebaseAuth, (user) => {
+            currentUser = user;
+            console.log('Auth state changed:', user ? user.email : 'No user');
+            
+            const route = getCurrentRoute();
+            handleRouteChange(route);
         });
         
-        showMobileAlert('✅ Sesión iniciada correctamente');
-        
+    } catch (error) {
+        console.error('Error initializing Firebase:', error);
+    }
+}
+
+// Route Handling
+function handleRouteChange(route) {
+    console.log('Handling route:', route);
+    
+    if (route.type === 'play') {
+        // Participant mode - hide all moderator UI
+        showParticipantMode();
+        joinRoomAsParticipant(route.roomId);
+    } else if (route.type === 'moderator-room') {
+        // Moderator room management
+        if (currentUser && !currentUser.isAnonymous) {
+            showModeratorDashboard();
+            openRoomManagement(route.roomId);
+        } else {
+            showModeratorLogin();
+        }
+    } else if (route.type === 'moderator') {
+        // Moderator dashboard
+        if (currentUser && !currentUser.isAnonymous) {
+            showModeratorDashboard();
+        } else {
+            showModeratorLogin();
+        }
+    } else {
+        // Landing page
+        if (currentUser && !currentUser.isAnonymous) {
+            showModeratorDashboard();
+        } else {
+            showLandingPage();
+        }
+    }
+}
+
+// Authentication
+async function loginWithEmail() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        await window.firebaseSignInWithEmailAndPassword(window.firebaseAuth, email, password);
+        console.log('Login successful');
     } catch (error) {
         console.error('Login error:', error);
-        if (error.code === 'auth/user-not-found') {
-            showMobileAlert('❌ Usuario no encontrado. Regístrate primero.');
-        } else if (error.code === 'auth/wrong-password') {
-            showMobileAlert('❌ Contraseña incorrecta');
-        } else if (error.code === 'auth/invalid-email') {
-            showMobileAlert('❌ Email inválido');
-        } else {
-            showMobileAlert('❌ Error al iniciar sesión: ' + error.message);
-        }
+        alert('Error al iniciar sesión: ' + error.message);
     }
 }
 
 async function registerWithEmail() {
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    
+    if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+    }
+    
     try {
-        const email = document.getElementById('moderatorEmail').value.trim();
-        const password = document.getElementById('moderatorPassword').value;
-        
-        if (!email || !password) {
-            showMobileAlert('❌ Por favor completa todos los campos');
-            return;
-        }
-        
-        if (password.length < 6) {
-            showMobileAlert('❌ La contraseña debe tener al menos 6 caracteres');
-            return;
-        }
-        
-        if (!auth || !window.firebaseCreateUserWithEmailAndPassword) {
-            showMobileAlert('❌ Firebase no está configurado. Usando modo local.');
-            showModeratorDashboard();
-            return;
-        }
-        
-        const result = await window.firebaseCreateUserWithEmailAndPassword(auth, email, password);
-        
-        // Save user to Firestore
-        await window.firebaseAddDoc(window.firebaseCollection(db, 'users'), {
-            uid: result.user.uid,
-            email: result.user.email,
-            name: email.split('@')[0],
-            role: 'moderator',
-            createdAt: window.firebaseServerTimestamp(),
-            lastLogin: window.firebaseServerTimestamp()
-        });
-        
-        showMobileAlert('✅ Usuario registrado e iniciado sesión');
-        
+        await window.firebaseCreateUserWithEmailAndPassword(window.firebaseAuth, email, password);
+        console.log('Registration successful');
     } catch (error) {
         console.error('Registration error:', error);
-        if (error.code === 'auth/email-already-in-use') {
-            showMobileAlert('❌ Este email ya está registrado. Inicia sesión.');
-        } else if (error.code === 'auth/weak-password') {
-            showMobileAlert('❌ La contraseña es muy débil');
-        } else if (error.code === 'auth/invalid-email') {
-            showMobileAlert('❌ Email inválido');
-        } else {
-            showMobileAlert('❌ Error al registrarse: ' + error.message);
-        }
+        alert('Error al registrarse: ' + error.message);
     }
 }
 
 async function logoutModerator() {
     try {
-        if (auth && window.firebaseSignOut) {
-            await window.firebaseSignOut(auth);
-        }
-        showMobileAlert('🚪 Sesión cerrada');
+        await window.firebaseSignOut(window.firebaseAuth);
+        console.log('Logout successful');
     } catch (error) {
         console.error('Logout error:', error);
     }
 }
 
-// UI Functions for Firebase
-function showModeratorLogin() {
-    // Mostrar solo el formulario de login del moderador
-    const modSection = document.getElementById('moderator-section');
-    if (modSection) modSection.classList.remove('hidden');
-    document.getElementById('moderator-login').classList.remove('hidden');
-    document.getElementById('moderator-dashboard').classList.add('hidden');
-    const modeSelector = document.querySelector('.mode-selector');
-    if (modeSelector) modeSelector.classList.add('hidden');
-    const participantMode = document.getElementById('participant-mode');
-    if (participantMode) participantMode.classList.add('hidden');
-    const moderatorCta = document.getElementById('moderator-cta');
-    if (moderatorCta) moderatorCta.classList.remove('hidden');
-}
-
-function showModeratorDashboard() {
-    // Ocultar login, mostrar dashboard (solo crear sala hasta que exista)
-    document.getElementById('moderator-login').classList.add('hidden');
-    document.getElementById('moderator-dashboard').classList.remove('hidden');
-    const moderatorCta = document.getElementById('moderator-cta');
-    if (moderatorCta) moderatorCta.classList.add('hidden');
-    const modeSelector = document.querySelector('.mode-selector');
-    if (modeSelector) modeSelector.classList.add('hidden');
-    const participantMode = document.getElementById('participant-mode');
-    if (participantMode) participantMode.classList.add('hidden');
-
-    // Ocultar paneles avanzados hasta que exista una sala
-    const roomInfo = document.getElementById('roomInfo');
-    if (roomInfo) roomInfo.classList.add('hidden');
-    const shareBtn = document.getElementById('shareBtn');
-    if (shareBtn) shareBtn.classList.add('hidden');
-    const createBtn = document.getElementById('createRoomBtn');
-    if (createBtn) createBtn.classList.remove('hidden');
-    const moderatorMode = document.getElementById('moderator-mode');
-    if (moderatorMode) moderatorMode.classList.add('hidden');
-    
-    if (currentUser) {
-        const displayName = currentUser.displayName || 
-                           (currentUser.email ? currentUser.email.split('@')[0] : 'Moderador');
-        document.getElementById('moderatorName').textContent = displayName;
+// Room Management
+async function createRoom() {
+    if (!currentUser || currentUser.isAnonymous) {
+        alert('Debes iniciar sesión para crear una sala');
+        return;
     }
-}
-
-// Abrir login explícitamente desde CTA
-function openModeratorLogin() {
-    const modeSelector = document.querySelector('.mode-selector');
-    if (modeSelector) modeSelector.classList.add('hidden');
-    const participantMode = document.getElementById('participant-mode');
-    if (participantMode) participantMode.classList.add('hidden');
-    const modSection = document.getElementById('moderator-section');
-    if (modSection) modSection.classList.remove('hidden');
-    document.getElementById('moderator-login').classList.remove('hidden');
-    document.getElementById('moderator-dashboard').classList.add('hidden');
-}
-
-// Firebase Room Management
-async function createRoomWithFirebase() {
+    
     try {
-        if (!currentUser) {
-            showMobileAlert('❌ Debes iniciar sesión primero');
-            return;
-        }
-        
-        const roomCode = generateRoomCode();
-        const shareUrl = window.location.origin + window.location.pathname + '#/play/' + roomCode;
-        
-        // Create room in Firestore (doc id = roomCode)
         const roomData = {
-            code: roomCode,
-            moderatorId: currentUser.uid,
-            moderatorName: currentUser.displayName || 'Moderador',
-            moderatorEmail: currentUser.email,
-            status: 'active',
+            createdBy: currentUser.uid,
+            moderators: [currentUser.uid],
+            status: 'lobby',
             createdAt: window.firebaseServerTimestamp(),
-            gameState: {
-                started: false,
-                terms: [],
-                calledTerms: [],
-                currentIndex: 0
-            },
-            participants: []
+            termsSeed: crypto.randomUUID(),
+            shareUrl: ''
         };
         
-        const roomDocRef = window.firebaseDoc(db, 'rooms', roomCode);
-        await window.firebaseSetDoc(roomDocRef, roomData);
-        firebaseRoomId = roomCode;
+        const roomRef = await window.firebaseAddDoc(window.firebaseCollection(window.firebaseDb, 'rooms'), roomData);
         
-        // Update UI
-        document.getElementById('roomCode').textContent = roomCode;
-        document.getElementById('shareLink').value = shareUrl;
-        document.getElementById('roomInfo').classList.remove('hidden');
-        document.getElementById('createRoomBtn').classList.add('hidden');
-        document.getElementById('shareBtn').classList.remove('hidden');
-        // Mostrar panel del moderador ahora que hay sala
-        const moderatorMode = document.getElementById('moderator-mode');
-        if (moderatorMode) moderatorMode.classList.remove('hidden');
+        // Update with share URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}#/play/${roomRef.id}`;
+        await window.firebaseUpdateDoc(roomRef, { shareUrl });
         
-        // Setup real-time listener
-        setupRealtimeListener();
-        
-        showMobileAlert('🎮 Sala creada con Firebase: ' + roomCode);
+        console.log('Room created:', roomRef.id);
+        navigateTo({ type: 'moderator-room', roomId: roomRef.id });
         
     } catch (error) {
         console.error('Error creating room:', error);
-        showMobileAlert('❌ Error al crear sala: ' + error.message);
+        alert('Error al crear la sala: ' + error.message);
     }
 }
 
-// Real-time listener for participants
-function setupRealtimeListener() {
-    if (!firebaseRoomId || !db || !window.firebaseOnSnapshot) return;
+async function loadMyRooms() {
+    if (!currentUser || currentUser.isAnonymous) return;
     
-    // Escuchar participantes como subcolección
-    const partsCol = window.firebaseCollection(db, 'rooms/' + firebaseRoomId + '/participants');
-    window.firebaseOnSnapshot(partsCol, (snap) => {
-        const arr = [];
-        snap.forEach(docSnap => arr.push(docSnap.data()));
-        updateParticipantsFromFirebase(arr);
-    });
-
-    // Escuchar estado del juego
-    const stateRef = window.firebaseDoc(db, 'rooms/' + firebaseRoomId + '/state/current');
-    window.firebaseOnSnapshot(stateRef, (docSnap) => {
-        if (docSnap.exists()) {
-            const s = docSnap.data();
-            gameState.started = !!s.started;
-            gameState.terms = Array.isArray(s.terms) ? s.terms : [];
-            gameState.calledTerms = Array.isArray(s.calledTerms) ? s.calledTerms : [];
-            gameState.currentIndex = typeof s.currentIndex === 'number' ? s.currentIndex : 0;
-            updateGameStats();
-            if (gameState.started && gameState.calledTerms.length) {
-                const last = gameState.calledTerms[gameState.calledTerms.length - 1];
-                document.getElementById('currentTerm').textContent = '🎯 "' + last + '"';
-            }
-        }
-    });
-}
-
-function updateParticipantsFromFirebase(firebaseParticipants) {
-    // Convert Firebase participants to local format with deduplication
-    const seen = new Set();
-    participants = (firebaseParticipants || []).filter(p => {
-        const key = (p.participantId || '') + '|' + (p.name || '');
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-    }).map(p => ({
-        id: p.participantId,
-        name: p.name,
-        card: p.card || null,
-        registered: p.joinedAt && typeof p.joinedAt.toDate === 'function' ? p.joinedAt.toDate() : new Date(),
-        roomId: firebaseRoomId
-    }));
-    
-    updateParticipantsList();
-}
-
-// Web3 Marketing Terms
-const WEB3_MARKETING_TERMS = [
-    "NFT", "DeFi", "DAO", "Smart Contract", "Blockchain", "Token", "Metaverso", "Web3",
-    "Cripto", "Wallet", "Mining", "Staking", "Yield", "Liquidity", "DEX", "CEX",
-    "Community Building", "Faucet", "Whitelist", "Ethereum", "Creator Economy",
-    "Social Tokens", "Fan Tokens", "Loyalty Rewards", "Gaming", "Play-to-Earn",
-    "Swap", "Creator Coins", "Build", "Virtual Events", "Growth Marketing",
-    "P2P", "Bridge", "Cold Wallet", "Protocol Incentives", "Governance Tokens",
-    "Tokenomics", "Airdrop Campaign", "Retroactive Rewards", "Farming", "LFG",
-    "Utility NFTs", "Gas", "Roadmap", "Mint Strategy", "Reveal Marketing", "Floor Price",
-    "Privacidad", "Collection Launch", "Exclusive Access", "Holder Benefits", "Secondary Sales",
-    "Discord Channels", "X Spaces", "Telegram Voice", "Ambassador Program", "Referral Program",
-    "Content Creation", "Meme", "IA", "KOL Marketing", "Community Rewards",
-    "Layer 1", "Layer 2", "Cross-chain", "Interoperability", "Scalability", "DApps",
-    "Smart Contract Audit", "Security Tokens", "Compliance", "KYC", "Regulatory Framework",
-    "Market Making", "Hash", "Order Book", "Slippage", "Impermanent Loss", "APR", "APY", "TVL",
-    "Volumen", "Market Cap", "POAP", "Circulating Supply", "Token Distribution",
-    "HODL", "FOMO", "FUD", "Comunidad", "Bitcoin", "Whale", "Nodos", "Descentralización",
-    "Bull Market", "Bear Market", "ATH", "Tecnología", "Pump", "Dump", "Moon", "Rekt"
-];
-
-// Global State
-let participants = [];
-let currentParticipant = null;
-let gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
-
-// Room Management
-let roomId = null;
-let isModerator = false;
-let roomParticipants = [];
-
-// Generate unique ID
-function uid() {
-    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
-}
-
-// Extract room code from URL (supports ?room=CODE or #/play/CODE)
-function getRoomCodeFromURL() {
-    // hash route: #/play/{code}
-    if (window.location.hash && window.location.hash.startsWith('#/play/')) {
-        const parts = window.location.hash.split('/');
-        const code = parts[2] || '';
-        return code || null;
-    }
-    // query param fallback
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get('room');
-    return q || null;
-}
-
-// Generate room code
-function generateRoomCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    for (let i = 0; i < 6; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-}
-
-// Mode Switching
-function switchMode(event, mode) {
-    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
-    
-    // Show/hide sections based on mode
-    document.getElementById('participant-mode').classList.toggle('hidden', mode !== 'participant');
-    document.getElementById('moderator-mode').classList.toggle('hidden', mode !== 'moderator');
-    document.getElementById('moderator-section').classList.toggle('hidden', mode !== 'moderator');
-    
-    if (mode === 'moderator') {
-        isModerator = true;
-        updateParticipantsList();
+    try {
+        const roomsQuery = window.firebaseQuery(
+            window.firebaseCollection(window.firebaseDb, 'rooms'),
+            window.firebaseWhere('createdBy', '==', currentUser.uid),
+            window.firebaseOrderBy('createdAt', 'desc')
+        );
         
-        // Check if moderator has an active room
-        checkModeratorSession();
-    } else {
-        isModerator = false;
+        const querySnapshot = await window.firebaseGetDocs(roomsQuery);
+        const rooms = [];
+        
+        querySnapshot.forEach((doc) => {
+            rooms.push({ id: doc.id, ...doc.data() });
+        });
+        
+        displayMyRooms(rooms);
+        
+    } catch (error) {
+        console.error('Error loading rooms:', error);
     }
 }
 
-function checkModeratorSession() {
-    const savedRoom = localStorage.getItem('mkt_bingo_room');
-    if (savedRoom) {
-        try {
-            const roomData = JSON.parse(savedRoom);
-            if (roomData.moderator && roomData.id) {
-                // Restore moderator session
-                roomId = roomData.id;
-                document.getElementById('roomCode').textContent = roomData.id;
-                document.getElementById('shareLink').value = roomData.url;
-                document.getElementById('roomInfo').classList.remove('hidden');
-                document.getElementById('createRoomBtn').classList.add('hidden');
-                document.getElementById('shareBtn').classList.remove('hidden');
-                
-                // Load existing participants
-                loadRoomParticipants();
-                
-                showMobileAlert('🎮 Sala restaurada: ' + roomData.id);
-            }
-        } catch (e) {
-            console.error('Error restoring session:', e);
-        }
+function displayMyRooms(rooms) {
+    const roomsList = document.getElementById('roomsList');
+    
+    if (rooms.length === 0) {
+        roomsList.innerHTML = '<p class="no-rooms">No tienes salas creadas</p>';
+        return;
     }
+    
+    roomsList.innerHTML = rooms.map(room => `
+        <div class="room-item">
+            <div class="room-info">
+                <h4>Sala ${room.id}</h4>
+                <p>Estado: <span class="status-badge ${room.status}">${room.status}</span></p>
+                <p>Creada: ${new Date(room.createdAt?.toDate()).toLocaleString()}</p>
+            </div>
+            <div class="room-actions">
+                <button class="btn btn-small" onclick="openRoomManagement('${room.id}')">Abrir</button>
+                <button class="btn btn-small danger" onclick="deleteRoom('${room.id}')">Eliminar</button>
+            </div>
+        </div>
+    `).join('');
 }
 
-// Room Management Functions
-function createRoom() {
-    roomId = generateRoomCode();
-    isModerator = true; // Creator is always moderator
+async function openRoomManagement(roomId) {
+    currentRoom = roomId;
+    document.getElementById('currentRoomCode').textContent = roomId;
     
-    const shareUrl = window.location.origin + window.location.pathname + '?room=' + roomId;
+    // Show room management section
+    document.getElementById('my-rooms-section').classList.add('hidden');
+    document.getElementById('room-management').classList.remove('hidden');
     
-    document.getElementById('roomCode').textContent = roomId;
+    // Set share link
+    const shareUrl = `${window.location.origin}${window.location.pathname}#/play/${roomId}`;
     document.getElementById('shareLink').value = shareUrl;
-    document.getElementById('roomInfo').classList.remove('hidden');
-    document.getElementById('createRoomBtn').classList.add('hidden');
-    document.getElementById('shareBtn').classList.remove('hidden');
     
-    // Save room info with moderator flag
-    localStorage.setItem('mkt_bingo_room', JSON.stringify({
-        id: roomId,
-        url: shareUrl,
-        created: new Date(),
-        moderator: true
-    }));
-    
-    // Initialize room participants storage
-    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify({
-        id: roomId,
-        participants: [],
-        lastUpdated: new Date()
-    }));
-    
-    showMobileAlert('🎮 Sala creada: ' + roomId + ' (Eres el moderador)');
+    // Setup real-time listeners
+    setupRoomListeners(roomId);
 }
 
-function shareGame() {
-    const shareUrl = document.getElementById('shareLink').value;
+function setupRoomListeners(roomId) {
+    // Clean up existing listeners
+    if (participantsListener) participantsListener();
+    if (gameStateListener) gameStateListener();
     
-    if (navigator.share) {
-        navigator.share({
-            title: 'Bingo Web3 - MKT Community',
-            text: '¡Únete a mi juego de Bingo Web3! Código: ' + roomId,
-            url: shareUrl
-        }).catch(err => console.log('Error sharing:', err));
-    } else {
-        copyShareLink();
+    // Participants listener
+    const participantsRef = window.firebaseCollection(window.firebaseDb, `rooms/${roomId}/participants`);
+    participantsListener = window.firebaseOnSnapshot(participantsRef, (snapshot) => {
+        participants = [];
+        snapshot.forEach((doc) => {
+            participants.push({ id: doc.id, ...doc.data() });
+        });
+        updateParticipantsList();
+    });
+    
+    // Game state listener
+    const gameStateRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/state/current`);
+    gameStateListener = window.firebaseOnSnapshot(gameStateRef, (snapshot) => {
+        if (snapshot.exists()) {
+            gameState = snapshot.data();
+            updateGameDisplay();
+        }
+    });
+}
+
+function updateParticipantsList() {
+    const container = document.getElementById('participantsList');
+    const countSpan = document.getElementById('participantCount');
+    
+    countSpan.textContent = participants.length;
+    
+    if (participants.length === 0) {
+        container.innerHTML = '<p class="no-participants">No hay participantes registrados</p>';
+        return;
+    }
+    
+    container.innerHTML = participants.map(participant => `
+        <div class="participant-item">
+            <span class="participant-name">${participant.name}</span>
+            <span class="participant-status ${participant.status}">${participant.status}</span>
+        </div>
+    `).join('');
+}
+
+function updateGameDisplay() {
+    document.getElementById('currentTerm').textContent = gameState.started ? 
+        (gameState.calledTerms.length > 0 ? `🎯 "${gameState.calledTerms[gameState.calledTerms.length - 1]}"` : '🎮 Juego iniciado') :
+        'Registra participantes y asigna cartillas para comenzar';
+    
+    document.getElementById('termsCalledCount').textContent = gameState.calledTerms.length;
+    document.getElementById('termsRemainingCount').textContent = WEB3_MARKETING_TERMS.length - gameState.calledTerms.length;
+    
+    // Update called terms list
+    const calledContainer = document.getElementById('calledTermsList');
+    calledContainer.innerHTML = gameState.calledTerms.map(term => 
+        `<div class="called-term">${term}</div>`
+    ).join('');
+}
+
+async function deleteRoom(roomId) {
+    if (!confirm('¿Estás seguro de eliminar esta sala? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        // Delete room document
+        await window.firebaseDeleteDoc(window.firebaseDoc(window.firebaseDb, `rooms/${roomId}`));
+        
+        // Clean up listeners
+        if (participantsListener) participantsListener();
+        if (gameStateListener) gameStateListener();
+        
+        console.log('Room deleted:', roomId);
+        
+        // Go back to rooms list
+        document.getElementById('room-management').classList.add('hidden');
+        document.getElementById('my-rooms-section').classList.remove('hidden');
+        loadMyRooms();
+        
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        alert('Error al eliminar la sala: ' + error.message);
     }
 }
 
-function copyRoomCode() {
-    const roomCode = document.getElementById('roomCode').textContent;
-    navigator.clipboard.writeText(roomCode).then(() => {
-        showMobileAlert('📋 Código copiado: ' + roomCode);
-    }).catch(() => {
-        showMobileAlert('❌ No se pudo copiar el código');
+// Participant Functions
+async function joinRoomAsParticipant(roomId) {
+    try {
+        // Sign in anonymously if not already authenticated
+        if (!currentUser) {
+            await window.firebaseSignInAnonymously(window.firebaseAuth);
+        }
+        
+        // Check if already registered
+        const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
+        const participantSnap = await participantRef.get();
+        
+        if (participantSnap.exists()) {
+            // Already registered, show waiting/playing section
+            const participantData = participantSnap.data();
+            currentParticipant = { id: currentUser.uid, ...participantData };
+            
+            document.getElementById('registeredName').textContent = participantData.name;
+            
+            if (participantData.cardId) {
+                showPlayerCard();
+            } else {
+                document.getElementById('registration-section').classList.add('hidden');
+                document.getElementById('waiting-section').classList.remove('hidden');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error joining room:', error);
+    }
+}
+
+async function registerParticipant() {
+    const name = document.getElementById('participantName').value.trim();
+    if (!name) {
+        alert('Por favor ingresa tu nombre');
+        return;
+    }
+    
+    const route = getCurrentRoute();
+    if (route.type !== 'play') {
+        alert('No estás en una sala válida');
+        return;
+    }
+    
+    try {
+        // Sign in anonymously if not already authenticated
+        if (!currentUser) {
+            await window.firebaseSignInAnonymously(window.firebaseAuth);
+        }
+        
+        const participantData = {
+            uid: currentUser.uid,
+            name: name,
+            status: 'waiting',
+            joinedAt: window.firebaseServerTimestamp(),
+            cardId: null
+        };
+        
+        const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${currentUser.uid}`);
+        await window.firebaseSetDoc(participantRef, participantData);
+        
+        currentParticipant = { id: currentUser.uid, ...participantData };
+        
+        document.getElementById('registeredName').textContent = name;
+        document.getElementById('registration-section').classList.add('hidden');
+        document.getElementById('waiting-section').classList.remove('hidden');
+        
+        console.log('Participant registered:', name);
+        
+    } catch (error) {
+        console.error('Error registering participant:', error);
+        alert('Error al registrarse: ' + error.message);
+    }
+}
+
+// Game Management
+async function assignCards() {
+    if (!currentRoom || participants.length === 0) {
+        alert('No hay participantes registrados');
+        return;
+    }
+    
+    try {
+        // Generate cards for all participants
+        for (const participant of participants) {
+            if (!participant.cardId) {
+                const card = generateUniqueCard();
+                const cardData = {
+                    participantId: participant.id,
+                    cells: card,
+                    createdAt: window.firebaseServerTimestamp()
+                };
+                
+                const cardRef = await window.firebaseAddDoc(
+                    window.firebaseCollection(window.firebaseDb, `rooms/${currentRoom}/cards`),
+                    cardData
+                );
+                
+                // Update participant with card ID
+                await window.firebaseUpdateDoc(
+                    window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}/participants/${participant.id}`),
+                    { 
+                        cardId: cardRef.id,
+                        status: 'assigned'
+                    }
+                );
+            }
+        }
+        
+        alert(`✅ Se asignaron cartillas a ${participants.length} participantes`);
+        
+    } catch (error) {
+        console.error('Error assigning cards:', error);
+        alert('Error al asignar cartillas: ' + error.message);
+    }
+}
+
+function generateUniqueCard() {
+    const shuffled = [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5);
+    const cardTerms = shuffled.slice(0, 24);
+    cardTerms.splice(12, 0, 'FREE'); // Add FREE space in center
+    return cardTerms;
+}
+
+async function startGame() {
+    if (!currentRoom || participants.length === 0) {
+        alert('No hay participantes registrados');
+        return;
+    }
+    
+    try {
+        const gameData = {
+            started: true,
+            terms: [...WEB3_MARKETING_TERMS].sort(() => Math.random() - 0.5),
+            calledTerms: [],
+            currentIndex: 0,
+            startedAt: window.firebaseServerTimestamp()
+        };
+        
+        await window.firebaseSetDoc(
+            window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}/state/current`),
+            gameData
+        );
+        
+        // Update room status
+        await window.firebaseUpdateDoc(
+            window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}`),
+            { status: 'live' }
+        );
+        
+        console.log('Game started');
+        
+    } catch (error) {
+        console.error('Error starting game:', error);
+        alert('Error al iniciar el juego: ' + error.message);
+    }
+}
+
+async function callNextTerm() {
+    if (!currentRoom || !gameState.started) {
+        alert('Primero inicia el juego');
+        return;
+    }
+    
+    if (gameState.currentIndex >= gameState.terms.length) {
+        alert('Todos los términos han sido cantados');
+        return;
+    }
+    
+    try {
+        const nextTerm = gameState.terms[gameState.currentIndex];
+        const updatedCalledTerms = [...gameState.calledTerms, nextTerm];
+        const updatedIndex = gameState.currentIndex + 1;
+        
+        await window.firebaseUpdateDoc(
+            window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}/state/current`),
+            {
+                calledTerms: updatedCalledTerms,
+                currentIndex: updatedIndex
+            }
+        );
+        
+        console.log('Term called:', nextTerm);
+        
+    } catch (error) {
+        console.error('Error calling next term:', error);
+        alert('Error al llamar el siguiente término: ' + error.message);
+    }
+}
+
+// Participant Card Display
+function showPlayerCard() {
+    if (!currentParticipant || !currentParticipant.cardId) return;
+    
+    // Get card data from Firestore
+    const cardRef = window.firebaseDoc(window.firebaseDb, `rooms/${getCurrentRoute().roomId}/cards/${currentParticipant.cardId}`);
+    cardRef.get().then((cardSnap) => {
+        if (cardSnap.exists()) {
+            const cardData = cardSnap.data();
+            displayPlayerCard(cardData.cells);
+        }
     });
+}
+
+function displayPlayerCard(cardTerms) {
+    document.getElementById('waiting-section').classList.add('hidden');
+    document.getElementById('playing-section').classList.remove('hidden');
+    
+    const cardContainer = document.getElementById('playerCard');
+    cardContainer.innerHTML = `
+        <div class="card-header">
+            <h3>${currentParticipant.name}</h3>
+        </div>
+        <div class="card-grid">
+            ${cardTerms.map((term, index) => `
+                <div class="card-cell" onclick="toggleCell(this, '${term}')">
+                    ${term}
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function toggleCell(cell, term) {
+    if (term === 'FREE') return;
+    
+    // Check if term has been called
+    if (!gameState.calledTerms.includes(term)) {
+        alert('⚠️ Este término aún no ha sido cantado');
+        return;
+    }
+    
+    cell.classList.toggle('marked');
+    
+    // Add haptic feedback for mobile
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+}
+
+function claimBingo() {
+    if (!currentParticipant) return;
+    
+    const playerName = currentParticipant.name;
+    alert(`¡${playerName} ha cantado BINGO! 🎉`);
+    
+    // Add celebration effect
+    createCelebrationEffect();
+}
+
+function createCelebrationEffect() {
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
+    
+    for (let i = 0; i < 15; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.style.cssText = `
+                position: fixed;
+                top: -10px;
+                left: ${Math.random() * 100}%;
+                width: 10px;
+                height: 10px;
+                background: ${colors[Math.floor(Math.random() * colors.length)]};
+                border-radius: 50%;
+                animation: fall 3s linear forwards;
+                z-index: 1000;
+                pointer-events: none;
+            `;
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 3000);
+        }, i * 100);
+    }
+    
+    // Add CSS animation for falling confetti
+    if (!document.getElementById('confetti-style')) {
+        const style = document.createElement('style');
+        style.id = 'confetti-style';
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// UI Event Handlers
+function openModeratorLogin() {
+    navigateTo({ type: 'moderator' });
+}
+
+function backToRooms() {
+    document.getElementById('room-management').classList.add('hidden');
+    document.getElementById('my-rooms-section').classList.remove('hidden');
+    
+    // Clean up listeners
+    if (participantsListener) participantsListener();
+    if (gameStateListener) gameStateListener();
+    
+    currentRoom = null;
 }
 
 function copyShareLink() {
     const shareLink = document.getElementById('shareLink');
     shareLink.select();
-    shareLink.setSelectionRange(0, 99999);
-    
-    try {
-        document.execCommand('copy');
-        showMobileAlert('📋 Enlace copiado al portapapeles');
-    } catch (err) {
-        navigator.clipboard.writeText(shareLink.value).then(() => {
-            showMobileAlert('📋 Enlace copiado');
-        }).catch(() => {
-            showMobileAlert('❌ No se pudo copiar el enlace');
-        });
-    }
+    document.execCommand('copy');
+    alert('Enlace copiado al portapapeles');
 }
 
-function generateQRCode(text) {
-    // QR Code functionality removed - using simple link sharing instead
-    return;
-}
-
-function joinRoom(roomCode) {
-    if (!roomCode) return false;
+// Initialize App
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('App starting...');
     
-    roomId = roomCode;
-    isModerator = false;
+    // Initialize Firebase
+    await initializeFirebase();
     
-    // Hide moderator controls for participants
-    hideModeratorControls();
-    
-    // Load room participants
-    loadRoomParticipants();
-    
-    showMobileAlert('🎮 Te uniste a la sala: ' + roomCode);
-    return true;
-}
-
-function hideModeratorControls() {
-    // Hide mode selector for participants
-    const modeSelector = document.querySelector('.mode-selector');
-    if (modeSelector) {
-        modeSelector.style.display = 'none';
-    }
-    
-    // Force participant mode
-    document.getElementById('participant-mode').classList.remove('hidden');
-    document.getElementById('moderator-mode').classList.add('hidden');
-    document.getElementById('moderator-section').classList.add('hidden');
-    
-    // Update mode buttons
-    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelector('.mode-btn[onclick*="participant"]').classList.add('active');
-    
-    // Show participant status
-    showRoomStatus('participant', '👤 Participante en sala: ' + roomId);
-}
-
-function showModeratorControls() {
-    // Show mode selector for moderators
-    const modeSelector = document.querySelector('.mode-selector');
-    if (modeSelector) {
-        modeSelector.style.display = 'flex';
-    }
-    
-    // Show moderator status
-    showRoomStatus('moderator', '🎯 Moderador de sala: ' + roomId);
-}
-
-function showRoomStatus(type, text) {
-    const roomStatus = document.getElementById('room-status');
-    const roomStatusText = document.getElementById('room-status-text');
-    
-    if (roomStatus && roomStatusText) {
-        roomStatus.classList.remove('hidden', 'moderator', 'participant');
-        roomStatus.classList.add(type);
-        roomStatusText.textContent = text;
-    }
-}
-
-function loadRoomParticipants() {
-    if (!roomId) return;
-    
-    const savedRoom = localStorage.getItem('mkt_bingo_room_' + roomId);
-    if (savedRoom) {
-        try {
-            const roomData = JSON.parse(savedRoom);
-            roomParticipants = roomData.participants || [];
-            
-            // If this is the moderator, update the participants list
-            if (isModerator) {
-                participants = [...roomParticipants];
-                updateParticipantsList();
-            }
-        } catch (e) {
-            console.error('Error loading room participants:', e);
-        }
-    }
-}
-
-function saveRoomParticipants() {
-    if (!roomId) return;
-    
-    const roomData = {
-        id: roomId,
-        participants: participants,
-        lastUpdated: new Date()
-    };
-    
-    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify(roomData));
-    
-    // Trigger update for all participants in the room
-    window.dispatchEvent(new StorageEvent('storage', {
-        key: 'mkt_bingo_room_' + roomId,
-        newValue: JSON.stringify(roomData)
-    }));
-}
-
-// Participant Registration
-async function registerParticipant() {
-    const input = document.getElementById('participantName');
-    const name = input.value.trim();
-    if (!name) {
-        showMobileAlert('Por favor ingresa tu nombre');
-        return;
-    }
-
-    // Attempt Firestore registration if joining via link
-    try {
-        const urlRoom = getRoomCodeFromURL();
-        if (urlRoom && window.firebaseDb && window.firebaseSignInAnonymously && window.firebaseSetDoc) {
-            try { await window.firebaseSignInAnonymously(auth); } catch(_) {}
-            const uidAuth = (auth && auth.currentUser) ? auth.currentUser.uid : uid();
-            const partsDoc = window.firebaseDoc(window.firebaseDb, 'rooms/' + urlRoom + '/participants/' + uidAuth);
-            await window.firebaseSetDoc(partsDoc, {
-                participantId: uidAuth,
-                uid: uidAuth,
-                name,
-                joinedAt: window.firebaseServerTimestamp(),
-                status: 'waiting',
-                card: null
-            }, { merge: true });
-
-            participants.push({ id: uidAuth, name, card: null, registered: new Date(), roomId: urlRoom });
-            currentParticipant = participants[participants.length - 1];
-            document.getElementById('registeredName').textContent = name;
-            document.getElementById('registration-section').classList.add('hidden');
-            document.getElementById('waiting-section').classList.remove('hidden');
-            saveToStorage();
-            showMobileAlert('✅ Registro completado');
-            return;
-        }
-    } catch (e) {
-        console.error('Firestore registration error:', e);
-    }
-
-    // Local fallback
-    if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-        showMobileAlert('Este nombre ya está registrado. Usa otro nombre.');
-        return;
-    }
-    const participant = { id: uid(), name, card: null, registered: new Date(), roomId: roomId };
-    participants.push(participant);
-    currentParticipant = participant;
-    document.getElementById('registeredName').textContent = name;
-    document.getElementById('registration-section').classList.add('hidden');
-    document.getElementById('waiting-section').classList.remove('hidden');
-    saveToStorage();
-    if (roomId) {
-        addParticipantToRoom(participant);
-        notifyModerator('new_participant', participant);
-    }
-}
-
-function addParticipantToRoom(participant) {
-    if (!roomId) return;
-    
-    // Get current room data
-    const roomData = JSON.parse(localStorage.getItem('mkt_bingo_room_' + roomId) || '{"participants": []}');
-    
-    // Add new participant
-    roomData.participants = roomData.participants || [];
-    roomData.participants.push(participant);
-    roomData.lastUpdated = new Date();
-    
-    // Save updated room data
-    localStorage.setItem('mkt_bingo_room_' + roomId, JSON.stringify(roomData));
-    
-    // Trigger storage event for cross-tab communication
-    window.dispatchEvent(new StorageEvent('storage', {
-        key: 'mkt_bingo_room_' + roomId,
-        newValue: JSON.stringify(roomData)
-    }));
-}
-
-// Fisher-Yates shuffle
-function shuffle(array) {
-    const shuffled = array.slice();
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-}
-
-// Generate unique bingo card
-function generateUniqueCard() {
-    const shuffled = shuffle(WEB3_MARKETING_TERMS);
-    const cardTerms = shuffled.slice(0, 24);
-    cardTerms.splice(12, 0, 'FREE');
-    return cardTerms;
-}
-
-// Assign cards to all participants
-function assignCards() {
-    if (participants.length === 0) {
-        showMobileAlert('No hay participantes registrados');
-        return;
-    }
-    // Si hay Firestore y sala activa, crear cartillas en subcolección y marcar participantes
-    const activeRoom = firebaseRoomId || roomId;
-    if (activeRoom && db && window.firebaseSetDoc) {
-        participants.forEach(async (p) => {
-            if (!p.card) {
-                const cells = generateUniqueCard();
-                const cardId = p.id; // 1:1 con uid del participante
-                const cardRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/cards/' + cardId);
-                await window.firebaseSetDoc(cardRef, {
-                    participantId: p.id,
-                    cells,
-                    createdAt: window.firebaseServerTimestamp()
-                }, { merge: true });
-                // actualizar participante con cardId y status
-                const partRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/participants/' + p.id);
-                await window.firebaseSetDoc(partRef, {
-                    cardId,
-                    status: 'assigned'
-                }, { merge: true });
-                p.card = cells;
-            }
-        });
-        saveToStorage();
-        updateParticipantsList();
-        showMobileAlert('✅ Cartillas asignadas');
-        return;
-    }
-    // Fallback local
-    participants.forEach(participant => {
-        if (!participant.card) {
-            participant.card = generateUniqueCard();
-        }
-    });
-    saveToStorage();
-    updateParticipantsList();
-    if (currentParticipant) {
-        const updatedParticipant = participants.find(p => p.id === currentParticipant.id);
-        if (updatedParticipant && updatedParticipant.card) {
-            currentParticipant = updatedParticipant;
-            saveToStorage();
-            showPlayerCard();
-        }
-    }
-    showMobileAlert('✅ Se asignaron cartillas a ' + participants.length + ' participantes');
-}
-
-// Show player's card using DOM API
-function showPlayerCard() {
-    if (!currentParticipant || !currentParticipant.card) return;
-    document.getElementById('waiting-section').classList.add('hidden');
-    document.getElementById('playing-section').classList.remove('hidden');
-    
-    const cardContainer = document.getElementById('playerCard');
-    cardContainer.innerHTML = '';
-    
-    const header = document.createElement('div');
-    header.className = 'card-header';
-    header.textContent = currentParticipant.name;
-    cardContainer.appendChild(header);
-    
-    const grid = document.createElement('div');
-    grid.className = 'bingo-grid';
-    
-    currentParticipant.card.forEach((term) => {
-        const cell = document.createElement('button');
-        cell.className = 'bingo-cell';
-        cell.setAttribute('data-term', term);
-        cell.setAttribute('title', term);
-        
-        if (term === 'FREE') {
-            cell.classList.add('free');
-            cell.disabled = true;
-            cell.textContent = 'FREE';
-        } else {
-            let displayTerm = term;
-            if (term.length > 12 && window.innerWidth < 480) {
-                const abbreviations = {
-                    'Smart Contract': 'Smart C.',
-                    'Community Building': 'Community',
-                    'Token Gating': 'Token Gate',
-                    'Whitelist Marketing': 'Whitelist',
-                    'Influencer NFTs': 'Influencer',
-                    'Creator Economy': 'Creator Eco',
-                    'Engagement Mining': 'Engagement',
-                    'Metaverse Marketing': 'Metaverse',
-                    'Protocol Incentives': 'Protocol Inc',
-                    'Governance Tokens': 'Governance'
-                };
-                displayTerm = abbreviations[term] || term;
-            }
-            cell.textContent = displayTerm;
-            cell.addEventListener('click', () => toggleCell(cell, term));
-        }
-        
-        grid.appendChild(cell);
+    // Setup event listeners
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginWithEmail();
     });
     
-    cardContainer.appendChild(grid);
-}
-
-// Toggle cell marking
-function toggleCell(cell, term) {
-    if (term === 'FREE') return;
-    if (!gameState.calledTerms.includes(term)) {
-        showMobileAlert('⚠️ Este término aún no ha sido cantado');
-        return;
-    }
-    cell.classList.toggle('marked');
-    if (navigator.vibrate) {
-        navigator.vibrate(50);
-    }
-    cell.style.transform = 'scale(0.9)';
-    setTimeout(() => {
-        cell.style.transform = '';
-    }, 150);
-}
-
-// Mobile-friendly alert system
-function showMobileAlert(message) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'mobile-alert';
-    alertDiv.textContent = message;
-    document.body.appendChild(alertDiv);
-    setTimeout(() => { alertDiv.remove(); }, 2000);
-}
-
-// Update participants list using DOM API
-function updateParticipantsList() {
-    const container = document.getElementById('participantsList');
-    const countSpan = document.getElementById('participantCount');
-    countSpan.textContent = participants.length;
-    
-    container.innerHTML = '';
-    
-    if (participants.length === 0) {
-        const emptyMsg = document.createElement('p');
-        emptyMsg.style.textAlign = 'center';
-        emptyMsg.style.color = '#7f8c8d';
-        emptyMsg.textContent = 'No hay participantes registrados';
-        container.appendChild(emptyMsg);
-        return;
-    }
-    
-    participants.forEach(participant => {
-        const item = document.createElement('div');
-        item.className = 'participant-item';
-        if (participant.card) {
-            item.classList.add('assigned');
-        }
-        
-        const leftDiv = document.createElement('div');
-        
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'participant-name';
-        nameDiv.textContent = participant.name;
-        leftDiv.appendChild(nameDiv);
-        
-        const timeSmall = document.createElement('small');
-        timeSmall.style.color = '#7f8c8d';
-        timeSmall.textContent = 'Registrado: ' + new Date(participant.registered).toLocaleTimeString();
-        leftDiv.appendChild(timeSmall);
-        
-        const badgeDiv = document.createElement('div');
-        badgeDiv.className = 'participant-status-badge';
-        if (participant.card) {
-            badgeDiv.classList.add('status-assigned');
-            badgeDiv.textContent = 'Cartilla Asignada';
-        } else {
-            badgeDiv.classList.add('status-waiting');
-            badgeDiv.textContent = 'Esperando';
-        }
-        
-        item.appendChild(leftDiv);
-        item.appendChild(badgeDiv);
-        container.appendChild(item);
-    });
-}
-
-// Game Management
-function startGame() {
-    if (participants.length === 0) {
-        showMobileAlert('No hay participantes registrados');
-        return;
-    }
-    if (!participants.every(p => p.card)) {
-        showMobileAlert('Primero asigna cartillas a todos los participantes');
-        return;
-    }
-    gameState.terms = shuffle(WEB3_MARKETING_TERMS);
-    gameState.calledTerms = [];
-    gameState.currentIndex = 0;
-    gameState.started = true;
-    document.getElementById('currentTerm').textContent = '🎮 Juego iniciado - Presiona "Siguiente Término"';
-    updateGameStats();
-    localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
-    // Persistir en Firestore si hay sala
-    const activeRoom = firebaseRoomId || roomId;
-    if (activeRoom && db && window.firebaseSetDoc) {
-        const stateRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/state/current');
-        window.firebaseSetDoc(stateRef, {
-            started: true,
-            terms: gameState.terms,
-            calledTerms: [],
-            currentIndex: 0,
-            startedAt: window.firebaseServerTimestamp(),
-            status: 'live'
-        }, { merge: true });
-    }
-}
-
-function callNextTerm() {
-    if (!gameState.started) {
-        showMobileAlert('Primero inicia el juego');
-        return;
-    }
-    if (gameState.currentIndex >= gameState.terms.length) {
-        document.getElementById('currentTerm').textContent = '🎯 ¡Todos los términos han sido cantados!';
-        return;
-    }
-    const nextTerm = gameState.terms[gameState.currentIndex];
-    gameState.calledTerms.push(nextTerm);
-    gameState.currentIndex++;
-    document.getElementById('currentTerm').innerHTML = '🎯 "' + nextTerm + '"';
-    const calledContainer = document.getElementById('calledTermsList');
-    const termDiv = document.createElement('div');
-    termDiv.className = 'called-term';
-    termDiv.textContent = nextTerm;
-    calledContainer.appendChild(termDiv);
-    updateGameStats();
-    localStorage.setItem('mkt_bingo_gamestate', JSON.stringify(gameState));
-    // Persistir avance en Firestore
-    const activeRoom = firebaseRoomId || roomId;
-    if (activeRoom && db && window.firebaseSetDoc) {
-        const stateRef = window.firebaseDoc(db, 'rooms/' + activeRoom + '/state/current');
-        window.firebaseSetDoc(stateRef, {
-            calledTerms: gameState.calledTerms,
-            currentIndex: gameState.currentIndex
-        }, { merge: true });
-    }
-}
-
-function updateGameStats() {
-    document.getElementById('termsCalledCount').textContent = gameState.calledTerms.length;
-    document.getElementById('termsRemainingCount').textContent = gameState.terms.length - gameState.currentIndex;
-}
-
-function resetGame() {
-    const confirmed = confirm('¿Estás seguro de reiniciar el juego? Se perderán todos los datos.');
-    if (!confirmed) return;
-    participants = [];
-    gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
-    currentParticipant = null;
-    localStorage.removeItem('mkt_bingo_participants');
-    localStorage.removeItem('mkt_current_participant');
-    localStorage.removeItem('mkt_bingo_gamestate');
-    document.getElementById('calledTermsList').innerHTML = '';
-    document.getElementById('currentTerm').textContent = 'Registra participantes y asigna cartillas para comenzar';
-    updateParticipantsList();
-    updateGameStats();
-    document.getElementById('registration-section').classList.remove('hidden');
-    document.getElementById('waiting-section').classList.add('hidden');
-    document.getElementById('playing-section').classList.add('hidden');
-    document.getElementById('participantName').value = '';
-}
-
-function claimBingo() {
-    if (!currentParticipant) return;
-    const playerName = currentParticipant.name;
-    showMobileAlert('¡' + playerName + ' ha cantado BINGO! 🎉');
-    createCelebrationEffect();
-}
-
-// Create celebration effect
-function createCelebrationEffect() {
-    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff'];
-    for (let i = 0; i < 15; i++) {
-        setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.style.cssText = 'position: fixed; top: -10px; left: ' + (Math.random() * 100) + '%; width: 10px; height: 10px; background: ' + colors[Math.floor(Math.random() * colors.length)] + '; border-radius: 50%; animation: fall 3s linear forwards; z-index: 1000; pointer-events: none;';
-            document.body.appendChild(confetti);
-            setTimeout(() => confetti.remove(), 3000);
-        }, i * 100);
-    }
-    if (!document.getElementById('confetti-style')) {
-        const style = document.createElement('style');
-        style.id = 'confetti-style';
-        style.textContent = '@keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }';
-        document.head.appendChild(style);
-    }
-}
-
-// Storage functions
-function saveToStorage() {
-    localStorage.setItem('mkt_bingo_participants', JSON.stringify(participants));
-    localStorage.setItem('mkt_current_participant', JSON.stringify(currentParticipant));
-}
-
-function loadFromStorage() {
-    const savedParticipants = localStorage.getItem('mkt_bingo_participants');
-    const savedCurrentParticipant = localStorage.getItem('mkt_current_participant');
-    const savedGameState = localStorage.getItem('mkt_bingo_gamestate');
-    
-    if (savedParticipants) {
-        try {
-            participants = JSON.parse(savedParticipants);
-        } catch (e) {
-            participants = [];
-        }
-    }
-    
-    if (savedCurrentParticipant) {
-        try {
-            currentParticipant = JSON.parse(savedCurrentParticipant);
-        } catch (e) {
-            currentParticipant = null;
-        }
-    }
-    
-    if (savedGameState) {
-        try {
-            gameState = JSON.parse(savedGameState);
-            if (gameState.calledTerms && gameState.calledTerms.length > 0) {
-                const calledContainer = document.getElementById('calledTermsList');
-                calledContainer.innerHTML = '';
-                gameState.calledTerms.forEach(term => {
-                    const termDiv = document.createElement('div');
-                    termDiv.className = 'called-term';
-                    termDiv.textContent = term;
-                    calledContainer.appendChild(termDiv);
-                });
-                if (gameState.started) {
-                    document.getElementById('currentTerm').textContent = '🎮 Juego en progreso - Continúa cantando términos';
-                }
-            }
-        } catch (e) {
-            gameState = { started: false, terms: [], calledTerms: [], currentIndex: 0 };
-        }
-    }
-}
-
-// Notification and Sync Functions
-function notifyModerator(type, data) {
-    if (!roomId) return;
-    
-    const notification = {
-        type: type,
-        data: data,
-        timestamp: new Date(),
-        roomId: roomId
-    };
-    
-    // Store notification for moderator to see
-    const notifications = JSON.parse(localStorage.getItem('mkt_bingo_notifications_' + roomId) || '[]');
-    notifications.push(notification);
-    localStorage.setItem('mkt_bingo_notifications_' + roomId, JSON.stringify(notifications));
-    
-    // Trigger storage event for cross-tab communication
-    window.dispatchEvent(new StorageEvent('storage', {
-        key: 'mkt_bingo_notifications_' + roomId,
-        newValue: JSON.stringify(notifications)
-    }));
-}
-
-function checkForNotifications() {
-    if (!roomId || !isModerator) return;
-    
-    const notifications = JSON.parse(localStorage.getItem('mkt_bingo_notifications_' + roomId) || '[]');
-    const lastCheck = localStorage.getItem('mkt_bingo_last_check_' + roomId) || 0;
-    
-    notifications.forEach(notification => {
-        if (new Date(notification.timestamp) > new Date(lastCheck)) {
-            if (notification.type === 'new_participant') {
-                showMobileAlert('👤 Nuevo participante: ' + notification.data.name);
-                updateParticipantsList();
-            }
-        }
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        registerWithEmail();
     });
     
-    localStorage.setItem('mkt_bingo_last_check_' + roomId, new Date().toISOString());
-}
-
-function syncRoomData() {
-    if (!roomId) return;
-    
-    // Check for updates every 1 second for better responsiveness
-    setInterval(() => {
-        if (isModerator) {
-            checkForNotifications();
-            loadRoomParticipants(); // Refresh participants list
-        } else {
-            // Participants check for room updates
-            loadRoomParticipants();
-        }
-    }, 1000);
-}
-
-function checkURLForRoom() {
-    const roomCode = getRoomCodeFromURL();
-    
-    if (roomCode) {
-        // Check if this is the moderator (creator) of the room
-        const savedRoom = localStorage.getItem('mkt_bingo_room');
-        if (savedRoom) {
-            try {
-                const roomData = JSON.parse(savedRoom);
-                if (roomData.id === roomCode && roomData.moderator) {
-                    // This is the moderator, restore session
-                    isModerator = true;
-                    roomId = roomCode;
-                    
-                    // Switch to moderator mode
-                    document.querySelector('.mode-btn[onclick*="moderator"]').click();
-                    
-                    showMobileAlert('🎮 Sala cargada: ' + roomCode + ' (Eres el moderador)');
-                    return;
-                }
-            } catch (e) {
-                console.error('Error loading room data:', e);
-            }
-        }
-        
-        // This is a participant joining the room
-        joinRoom(roomCode);
-    } else {
-        // No room in URL, check if user has an active moderator session
-        const savedRoom = localStorage.getItem('mkt_bingo_room');
-        if (savedRoom) {
-            try {
-                const roomData = JSON.parse(savedRoom);
-                if (roomData.moderator && roomData.id) {
-                    // Restore moderator session
-                    isModerator = true;
-                    roomId = roomData.id;
-                    
-                    // Switch to moderator mode
-                    document.querySelector('.mode-btn[onclick*="moderator"]').click();
-                    
-                    showMobileAlert('🎮 Sesión restaurada: ' + roomData.id + ' (Eres el moderador)');
-                }
-            } catch (e) {
-                console.error('Error restoring session:', e);
-            }
-        }
-    }
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Firebase first
-    initializeFirebase();
-    
-    // Then initialize existing functionality
-    loadFromStorage();
-    checkURLForRoom();
-    // If joining via shared link, force participant UI
-    try {
-        const params = new URLSearchParams(window.location.search);
-        const urlRoom = params.get('room');
-        if (urlRoom) {
-            const modeSelector = document.querySelector('.mode-selector');
-            if (modeSelector) modeSelector.classList.add('hidden');
-            const modSection = document.getElementById('moderator-section');
-            if (modSection) modSection.classList.add('hidden');
-            const modMode = document.getElementById('moderator-mode');
-            if (modMode) modMode.classList.add('hidden');
-            const partMode = document.getElementById('participant-mode');
-            if (partMode) partMode.classList.remove('hidden');
-        }
-    } catch (e) { }
-    
-    if (currentParticipant) {
-        document.getElementById('registeredName').textContent = currentParticipant.name || '';
-        if (currentParticipant.card) {
-            showPlayerCard();
-        } else {
-            document.getElementById('registration-section').classList.add('hidden');
-            document.getElementById('waiting-section').classList.remove('hidden');
-        }
-    }
-    updateGameStats();
-    updateParticipantsList();
-    
-    // Start room sync
-    syncRoomData();
-    
-    // Listen for storage events for real-time sync
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'mkt_bingo_room_' + roomId) {
-            // Room participants updated
-            loadRoomParticipants();
-        } else if (e.key === 'mkt_bingo_notifications_' + roomId) {
-            // New notification
-            if (isModerator) {
-                checkForNotifications();
-            }
-        }
+    document.getElementById('showRegister').addEventListener('click', () => {
+        document.getElementById('loginForm').classList.add('hidden');
+        document.getElementById('registerForm').classList.remove('hidden');
     });
+    
+    document.getElementById('showLogin').addEventListener('click', () => {
+        document.getElementById('registerForm').classList.add('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', logoutModerator);
+    document.getElementById('createRoomBtn').addEventListener('click', createRoom);
+    document.getElementById('refreshRoomsBtn').addEventListener('click', loadMyRooms);
+    document.getElementById('backToRoomsBtn').addEventListener('click', backToRooms);
+    document.getElementById('copyLinkBtn').addEventListener('click', copyShareLink);
+    document.getElementById('assignCardsBtn').addEventListener('click', assignCards);
+    document.getElementById('startGameBtn').addEventListener('click', startGame);
+    document.getElementById('nextTermBtn').addEventListener('click', callNextTerm);
+    document.getElementById('deleteRoomBtn').addEventListener('click', () => deleteRoom(currentRoom));
+    
+    // Handle route changes
+    window.addEventListener('hashchange', () => {
+        const route = getCurrentRoute();
+        handleRouteChange(route);
+    });
+    
+    // Initial route handling
+    const route = getCurrentRoute();
+    handleRouteChange(route);
+    
+    console.log('App initialized');
 });

@@ -34,7 +34,7 @@
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, deleteDoc, serverTimestamp, getDocs, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
         
         // Firebase Configuration
         const firebaseConfig = {
@@ -66,91 +66,154 @@
         window.firebaseOnSnapshot = onSnapshot;
         window.firebaseUpdateDoc = updateDoc;
         window.firebaseSetDoc = setDoc;
+        window.firebaseDeleteDoc = deleteDoc;
         window.firebaseServerTimestamp = serverTimestamp;
+        window.firebaseGetDocs = getDocs;
+        window.firebaseQuery = query;
+        window.firebaseWhere = where;
+        window.firebaseOrderBy = orderBy;
         
         console.log('Firebase v9+ initialized successfully');
     </script>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="community-name">MKT COMMUNITY</div>
-            <h1>BINGO WEB3</h1>
-            <p>Marketing & Blockchain Edition</p>
-            <div id="moderator-cta" style="text-align:center; margin: 10px 0 20px;">
+        <!-- Landing Page -->
+        <div id="landing-page" class="landing-page">
+            <div class="header">
+                <div class="community-name">MKT COMMUNITY</div>
+                <h1>BINGO WEB3</h1>
+                <p>Marketing & Blockchain Edition</p>
+            </div>
+            
+            <div id="moderator-cta" class="moderator-cta">
                 <button class="control-btn" onclick="openModeratorLogin()">Acceder como Moderador</button>
             </div>
-            <div id="room-status" class="room-status hidden">
-                <span id="room-status-text"></span>
+        </div>
+
+        <!-- Moderator Login -->
+        <div id="moderator-login" class="moderator-section hidden">
+            <div class="login-container">
+                <h2>🔐 Acceso de Moderador</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                        <button type="button" id="showRegister" class="btn btn-secondary">Registrarse</button>
+                    </div>
+                </form>
+                
+                <form id="registerForm" class="hidden">
+                    <div class="form-group">
+                        <label for="regEmail">Email:</label>
+                        <input type="email" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Contraseña:</label>
+                        <input type="password" id="regPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="regConfirmPassword">Confirmar Contraseña:</label>
+                        <input type="password" id="regConfirmPassword" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
+                        <button type="button" id="showLogin" class="btn btn-secondary">Ya tengo cuenta</button>
+                    </div>
+                </form>
             </div>
         </div>
 
-        <div class="mode-selector hidden">
-            <button class="mode-btn active" onclick="switchMode(event, 'participant')">🎮 Participante</button>
-            <button class="mode-btn" onclick="switchMode(event, 'moderator')">🎯 Moderador</button>
-        </div>
+        <!-- Moderator Dashboard -->
+        <div id="moderator-dashboard" class="moderator-section hidden">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h2>🎮 Panel de Moderador</h2>
+                    <div class="user-info">
+                        <span id="moderatorName"></span>
+                        <button id="logoutBtn" class="btn btn-small">Cerrar Sesión</button>
+                    </div>
+                </div>
 
-        <!-- Moderator Section -->
-        <div id="moderator-section" class="moderator-section hidden">
-            <h3>🎯 Panel de Moderador</h3>
-            
-            <!-- Login Section -->
-            <div id="moderator-login" class="moderator-login">
-                <h4>🔐 Iniciar Sesión como Moderador</h4>
-                <p>Necesitas iniciar sesión para crear y gestionar salas</p>
-                
-                <div class="login-form">
-                    <div class="form-group">
-                        <label for="moderatorEmail">📧 Email:</label>
-                        <input type="email" id="moderatorEmail" placeholder="tu@email.com" required>
+                <!-- My Rooms Section -->
+                <div id="my-rooms-section" class="rooms-section">
+                    <h3>🏠 Mis Salas</h3>
+                    <div class="rooms-actions">
+                        <button id="createRoomBtn" class="btn btn-primary">
+                            🎯 Crear Nueva Sala
+                        </button>
+                        <button id="refreshRoomsBtn" class="btn btn-secondary">
+                            🔄 Actualizar Lista
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="moderatorPassword">🔒 Contraseña:</label>
-                        <input type="password" id="moderatorPassword" placeholder="Mínimo 6 caracteres" required>
-                    </div>
-                    <div class="login-buttons">
-                        <button class="control-btn" onclick="loginWithEmail()">🚪 Iniciar Sesión</button>
-                        <button class="control-btn secondary" onclick="registerWithEmail()">📝 Registrarse</button>
+                    <div id="roomsList" class="rooms-list">
+                        <p class="no-rooms">No tienes salas creadas</p>
                     </div>
                 </div>
-                
-                <div id="loginStatus" class="login-status hidden">
-                    <p>✅ Sesión iniciada</p>
-                </div>
-            </div>
-            
-            <!-- Dashboard Section -->
-            <div id="moderator-dashboard" class="moderator-dashboard hidden">
-                <div class="moderator-info">
-                    <h4>👋 Hola, <span id="moderatorName">Moderador</span></h4>
-                    <button class="control-btn secondary" onclick="logoutModerator()">🚪 Cerrar Sesión</button>
-                </div>
-                
-                <div class="moderator-controls">
-                    <button id="createRoomBtn" class="control-btn" onclick="createRoomWithFirebase()">🎮 Crear Nueva Sala</button>
-                    <button id="shareBtn" class="control-btn hidden" onclick="shareGame()">📤 Compartir Enlace</button>
-                </div>
-                
-                <div id="roomInfo" class="room-info hidden">
-                    <div class="room-code">
-                        <label>Código de Sala:</label>
-                        <div class="code-display">
-                            <span id="roomCode">----</span>
-                            <button onclick="copyRoomCode()" class="copy-btn">📋</button>
+
+                <!-- Room Management -->
+                <div id="room-management" class="room-section hidden">
+                    <div class="room-info">
+                        <h3>Sala: <span id="currentRoomCode"></span></h3>
+                        <div class="room-status">
+                            <span id="roomStatus" class="status-badge">Lobby</span>
                         </div>
+                        <button id="backToRoomsBtn" class="btn btn-small">← Volver a Mis Salas</button>
                     </div>
-                    <div class="share-link">
-                        <label>Enlace de Compartir:</label>
-                        <div class="link-display">
+
+                    <!-- Share Instructions -->
+                    <div class="share-section">
+                        <h4>📤 Compartir Sala</h4>
+                        <div class="share-link-container">
                             <input type="text" id="shareLink" readonly>
-                            <button onclick="copyShareLink()" class="copy-btn">📋</button>
+                            <button id="copyLinkBtn" class="btn btn-secondary">Copiar</button>
+                        </div>
+                        <p class="share-instructions">
+                            Comparte este enlace con los participantes. Ellos solo necesitarán ingresar su nombre.
+                        </p>
+                    </div>
+
+                    <!-- Participants List -->
+                    <div class="participants-section">
+                        <h4>👥 Participantes (<span id="participantCount">0</span>)</h4>
+                        <div id="participantsList" class="participants-list">
+                            <p class="no-participants">No hay participantes registrados</p>
                         </div>
                     </div>
-                    <div class="share-instructions">
-                        <p>💡 <strong>Instrucciones:</strong></p>
-                        <p>1. Copia el enlace de arriba</p>
-                        <p>2. Compártelo por WhatsApp, Telegram, etc.</p>
-                        <p>3. Los participantes se unirán automáticamente</p>
+
+                    <!-- Game Controls -->
+                    <div class="game-controls">
+                        <h4>🎮 Controles del Juego</h4>
+                        <div class="control-buttons">
+                            <button id="assignCardsBtn" class="btn btn-secondary">Asignar Cartillas</button>
+                            <button id="startGameBtn" class="btn btn-primary">Iniciar Juego</button>
+                            <button id="nextTermBtn" class="btn btn-secondary">Siguiente Término</button>
+                            <button id="resetGameBtn" class="btn btn-danger">Reiniciar Todo</button>
+                            <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
+                        </div>
+                    </div>
+
+                    <!-- Current Term Display -->
+                    <div class="current-term-section">
+                        <h4>🎯 Término Actual</h4>
+                        <div id="currentTerm" class="current-term">Registra participantes y asigna cartillas para comenzar</div>
+                    </div>
+
+                    <!-- Called Terms -->
+                    <div class="called-terms-section">
+                        <h4>📋 Términos Cantados</h4>
+                        <div class="game-stats">
+                            <span>Llamados: <strong id="termsCalledCount">0</strong></span>
+                            <span>Restantes: <strong id="termsRemainingCount">0</strong></span>
+                        </div>
+                        <div id="calledTermsList" class="called-terms-list"></div>
                     </div>
                 </div>
             </div>
@@ -199,46 +262,6 @@
                 
                 <div style="text-align: center; margin-top: 20px;">
                     <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Moderator Mode -->
-        <div id="moderator-mode" class="content hidden">
-            <div class="participants-list">
-                <h3>Participantes Registrados</h3>
-                <div id="participantsList"></div>
-                <div style="text-align: center; margin-top: 15px; color: #7f8c8d;">
-                    <span id="participantCount">0</span> participantes registrados
-                </div>
-            </div>
-
-            <div class="moderator-controls">
-                <button class="control-btn success" onclick="assignCards()">📋 Asignar Cartillas</button>
-                <button class="control-btn" onclick="startGame()">▶️ Iniciar Juego</button>
-                <button class="control-btn" onclick="callNextTerm()">🎯 Siguiente Término</button>
-                <button class="control-btn danger" onclick="resetGame()">🔄 Reiniciar</button>
-            </div>
-
-            <div class="game-controls">
-                <div class="current-term" id="currentTerm">
-                    Registra participantes y asigna cartillas para comenzar
-                </div>
-
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-number" id="termsCalledCount">0</div>
-                        <div>Términos Aleatorios</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-number" id="termsRemainingCount">90</div>
-                        <div>Términos Restantes</div>
-                    </div>
-                </div>
-
-                <div>
-                    <h4>Términos Mostrados:</h4>
-                    <div id="calledTermsList" class="called-terms"></div>
                 </div>
             </div>
         </div>
