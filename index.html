@@ -1,273 +1,425 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Marketero</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="icon" type="image/png" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojNjY3ZWVhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTI7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJjYXJkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6I2ZmZmZmZjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZjhmOWZhO3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgCiAgPCEtLSBCYWNrZ3JvdW5kIC0tPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgcng9IjYiIGZpbGw9InVybCgjYmcpIi8+CiAgCiAgPCEtLSBCaW5nbyBDYXJkIC0tPgogIDxyZWN0IHg9IjYiIHk9IjgiIHdpZHRoPSIyMCIgaGVpZ2h0PSIxNiIgcng9IjIiIGZpbGw9InVybCgjY2FyZCkiIHN0cm9rZT0iI2Y4ZjlmYSIgc3Ryb2tlLXdpZHRoPSIwLjUiLz4KICA8L3N2Zz4K">
-    
-    <!-- Meta Tags Sociales -->
-    <meta name="description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
-    <meta name="keywords" content="bingo, web3, nft, defi, dao, blockchain, marketing, comunidad, juego">
-    <meta name="author" content="MKT Community">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://tu-dominio.com/">
-    <meta property="og:title" content="Bingo Web3 - MKT Community">
-    <meta property="og:description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
-    <meta property="og:image" content="https://tu-dominio.com/favicon.svg">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://tu-dominio.com/">
-    <meta property="twitter:title" content="Bingo Web3 - MKT Community">
-    <meta property="twitter:description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain. Juega con términos de DeFi, NFT, DAO y más.">
-    <meta property="twitter:image" content="https://tu-dominio.com/favicon.svg">
-    
-    <link rel="stylesheet" href="assets/css/styles.css">
-    
-    <!-- Firebase SDK v9+ (Modular) -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInAnonymously, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-        import { getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc, deleteDoc, serverTimestamp, getDocs, query, where, orderBy, getDoc } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-        
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCgWVgfDgYOLCXvMoI6B8cKtc1lt0E2jOc",
-            authDomain: "bingo-d2f28.firebaseapp.com",
-            projectId: "bingo-d2f28",
-            storageBucket: "bingo-d2f28.firebasestorage.app",
-            messagingSenderId: "786733165579",
-            appId: "1:786733165579:web:a5339c73eaf1d31c3eeb0e",
-            measurementId: "G-17C462BPND"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        // Make Firebase available globally
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-        window.firebaseCreateUserWithEmailAndPassword = createUserWithEmailAndPassword;
-        window.firebaseSignInWithEmailAndPassword = signInWithEmailAndPassword;
-        window.firebaseSignOut = signOut;
-        window.firebaseSignInAnonymously = signInAnonymously;
-        window.firebaseOnAuthStateChanged = onAuthStateChanged;
-        window.firebaseCollection = collection;
-        window.firebaseAddDoc = addDoc;
-        window.firebaseDoc = doc;
-        window.firebaseOnSnapshot = onSnapshot;
-        window.firebaseUpdateDoc = updateDoc;
-        window.firebaseSetDoc = setDoc;
-        window.firebaseDeleteDoc = deleteDoc;
-        window.firebaseServerTimestamp = serverTimestamp;
-        window.firebaseGetDocs = getDocs;
-        window.firebaseQuery = query;
-        window.firebaseWhere = where;
-        window.firebaseOrderBy = orderBy;
-        window.firebaseGetDoc = getDoc;
-        
-        console.log('Firebase v9+ initialized successfully');
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bingo Marketero</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+
+  <!-- Meta sociales -->
+  <meta name="description" content="Bingo Web3 interactivo para comunidades de marketing y blockchain." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bingo Web3 - MKT Community" />
+  <meta property="og:description" content="Juega con términos de DeFi, NFT, DAO y más." />
+  <meta property="og:image" content="favicon.svg" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- Estilos base: centrado, tipografía y layout responsive -->
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#0f172a;
+      --muted:#94a3b8;
+      --text:#e2e8f0;
+      --primary:#60a5fa;
+      --primary-600:#3b82f6;
+      --danger:#ef4444;
+      --success:#10b981;
+      --ring:0 0 0 2px rgba(96,165,250,.35);
+      --radius:14px;
+      --shadow:0 10px 30px rgba(2,8,23,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 800px at 50% -20%, #172554, transparent 60%), var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Contenedor principal centrado */
+    .container{
+      min-height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    /* Tarjeta central */
+    .card{
+      width:min(980px, 100%);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02)) , var(--card);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:clamp(20px, 2.5vw, 28px);
+    }
+
+    /* Header principal */
+    .header{
+      text-align:center;
+      margin-bottom:22px;
+    }
+    .community-name{
+      font-size:.85rem;
+      letter-spacing:.25rem;
+      color:var(--muted);
+      text-transform:uppercase;
+      margin-bottom:8px;
+    }
+    h1{
+      margin:0 0 6px;
+      font-size:clamp(26px, 4.6vw, 40px);
+      line-height:1.1;
+    }
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:clamp(14px, 2.6vw, 16px);
+    }
+
+    /* Layout de secciones (stack) */
+    .stack{display:flex; flex-direction:column; gap:18px}
+
+    /* Botones */
+    .btn{
+      appearance:none; border:0; cursor:pointer;
+      padding:12px 16px; border-radius:12px; font-weight:600;
+      background:#1e293b; color:var(--text);
+      transition:transform .08s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn:focus-visible{outline:none; box-shadow:var(--ring)}
+    .btn-primary{background:linear-gradient(180deg, var(--primary), var(--primary-600)); color:#fff}
+    .btn-danger{background:linear-gradient(180deg, #f87171, #ef4444); color:#fff}
+    .btn-secondary{background:#0b1220; border:1px solid rgba(148,163,184,.25)}
+    .btn-small{padding:8px 12px; font-size:.9rem}
+
+    /* Formularios */
+    .form{
+      display:grid; gap:14px;
+      background:rgba(2,6,23,.45);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:12px; padding:16px;
+    }
+    .form-row{display:grid; gap:6px}
+    label{font-size:.95rem; color:var(--muted)}
+    input[type="email"],
+    input[type="password"],
+    input[type="text"]{
+      width:100%; padding:12px 14px; border-radius:10px;
+      border:1px solid rgba(148,163,184,.25);
+      background:#0b1220; color:var(--text);
+    }
+    input::placeholder{color:#64748b}
+    .form-actions{display:flex; gap:10px; flex-wrap:wrap}
+
+    /* Secciones del moderador */
+    .dashboard-header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      flex-wrap:wrap; margin-bottom:12px;
+    }
+    .user-info{display:flex; align-items:center; gap:10px; color:var(--muted)}
+    .rooms-actions{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px}
+    .rooms-list, .participants-list, .called-terms-list{
+      background:rgba(2,6,23,.45);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:12px; padding:12px;
+      min-height:48px;
+    }
+    .no-rooms, .no-participants{color:var(--muted); margin:6px 0}
+
+    .room-info{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .status-badge{
+      display:inline-block; padding:6px 10px; border-radius:999px;
+      background:#0b1220; border:1px solid rgba(148,163,184,.25); color:#cbd5e1; font-size:.85rem;
+    }
+
+    .share-section{display:grid; gap:10px}
+    .share-link-container{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    #shareLink{
+      flex:1 1 260px; min-width:240px;
+      background:#0b1220; color:var(--text);
+      border:1px solid rgba(148,163,184,.25); border-radius:10px; padding:12px 14px;
+    }
+    .game-controls .control-buttons{display:flex; gap:10px; flex-wrap:wrap}
+
+    .current-term{
+      padding:12px; border-radius:12px; background:#0b1220;
+      border:1px solid rgba(148,163,184,.25);
+    }
+
+    /* Participante */
+    .registration-form{
+      display:grid; gap:12px;
+      background:rgba(2,6,23,.45);
+      border:1px solid rgba(148,163,184,.15);
+      border-radius:12px; padding:16px;
+      max-width:520px; margin-inline:auto;
+      text-align:center;
+    }
+    .participant-status{ 
+      background:rgba(2,6,23,.45); border:1px solid rgba(148,163,184,.15);
+      border-radius:12px; padding:16px; text-align:center; max-width:720px; margin:12px auto;
+    }
+    .participant-status.waiting{ border-color:rgba(96,165,250,.35) }
+    .participant-status.assigned{ border-color:rgba(16,185,129,.35) }
+
+    .player-card-container{max-width:780px; margin:14px auto}
+    .bingo-card{display:grid; grid-template-columns:repeat(5,1fr); gap:6px}
+    .bingo-card div{
+      background:#0b1220; border:1px solid rgba(148,163,184,.25);
+      border-radius:10px; padding:10px; text-align:center; min-height:52px;
+      display:flex; align-items:center; justify-content:center; word-break:break-word;
+    }
+
+    /* Utilidades */
+    .hidden{display:none !important}
+    .section{background:rgba(255,255,255,.01); border-radius:12px; padding:12px}
+    .divider{height:1px; background:rgba(148,163,184,.15); margin:10px 0}
+
+    /* Responsive tweaks */
+    @media (max-width: 560px){
+      .form-actions{flex-direction:column}
+      .dashboard-header{flex-direction:column; align-items:flex-start}
+    }
+  </style>
+
+  <!-- Tu CSS (si lo usas) -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
-    <div class="container">
-        <!-- Landing Page -->
-        <div id="landing-page" class="landing-page">
-            <div class="header">
-                <div class="community-name">MKT COMMUNITY</div>
-                <h1>BINGO WEB3</h1>
-                <p>Marketing & Blockchain Edition</p>
+  <div class="container">
+    <main class="card stack" aria-live="polite">
+      <!-- L A N D I N G -->
+      <section id="landing-page" class="stack" aria-label="Inicio">
+        <header class="header">
+          <div class="community-name">MKT COMMUNITY</div>
+          <h1>BINGO WEB3</h1>
+          <p class="subtitle">Marketing &amp; Blockchain Edition</p>
+        </header>
+        <div id="moderator-cta" class="stack" style="align-items:center">
+          <button class="btn btn-primary" onclick="openModeratorLogin()">Acceder como Moderador</button>
+        </div>
+      </section>
+
+      <!-- A C C E S O  M O D E R A D O R -->
+      <section id="moderator-login" class="hidden" aria-label="Acceso de moderador">
+        <div class="form" style="max-width:520px; margin-inline:auto">
+          <h2 style="margin:0 0 6px">🔐 Acceso de Moderador</h2>
+          <form id="loginForm" class="stack" novalidate>
+            <div class="form-row">
+              <label for="email">Email</label>
+              <input type="email" id="email" autocomplete="username" required />
             </div>
-            
-            <div id="moderator-cta" class="moderator-cta">
-                <button class="control-btn" onclick="openModeratorLogin()">Acceder como Moderador</button>
+            <div class="form-row">
+              <label for="password">Contraseña</label>
+              <input type="password" id="password" autocomplete="current-password" required />
             </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+              <button type="button" id="showRegister" class="btn btn-secondary">Registrarse</button>
+            </div>
+          </form>
+          <form id="registerForm" class="hidden stack" novalidate>
+            <div class="form-row">
+              <label for="regEmail">Email</label>
+              <input type="email" id="regEmail" autocomplete="username" required />
+            </div>
+            <div class="form-row">
+              <label for="regPassword">Contraseña</label>
+              <input type="password" id="regPassword" autocomplete="new-password" required minlength="6" />
+            </div>
+            <div class="form-row">
+              <label for="regConfirmPassword">Confirmar Contraseña</label>
+              <input type="password" id="regConfirmPassword" autocomplete="new-password" required />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Registrarse</button>
+              <button type="button" id="showLogin" class="btn btn-secondary">Ya tengo cuenta</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- D A S H B O A R D  M O D E R A D O R -->
+      <section id="moderator-dashboard" class="hidden stack" aria-label="Panel de moderador">
+        <div class="dashboard-header">
+          <h2 style="margin:0">🎮 Panel de Moderador</h2>
+          <div class="user-info">
+            <span id="moderatorName"></span>
+            <button id="logoutBtn" class="btn btn-small btn-secondary">Cerrar Sesión</button>
+          </div>
         </div>
 
-        <!-- Moderator Login -->
-        <div id="moderator-login" class="moderator-section hidden">
-            <div class="login-container">
-                <h2>🔐 Acceso de Moderador</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Contraseña:</label>
-                        <input type="password" id="password" required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                        <button type="button" id="showRegister" class="btn btn-secondary">Registrarse</button>
-                    </div>
-                </form>
-                
-                <form id="registerForm" class="hidden">
-                    <div class="form-group">
-                        <label for="regEmail">Email:</label>
-                        <input type="email" id="regEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="regPassword">Contraseña:</label>
-                        <input type="password" id="regPassword" required minlength="6">
-                    </div>
-                    <div class="form-group">
-                        <label for="regConfirmPassword">Confirmar Contraseña:</label>
-                        <input type="password" id="regConfirmPassword" required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Registrarse</button>
-                        <button type="button" id="showLogin" class="btn btn-secondary">Ya tengo cuenta</button>
-                    </div>
-                </form>
+        <!-- Mis salas -->
+        <section id="my-rooms-section" class="stack section" aria-label="Mis salas">
+          <h3 style="margin:0">🏠 Mis Salas</h3>
+          <div class="rooms-actions">
+            <button id="createRoomBtn" class="btn btn-primary">🎯 Crear Nueva Sala</button>
+            <button id="refreshRoomsBtn" class="btn btn-secondary">🔄 Actualizar Lista</button>
+          </div>
+          <div id="roomsList" class="rooms-list">
+            <p class="no-rooms">No tienes salas creadas</p>
+          </div>
+        </section>
+
+        <!-- Gestión de sala -->
+        <section id="room-management" class="hidden stack section" aria-label="Gestión de sala">
+          <div class="room-info">
+            <h3 style="margin:0">Sala: <span id="currentRoomCode"></span></h3>
+            <span id="roomStatus" class="status-badge">Lobby</span>
+            <button id="backToRoomsBtn" class="btn btn-small btn-secondary">← Volver a Mis Salas</button>
+          </div>
+
+          <div class="share-section">
+            <h4 style="margin:0">📤 Compartir Sala</h4>
+            <div class="share-link-container">
+              <input type="text" id="shareLink" readonly aria-label="Enlace para compartir" />
+              <button id="copyLinkBtn" class="btn btn-secondary">Copiar</button>
             </div>
+            <p class="subtitle">Comparte este enlace con los participantes. Ellos solo ingresan su nombre.</p>
+          </div>
+
+          <div class="participants-section stack">
+            <h4 style="margin:0">👥 Participantes (<span id="participantCount">0</span>)</h4>
+            <div id="participantsList" class="participants-list">
+              <p class="no-participants">No hay participantes registrados</p>
+            </div>
+          </div>
+
+          <div class="game-controls stack">
+            <h4 style="margin:0">🎮 Controles del Juego</h4>
+            <div class="control-buttons">
+              <button id="assignCardsBtn" class="btn btn-secondary">Asignar Cartillas</button>
+              <button id="startGameBtn" class="btn btn-primary">Iniciar Juego</button>
+              <button id="nextTermBtn" class="btn btn-secondary">Siguiente Término</button>
+              <button id="resetGameBtn" class="btn btn-danger">Reiniciar Todo</button>
+              <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
+            </div>
+          </div>
+
+          <div class="current-term-section stack">
+            <h4 style="margin:0">🎯 Término Actual</h4>
+            <div id="currentTerm" class="current-term">Registra participantes y asigna cartillas para comenzar</div>
+          </div>
+
+          <div class="called-terms-section stack">
+            <h4 style="margin:0">📋 Términos Cantados</h4>
+            <div class="game-stats" style="display:flex; gap:14px; color:var(--muted)">
+              <span>Llamados: <strong id="termsCalledCount">0</strong></span>
+              <span>Restantes: <strong id="termsRemainingCount">0</strong></span>
+            </div>
+            <div id="calledTermsList" class="called-terms-list"></div>
+          </div>
+        </section>
+      </section>
+
+      <!-- M O D O  P A R T I C I P A N T E -->
+      <section id="participant-mode" class="hidden stack" aria-label="Participante">
+        <div id="registration-section">
+          <div class="registration-form">
+            <h2 style="margin:0 0 6px">¡Únete al Bingo Web3!</h2>
+            <p class="subtitle" style="margin:0 0 12px">Ingresa tu nombre para participar</p>
+            <div class="form-row">
+              <label for="participantName">Tu nombre</label>
+              <input type="text" id="participantName" placeholder="Ejemplo: Juan Pérez" maxlength="40" />
+            </div>
+            <button class="btn btn-primary" onclick="registerParticipant()">🚀 Registrarse</button>
+          </div>
         </div>
 
-        <!-- Moderator Dashboard -->
-        <div id="moderator-dashboard" class="moderator-section hidden">
-            <div class="dashboard-container">
-                <div class="dashboard-header">
-                    <h2>🎮 Panel de Moderador</h2>
-                    <div class="user-info">
-                        <span id="moderatorName"></span>
-                        <button id="logoutBtn" class="btn btn-small">Cerrar Sesión</button>
-                    </div>
-                </div>
-
-                <!-- My Rooms Section -->
-                <div id="my-rooms-section" class="rooms-section">
-                    <h3>🏠 Mis Salas</h3>
-                    <div class="rooms-actions">
-                        <button id="createRoomBtn" class="btn btn-primary">
-                            🎯 Crear Nueva Sala
-                        </button>
-                        <button id="refreshRoomsBtn" class="btn btn-secondary">
-                            🔄 Actualizar Lista
-                        </button>
-                    </div>
-                    <div id="roomsList" class="rooms-list">
-                        <p class="no-rooms">No tienes salas creadas</p>
-                    </div>
-                </div>
-
-                <!-- Room Management -->
-                <div id="room-management" class="room-section hidden">
-                    <div class="room-info">
-                        <h3>Sala: <span id="currentRoomCode"></span></h3>
-                        <div class="room-status">
-                            <span id="roomStatus" class="status-badge">Lobby</span>
-                        </div>
-                        <button id="backToRoomsBtn" class="btn btn-small">← Volver a Mis Salas</button>
-                    </div>
-
-                    <!-- Share Instructions -->
-                    <div class="share-section">
-                        <h4>📤 Compartir Sala</h4>
-                        <div class="share-link-container">
-                            <input type="text" id="shareLink" readonly>
-                            <button id="copyLinkBtn" class="btn btn-secondary">Copiar</button>
-                        </div>
-                        <p class="share-instructions">
-                            Comparte este enlace con los participantes. Ellos solo necesitarán ingresar su nombre.
-                        </p>
-                    </div>
-
-                    <!-- Participants List -->
-                    <div class="participants-section">
-                        <h4>👥 Participantes (<span id="participantCount">0</span>)</h4>
-                        <div id="participantsList" class="participants-list">
-                            <p class="no-participants">No hay participantes registrados</p>
-                        </div>
-                    </div>
-
-                    <!-- Game Controls -->
-                    <div class="game-controls">
-                        <h4>🎮 Controles del Juego</h4>
-                        <div class="control-buttons">
-                            <button id="assignCardsBtn" class="btn btn-secondary">Asignar Cartillas</button>
-                            <button id="startGameBtn" class="btn btn-primary">Iniciar Juego</button>
-                            <button id="nextTermBtn" class="btn btn-secondary">Siguiente Término</button>
-                            <button id="resetGameBtn" class="btn btn-danger">Reiniciar Todo</button>
-                            <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
-                        </div>
-                    </div>
-
-                    <!-- Current Term Display -->
-                    <div class="current-term-section">
-                        <h4>🎯 Término Actual</h4>
-                        <div id="currentTerm" class="current-term">Registra participantes y asigna cartillas para comenzar</div>
-                    </div>
-
-                    <!-- Called Terms -->
-                    <div class="called-terms-section">
-                        <h4>📋 Términos Cantados</h4>
-                        <div class="game-stats">
-                            <span>Llamados: <strong id="termsCalledCount">0</strong></span>
-                            <span>Restantes: <strong id="termsRemainingCount">0</strong></span>
-                        </div>
-                        <div id="calledTermsList" class="called-terms-list"></div>
-                    </div>
-                </div>
-            </div>
+        <div id="waiting-section" class="hidden">
+          <div class="participant-status waiting">
+            <h3 style="margin:0 0 6px">¡Registrado exitosamente!</h3>
+            <p class="subtitle" style="margin:0 0 8px">Esperando que el moderador asigne las cartillas…</p>
+            <div><strong>Tu nombre:</strong> <span id="registeredName"></span></div>
+          </div>
         </div>
 
-        <!-- Participant Mode -->
-        <div id="participant-mode" class="content hidden">
-            <div id="registration-section">
-                <div class="registration-form">
-                    <h2>¡Únete al Bingo Web3!</h2>
-                    <p style="color: #7f8c8d; margin-bottom: 20px;">Ingresa tu nombre para participar</p>
-                    
-                    <div class="form-group">
-                        <label for="participantName">Tu nombre:</label>
-                        <input type="text" id="participantName" placeholder="Ejemplo: Juan Pérez" maxlength="20">
-                    </div>
-                    
-                    <button class="register-btn" onclick="registerParticipant()">🚀 Registrarse</button>
-                </div>
-            </div>
+        <div id="playing-section" class="hidden">
+          <div class="participant-status assigned">
+            <h3 style="margin:0 0 6px">¡Tu cartilla está lista!</h3>
+            <p class="subtitle" style="margin:0">Marca las casillas cuando el moderador anuncie los términos.</p>
+          </div>
 
-            <div id="waiting-section" class="hidden">
-                <div class="participant-status waiting">
-                    <h3>¡Registrado exitosamente!</h3>
-                    <p>Esperando que el moderador asigne las cartillas...</p>
-                    <div style="margin-top: 10px;">
-                        <strong>Tu nombre:</strong> <span id="registeredName"></span>
-                    </div>
-                </div>
-            </div>
+          <div class="player-card-container">
+            <div id="playerCard" class="bingo-card"></div>
 
-            <div id="playing-section" class="hidden">
-                <div class="participant-status assigned">
-                    <h3>¡Tu cartilla está lista!</h3>
-                    <p>Marca los términos cuando el moderador los anuncie</p>
-                </div>
-                
-                <div class="player-card-container">
-                    <div id="playerCard" class="bingo-card"></div>
-                    
-                    <!-- Mobile Helper -->
-                    <div style="text-align: center; margin-top: 15px; padding: 10px; background: #e8f4fd; border-radius: 8px; font-size: 14px; color: #2c3e50;">
-                        <strong>💡 Tip:</strong> Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.
-                    </div>
-                </div>
-                
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
-                </div>
+            <div style="text-align:center; margin-top:12px; padding:10px; background:#083344; border:1px solid rgba(148,163,184,.2); border-radius:10px; color:#cbd5e1">
+              <strong>💡 Tip:</strong> Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.
             </div>
+          </div>
+
+          <div style="text-align:center; margin-top:12px">
+            <button class="btn btn-success" style="background:linear-gradient(180deg,#34d399,#10b981)" onclick="claimBingo()">🎉 ¡BINGO!</button>
+          </div>
         </div>
-    </div>
+      </section>
+    </main>
+  </div>
 
-    <script src="assets/js/app.js"></script>
+  <!-- Firebase SDK (modular) -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+    import {
+      getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+      signInAnonymously, signOut, onAuthStateChanged
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+    import {
+      getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc,
+      deleteDoc, serverTimestamp, getDocs, query, where, orderBy, getDoc
+    } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCgWVgfDgYOLCXvMoI6B8cKtc1lt0E2jOc",
+      authDomain: "bingo-d2f28.firebaseapp.com",
+      projectId: "bingo-d2f28",
+      storageBucket: "bingo-d2f28.firebasestorage.app",
+      messagingSenderId: "786733165579",
+      appId: "1:786733165579:web:a5339c73eaf1d31c3eeb0e",
+      measurementId: "G-17C462BPND"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Exponer para app.js
+    window.firebaseAuth = auth;
+    window.firebaseDb = db;
+    window.firebaseCreateUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    window.firebaseSignInWithEmailAndPassword = signInWithEmailAndPassword;
+    window.firebaseSignOut = signOut;
+    window.firebaseSignInAnonymously = signInAnonymously;
+    window.firebaseOnAuthStateChanged = onAuthStateChanged;
+    window.firebaseCollection = collection;
+    window.firebaseAddDoc = addDoc;
+    window.firebaseDoc = doc;
+    window.firebaseOnSnapshot = onSnapshot;
+    window.firebaseUpdateDoc = updateDoc;
+    window.firebaseSetDoc = setDoc;
+    window.firebaseDeleteDoc = deleteDoc;
+    window.firebaseServerTimestamp = serverTimestamp;
+    window.firebaseGetDocs = getDocs;
+    window.firebaseQuery = query;
+    window.firebaseWhere = where;
+    window.firebaseOrderBy = orderBy;
+    window.firebaseGetDoc = getDoc;
+
+    console.log('Firebase v9+ inicializado');
+  </script>
+
+  <!-- Tu lógica -->
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
