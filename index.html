@@ -188,6 +188,62 @@
       .hero__logo-badge{top:-28px;width:64px;height:64px}
       .hero__branding{margin-top:22px}
     }
+    /* ====== CENTRADO GENERAL PARTICIPANTE ====== */
+    .player-banner,.player-area,.player-cta{display:grid;place-items:center}
+    .player-banner{margin:16px 0 8px}
+    .banner-card{max-width:840px;width:100%;border-radius:12px;padding:16px 18px;text-align:center;border:1px solid rgba(255,255,255,.10);background:rgba(56,224,210,.10);color:#dff7f4}
+    .banner-card.success h3{margin:0 0 6px;color:var(--ok)}
+    .player-area{max-width:840px;width:100%;padding:8px 12px 0;margin:0 auto}
+    .player-card{width:100%;display:grid;place-items:center;padding:8px 0}
+    /* ====== GRID 5×5 ====== */
+    .card-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:min(520px,90vw)}
+    .card-cell{aspect-ratio:1/1;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.04);color:var(--txt-1);display:flex;align-items:center;justify-content:center;padding:6px;cursor:pointer;transition:.1s ease;outline:none}
+    .card-cell:hover,.card-cell:focus-visible{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.35);border-color:rgba(255,255,255,.25)}
+    .card-cell:disabled{cursor:default}
+    .card-cell.marked{background:rgba(91,228,155,.28);border-color:rgba(91,228,155,.75)}
+    .cell-free{background:linear-gradient(180deg,rgba(56,224,210,.16),rgba(255,255,255,.04));border-color:rgba(56,224,210,.55)}
+    .cell-text{font-size:clamp(11px,1.8vw,14px);line-height:1.15;padding:0 4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    /* Tip y CTA centrados */
+    .player-tip{margin:10px 0 14px;width:min(520px,90vw);border-radius:10px;padding:10px 12px;background:rgba(16,22,52,.75);border:1px solid rgba(255,255,255,.08);color:var(--txt-2);text-align:center;font-size:14px}
+    .player-cta .bingo-btn{min-width:160px;padding:10px 14px;border-radius:12px;border:0;background:var(--grad-brand);color:#0b0f2a;font-weight:800;letter-spacing:.3px;box-shadow:0 8px 22px rgba(0,0,0,.35);transition:transform .1s ease, filter .12s ease}
+    .player-cta .bingo-btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
+    @media(max-width:480px){.card-grid{gap:8px;width:92vw}.player-tip{width:92vw;font-size:13px}}
+    /* ====== THEME GLOBAL ====== */
+    .section,.dashboard-container,.rooms-section,.room-section{background:var(--bg-1);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow)}
+    .card,.participants-section,.share-section,.game-controls,.current-term-section,.called-terms-section{background:var(--bg-2);border:var(--border);border-radius:var(--br)}
+    input[type="text"],input[type="email"],input[type="password"]{background:rgba(255,255,255,.04);color:var(--txt-1);border:1px solid rgba(255,255,255,.14);border-radius:10px}
+    input:focus-visible{outline:none;box-shadow:var(--ring)}
+    .status-badge{background:rgba(255,255,255,.06);color:var(--txt-2);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 10px;font-weight:700;font-size:12px}
+    .status-badge.lobby{background:rgba(255,179,58,.14);color:#ffd79a}
+    .status-badge.live{background:rgba(56,224,210,.14);color:#9df4ec}
+    .status-badge.ended{background:rgba(255,107,107,.16);color:#ffb4b4}
+
+    /* ====== CONTROLS BAR ====== */
+    .controls-bar{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;padding:18px;background:var(--bg-2);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow)}
+    .ctl-btn{appearance:none;border:0;border-radius:12px;padding:.85rem 1.1rem;font-weight:800;letter-spacing:.2px;min-width:172px;text-align:center;color:#0b0f2a;box-shadow:var(--shadow);transition:transform .12s ease, filter .12s ease, opacity .12s ease}
+    .ctl-btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
+    .ctl-btn:focus-visible{outline:none;box-shadow:var(--shadow),var(--ring)}
+    .ctl-btn--primary{background:var(--grad-brand)}
+    .ctl-btn--ghost{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.05));color:var(--txt-1);border:1px solid rgba(255,255,255,.14)}
+    .ctl-btn--warn{background:linear-gradient(135deg,#ffd166,#ffb33a);color:#301b00}
+    .ctl-btn--danger{background:#ff6b6b;color:#2a0c0c}
+    .ctl-btn[disabled]{opacity:.45;filter:grayscale(.25);cursor:not-allowed;transform:none!important;box-shadow:none}
+    @media(max-width:720px){.controls-bar{gap:10px}.ctl-btn{min-width:100%}}
+
+    /* PARTICIPANTES ITEM */
+    .participants-section .participant-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:14px;display:flex;justify-content:space-between;align-items:center}
+    .participant-name{font-weight:800;color:var(--txt-1)}
+    .participant-status{text-transform:lowercase}
+
+    /* TITULARES DE SECCIÓN */
+    .section-title{font-weight:800;color:var(--txt-1);margin:8px 0 14px;position:relative}
+    .section-title::after{content:"";display:block;height:2px;width:110px;margin-top:8px;background:linear-gradient(90deg,var(--magenta),transparent);opacity:.8}
+
+    /* SHARE LINK */
+    .share-link-container{display:flex;gap:10px;align-items:center}
+    #shareLink{flex:1;background:rgba(255,255,255,.06);color:var(--txt-1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.75rem .9rem}
+    #copyLinkBtn{padding:.75rem 1rem;border-radius:10px;background:var(--bg-2);border:1px solid rgba(255,255,255,.16);color:var(--txt-1);font-weight:700}
+    #copyLinkBtn:hover{background:rgba(255,255,255,.08)}
   </style>
 
   <!-- Tu CSS (si lo usas) -->
@@ -300,12 +356,12 @@
 
           <div class="game-controls stack">
             <h4 style="margin:0">🎮 Controles del Juego</h4>
-            <div class="control-buttons">
-              <button id="assignCardsBtn" class="btn btn-secondary">Asignar Cartillas</button>
-              <button id="startGameBtn" class="btn btn-primary">Iniciar Juego</button>
-              <button id="nextTermBtn" class="btn btn-secondary">Siguiente Término</button>
-              <button id="resetGameBtn" class="btn btn-danger">Reiniciar Todo</button>
-              <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
+            <div class="controls-bar">
+              <button id="assignCardsBtn" class="ctl-btn ctl-btn--ghost">Asignar Cartillas</button>
+              <button id="startGameBtn" class="ctl-btn ctl-btn--primary">Iniciar Juego</button>
+              <button id="nextTermBtn" class="ctl-btn ctl-btn--ghost">Siguiente Término</button>
+              <button id="resetGameBtn" class="ctl-btn ctl-btn--warn">Reiniciar Todo</button>
+              <button id="deleteRoomBtn" class="ctl-btn ctl-btn--danger">Eliminar Sala</button>
             </div>
           </div>
 
@@ -348,21 +404,27 @@
         </div>
 
         <div id="playing-section" class="hidden">
-          <div class="participant-status assigned">
-            <h3 style="margin:0 0 6px">¡Tu cartilla está lista!</h3>
-            <p class="subtitle" style="margin:0">Marca las casillas cuando el moderador anuncie los términos.</p>
-          </div>
-
-          <div class="player-card-container">
-            <div id="playerCard" class="bingo-card"></div>
-
-            <div style="text-align:center; margin-top:12px; padding:10px; background:#083344; border:1px solid rgba(148,163,184,.2); border-radius:10px; color:#cbd5e1">
-              <strong>💡 Tip:</strong> Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.
+          <!-- Banner centrado -->
+          <div class="player-banner">
+            <div class="banner-card success">
+              <h3>¡Tu cartilla está lista!</h3>
+              <p>Marca las casillas cuando el moderador anuncie los términos.</p>
             </div>
           </div>
 
-          <div style="text-align:center; margin-top:12px">
-            <button class="btn btn-success" style="background:linear-gradient(180deg,#34d399,#10b981)" onclick="claimBingo()">🎉 ¡BINGO!</button>
+          <!-- Área centrada de jugador -->
+          <div class="player-area">
+            <div class="player-card">
+              <div id="playerCard" class="card-grid" role="grid" aria-label="Cartilla de Bingo"></div>
+            </div>
+
+            <div class="player-tip">
+              <span>💡 Tip: Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.</span>
+            </div>
+
+            <div class="player-cta">
+              <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
+            </div>
           </div>
         </div>
       </section>
