@@ -28,6 +28,7 @@ const WEB3_MARKETING_TERMS = [
   let roomsListener = null;
   let participantsListener = null;
   let gameStateListener = null;
+let calledTermsSet = new Set();
   
   // Garantiza una única sesión anónima por pestaña
   let anonSignInPromise = null;
@@ -51,6 +52,15 @@ const WEB3_MARKETING_TERMS = [
     return a;
   }
   
+// Normaliza términos para comparar de forma robusta
+function normTerm(s) {
+  return String(s ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
   // ─────────────────────────────────────────────────────────────────────────────
   // Route Management
   function getCurrentRoute() {
@@ -103,6 +113,10 @@ const WEB3_MARKETING_TERMS = [
     else if (route.type === 'moderator-room') { (currentUser && !currentUser.isAnonymous) ? (showModeratorDashboard(), openRoomManagement(route.roomId)) : showModeratorLogin(); }
     else if (route.type === 'moderator') { (currentUser && !currentUser.isAnonymous) ? showModeratorDashboard() : showModeratorLogin(); }
     else { (currentUser && !currentUser.isAnonymous) ? showModeratorDashboard() : showLandingPage(); }
+    // extra defensivo para participante ya registrado
+    if (route.type === 'play' && currentParticipant?.name) {
+      setParticipantView(currentParticipant.cardId ? 'playing' : 'waiting', { name: currentParticipant.name });
+    }
   }
   
   // ─────────────────────────────────────────────────────────────────────────────
@@ -233,7 +247,41 @@ const WEB3_MARKETING_TERMS = [
       : 'Registra participantes y asigna cartillas para comenzar';
     document.getElementById('termsCalledCount').textContent = gameState.calledTerms.length;
     document.getElementById('termsRemainingCount').textContent = WEB3_MARKETING_TERMS.length - gameState.calledTerms.length;
-    document.getElementById('calledTermsList').innerHTML = gameState.calledTerms.map(t => `<div class="called-term">${t}</div>`).join('');
+  document.getElementById('calledTermsList').innerHTML = gameState.calledTerms.map(t => `<div class="called-term">${t}</div>`).join('');
+  // sincroniza set normalizado para validaciones O(1)
+  calledTermsSet = new Set((gameState?.calledTerms ?? []).map(normTerm));
+  }
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Participant View State Helper
+  function setParticipantView(state, data = {}) {
+    const form = document.getElementById('registration-section');
+    const waiting = document.getElementById('waiting-section');
+    const playing = document.getElementById('playing-section');
+    const banner = document.querySelector('.player-banner');
+    const tip = document.querySelector('.player-tip');
+    const cta = document.querySelector('.player-cta');
+
+    form?.classList.add('hidden');
+    waiting?.classList.add('hidden');
+    playing?.classList.add('hidden');
+
+    if (state === 'form') {
+      form?.classList.remove('hidden');
+      waiting?.classList.add('hidden');
+      playing?.classList.add('hidden');
+    } else if (state === 'waiting') {
+      waiting?.classList.remove('hidden');
+      if (data.name) {
+        const rn = document.getElementById('registeredName');
+        if (rn) rn.textContent = data.name;
+      }
+    } else if (state === 'playing') {
+      playing?.classList.remove('hidden');
+      banner?.classList?.remove('hidden');
+      tip?.classList?.remove('hidden');
+      cta?.classList?.remove('hidden');
+    }
   }
   async function deleteRoom(roomId) {
     if (!confirm('¿Estás seguro de eliminar esta sala? Esta acción no se puede deshacer.')) return;
@@ -255,31 +303,26 @@ const WEB3_MARKETING_TERMS = [
   // Participant Functions
   async function joinRoomAsParticipant(roomId) {
     try {
-      // Garantiza auth anónima con UID estable
       currentUser = await ensureAnonymous();
       if (!currentUser) throw new Error('AUTH_NOT_READY');
-  
-      const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
-      const participantSnap = await window.firebaseGetDoc(participantRef);
-  
-      if (participantSnap.exists()) {
-        const data = participantSnap.data();
+      const pRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
+      const snap = await window.firebaseGetDoc(pRef);
+
+      if (snap.exists()) {
+        const data = snap.data();
         currentParticipant = { id: currentUser.uid, ...data };
-        document.getElementById('registeredName').textContent = data.name ?? '';
         if (data.cardId) {
+          setParticipantView('playing', { name: data.name });
           showPlayerCard();
         } else {
-          document.getElementById('registration-section').classList.add('hidden');
-          document.getElementById('waiting-section').classList.remove('hidden');
+          setParticipantView('waiting', { name: data.name });
         }
       } else {
-        // mostrar form de registro
-        document.getElementById('registration-section').classList.remove('hidden');
-        document.getElementById('waiting-section').classList.add('hidden');
-        document.getElementById('playing-section').classList.add('hidden');
+        setParticipantView('form');
       }
     } catch (e) {
       console.error('Error joining room:', e);
+      setParticipantView('form');
     }
   }
   
@@ -328,9 +371,7 @@ const WEB3_MARKETING_TERMS = [
       }
   
       currentParticipant = { id: uid, name, status: "waiting", cardId: null };
-      document.getElementById('registeredName').textContent = name;
-      document.getElementById('registration-section').classList.add('hidden');
-      document.getElementById('waiting-section').classList.remove('hidden');
+      setParticipantView('waiting', { name });
       console.log('Participant registered successfully:', name);
   
     } catch (e) {
@@ -378,12 +419,17 @@ const WEB3_MARKETING_TERMS = [
   }
   async function callNextTerm() {
     if (!currentRoom || !gameState.started) { alert('Primero inicia el juego'); return; }
-    if (gameState.currentIndex >= gameState.terms.length) { alert('Todos los términos han sido mencionados'); return; }
     try {
-      const nextTerm = gameState.terms[gameState.currentIndex];
-      const updatedCalledTerms = [...gameState.calledTerms, nextTerm];
-      const updatedIndex = gameState.currentIndex + 1;
-      await window.firebaseUpdateDoc(window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}/state/current`), { calledTerms: updatedCalledTerms, currentIndex: updatedIndex });
+    const terms = gameState.terms ?? [];
+    let idx = gameState.currentIndex ?? 0;
+    while (idx < terms.length && calledTermsSet.has(normTerm(terms[idx]))) { idx++; }
+    if (idx >= terms.length) { alert('Todos los términos han sido mostrados'); return; }
+    const nextTerm = terms[idx];
+    const updatedCalledTerms = [...(gameState.calledTerms ?? []), nextTerm];
+    await window.firebaseUpdateDoc(
+      window.firebaseDoc(window.firebaseDb, `rooms/${currentRoom}/state/current`),
+      { calledTerms: updatedCalledTerms, currentIndex: idx + 1 }
+    );
       console.log('Term called:', nextTerm);
     } catch (e) {
       console.error('Error calling next term:', e);
@@ -400,32 +446,38 @@ const WEB3_MARKETING_TERMS = [
       if (snap.exists()) displayPlayerCard(snap.data().cells);
     });
   }
-  function displayPlayerCard(cardTerms) {
-    document.getElementById('waiting-section').classList.add('hidden');
-    document.getElementById('playing-section').classList.remove('hidden');
-    const cardContainer = document.getElementById('playerCard');
-    cardContainer.innerHTML = `
-      <div class="card-header"><h3>${currentParticipant.name ?? ''}</h3></div>
-      <div class="card-grid" role="grid" aria-label="Cartilla de Bingo">
-        ${cardTerms.map(term => {
-          const safe = term.replace(/'/g, "\\'");
-          const extraClass = safe === 'FREE' ? ' cell-free' : '';
-          return `
-            <button class="card-cell${extraClass}" role="gridcell" aria-pressed="false" title='${safe}' onclick="toggleCell(this, '${safe}')">
-              <span class="cell-text">${safe}</span>
-            </button>
-          `;
-        }).join('')}
-      </div>
+function displayPlayerCard(cardTerms) {
+  document.getElementById('waiting-section').classList.add('hidden');
+  document.getElementById('playing-section').classList.remove('hidden');
+  const grid = document.getElementById('playerCard');
+  grid.innerHTML = cardTerms.map(term => {
+    const isFree = term === 'FREE';
+    const safeText = String(term).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const dataAttr = String(term).replace(/"/g,'&quot;');
+    return `
+      <button
+        class="card-cell${isFree ? ' cell-free' : ''}"
+        data-term="${dataAttr}"
+        ${isFree ? 'disabled' : ''}
+        onclick="toggleCell(this)"
+        aria-pressed="false"
+        role="gridcell"
+        title="${safeText}"
+      >
+        <span class="cell-text">${safeText}</span>
+      </button>
     `;
-  }
-  function toggleCell(cell, term) {
-    if (term === 'FREE') return;
-    if (!gameState.calledTerms.includes(term)) { alert('⚠️ Este término aún no ha sido mostrado'); return; }
-    cell.classList.toggle('marked');
-    cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
-    if (navigator.vibrate) navigator.vibrate(50);
-  }
+  }).join('');
+}
+function toggleCell(cell) {
+  const term = cell.dataset.term || '';
+  if (term === 'FREE') return;
+  const allowed = calledTermsSet.has(normTerm(term));
+  if (!allowed) { alert('⚠️ Este término aún no ha sido mostrado'); return; }
+  cell.classList.toggle('marked');
+  cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
+  if (navigator.vibrate) navigator.vibrate(50);
+}
   function claimBingo() {
     if (!currentParticipant) return;
     alert(`¡${currentParticipant.name ?? 'Jugador'} hizo BINGO! 🎉`);
