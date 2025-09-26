@@ -19,25 +19,30 @@
   <!-- Estilos base: centrado, tipografía y layout responsive -->
   <style>
     :root{
-      --bg:#0b1220;
-      --card:#0f172a;
-      --muted:#94a3b8;
-      --text:#e2e8f0;
-      --primary:#60a5fa;
-      --primary-600:#3b82f6;
-      --danger:#ef4444;
-      --success:#10b981;
-      --ring:0 0 0 2px rgba(96,165,250,.35);
-      --radius:14px;
-      --shadow:0 10px 30px rgba(2,8,23,.35);
+      /* Fondo */
+      --bg-0:#0b0f2a; --bg-1:#101634; --bg-2:#141b3d;
+      /* Texto */
+      --txt-1:#eaf2ff; --txt-2:#b9c5e2; --txt-3:#8ea0c7;
+      /* Marca */
+      --magenta:#ff51b2; --orange:#ffb33a; --cyan:#38e0d2; --violet:#9353ff;
+      /* Gradientes */
+      --grad-brand: linear-gradient(135deg, var(--magenta), var(--orange), var(--cyan));
+      --grad-card: linear-gradient(180deg, rgba(255,81,178,.10), rgba(56,224,210,.06));
+      /* Acentos */
+      --ok:#5be49b; --warn:#ffd166; --danger:#ff6b6b;
+      /* Bordes/blur */
+      --br:14px; --border:1px solid rgba(255,255,255,.10);
+      --glass: backdrop-filter: blur(8px);
+      --ring: 0 0 0 3px rgba(56,224,210,.25);
+      --shadow: 0 8px 28px rgba(0,0,0,.35);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-      background: radial-gradient(1200px 800px at 50% -20%, #172554, transparent 60%), var(--bg);
-      color:var(--text);
+      background: radial-gradient(1200px 800px at 50% -20%, var(--bg-1), transparent 60%), var(--bg-0);
+      color:var(--txt-1);
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
     }
@@ -52,54 +57,34 @@
     }
 
     /* Tarjeta central */
-    .card{
-      width:min(980px, 100%);
-      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02)) , var(--card);
-      border:1px solid rgba(148,163,184,.15);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:clamp(20px, 2.5vw, 28px);
-    }
+    .card{width:min(980px, 100%);background:var(--bg-2);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow);padding:clamp(20px, 2.5vw, 28px)}
 
     /* Header principal */
     .header{
       text-align:center;
       margin-bottom:22px;
     }
-    .community-name{
-      font-size:.85rem;
-      letter-spacing:.25rem;
-      color:var(--muted);
-      text-transform:uppercase;
-      margin-bottom:8px;
-    }
+    .community-name{font-size:.85rem;letter-spacing:.25rem;color:var(--txt-3);text-transform:uppercase;margin-bottom:8px}
     h1{
       margin:0 0 6px;
       font-size:clamp(26px, 4.6vw, 40px);
       line-height:1.1;
     }
-    .subtitle{
-      margin:0;
-      color:var(--muted);
-      font-size:clamp(14px, 2.6vw, 16px);
-    }
+    .subtitle{margin:0;color:var(--txt-2);font-size:clamp(14px, 2.6vw, 16px)}
 
     /* Layout de secciones (stack) */
     .stack{display:flex; flex-direction:column; gap:18px}
 
     /* Botones */
-    .btn{
-      appearance:none; border:0; cursor:pointer;
-      padding:12px 16px; border-radius:12px; font-weight:600;
-      background:#1e293b; color:var(--text);
-      transition:transform .08s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
-    }
+    .btn{appearance:none;border:0;cursor:pointer;padding:.8rem 1.1rem;border-radius:12px;font-weight:700;transition:.15s ease;box-shadow:var(--shadow)}
     .btn:hover{transform:translateY(-1px)}
     .btn:active{transform:translateY(0)}
-    .btn:focus-visible{outline:none; box-shadow:var(--ring)}
-    .btn-primary{background:linear-gradient(180deg, var(--primary), var(--primary-600)); color:#fff}
-    .btn-danger{background:linear-gradient(180deg, #f87171, #ef4444); color:#fff}
-    .btn-secondary{background:#0b1220; border:1px solid rgba(148,163,184,.25)}
+    .btn:focus-visible{outline:none;box-shadow:var(--shadow), var(--ring)}
+    .btn-primary{background:var(--grad-brand);color:#0b0f2a}
+    .btn-primary:hover{filter:saturate(1.05)}
+    .btn-danger{background:var(--danger);color:#0b0f2a}
+    .btn-secondary{background:transparent;border:var(--border);color:var(--txt-1)}
+    .btn-secondary:hover{background:rgba(255,255,255,.06)}
     .btn-small{padding:8px 12px; font-size:.9rem}
 
     /* Formularios */
@@ -126,14 +111,9 @@
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       flex-wrap:wrap; margin-bottom:12px;
     }
-    .user-info{display:flex; align-items:center; gap:10px; color:var(--muted)}
+    .user-info{display:flex; align-items:center; gap:10px; color:var(--txt-3)}
     .rooms-actions{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:8px}
-    .rooms-list, .participants-list, .called-terms-list{
-      background:rgba(2,6,23,.45);
-      border:1px solid rgba(148,163,184,.15);
-      border-radius:12px; padding:12px;
-      min-height:48px;
-    }
+    .rooms-list, .participants-list, .called-terms-list{background:var(--bg-2);border:var(--border);border-radius:var(--br);padding:12px;min-height:48px}
     .no-rooms, .no-participants{color:var(--muted); margin:6px 0}
 
     .room-info{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
@@ -146,11 +126,7 @@
     .share-link-container{
       display:flex; gap:10px; flex-wrap:wrap;
     }
-    #shareLink{
-      flex:1 1 260px; min-width:240px;
-      background:#0b1220; color:var(--text);
-      border:1px solid rgba(148,163,184,.25); border-radius:10px; padding:12px 14px;
-    }
+    #shareLink{flex:1 1 260px; min-width:240px; background:var(--bg-0); color:var(--txt-1); border:var(--border); border-radius:10px; padding:12px 14px}
     .game-controls .control-buttons{display:flex; gap:10px; flex-wrap:wrap}
 
     .current-term{
@@ -192,6 +168,26 @@
       .form-actions{flex-direction:column}
       .dashboard-header{flex-direction:column; align-items:flex-start}
     }
+    /* Bingo Card UI polish */
+    .card-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:520px;margin:0 auto}
+    .card-cell{aspect-ratio:1/1;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;padding:6px;transition:transform .08s ease, box-shadow .08s ease, background .08s ease;cursor:pointer;outline:none}
+    .card-cell:hover,.card-cell:focus-visible{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.25);border-color:rgba(255,255,255,.24)}
+    .card-cell.marked{background:rgba(16,185,129,.25);border-color:rgba(16,185,129,.6)}
+    .cell-text{font-size:clamp(10px,1.8vw,14px);line-height:1.15;text-align:center;color:#e8eef6;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 4px}
+    @media (max-width:480px){.card-grid{gap:6px}.cell-text{font-size:12px}}
+    /* Hero adjustments */
+    .hero{position:relative;display:grid;place-items:center;min-height:60vh;padding-top:64px}
+    .hero__inner{position:relative;text-align:center;max-width:720px;width:100%;padding:24px 16px 0;margin:0 auto}
+    .hero__logo-badge{position:absolute;top:-36px;left:50%;transform:translateX(-50%);width:72px;height:72px;border-radius:50%;background:radial-gradient(closest-side, rgba(255,255,255,.18), rgba(255,255,255,.06));box-shadow:0 10px 25px rgba(0,0,0,.25);display:grid;place-items:center;z-index:2}
+    .hero__branding{letter-spacing:.22em;font-weight:700;color:#41e3ff;margin-top:28px;margin-bottom:6px}
+    .hero__title{font-size:clamp(32px,5.5vw,56px);line-height:1.05;margin:4px 0 6px;color:#f5ad7a}
+    .hero__subtitle{color:#a9b4c5;margin:4px 0 18px;font-size:clamp(14px,2.2vw,18px)}
+    .hero__cta{margin-top:12px}
+    @media (max-width:480px){
+      .hero{min-height:56vh;padding-top:56px}
+      .hero__logo-badge{top:-28px;width:64px;height:64px}
+      .hero__branding{margin-top:22px}
+    }
   </style>
 
   <!-- Tu CSS (si lo usas) -->
@@ -201,14 +197,19 @@
   <div class="container">
     <main class="card stack" aria-live="polite">
       <!-- L A N D I N G -->
-      <section id="landing-page" class="stack" aria-label="Inicio">
-        <header class="header">
-          <div class="community-name">MKT COMMUNITY</div>
-          <h1>BINGO WEB3</h1>
-          <p class="subtitle">Marketing &amp; Blockchain Edition</p>
-        </header>
-        <div id="moderator-cta" class="stack" style="align-items:center">
-          <button class="btn btn-primary" onclick="openModeratorLogin()">Acceder como Moderador</button>
+      <section id="landing-page" class="hero" aria-label="Inicio">
+        <div class="hero__inner">
+          <div class="hero__logo-badge" aria-hidden="true">
+            <span style="font-size:28px;">🚀</span>
+          </div>
+
+          <div class="hero__branding">MKT COMMUNITY</div>
+          <h1 class="hero__title">BINGO WEB3</h1>
+          <p class="hero__subtitle">Marketing &amp; Blockchain Edition</p>
+
+          <div id="moderator-cta" class="hero__cta">
+            <button class="btn btn-primary" onclick="openModeratorLogin()">Acceder como Moderador</button>
+          </div>
         </div>
       </section>
 
@@ -314,7 +315,7 @@
           </div>
 
           <div class="called-terms-section stack">
-            <h4 style="margin:0">📋 Términos Cantados</h4>
+            <h4 style="margin:0">📋 Términos Mostrados</h4>
             <div class="game-stats" style="display:flex; gap:14px; color:var(--muted)">
               <span>Llamados: <strong id="termsCalledCount">0</strong></span>
               <span>Restantes: <strong id="termsRemainingCount">0</strong></span>

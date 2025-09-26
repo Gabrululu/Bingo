@@ -1,21 +1,21 @@
 // Web3 Marketing Terms for Bingo
 const WEB3_MARKETING_TERMS = [
     // Core Web3
-    "NFT","DeFi","DAO","Smart Contract","Blockchain","Token","Metaverso","Web3","Cripto","Wallet","Mining","Staking","Yield","Liquidity","DEX","CEX",
+    "NFT","DeFi","DAO","Smart Contract","Blockchain","Token","Metaverso","Web3","Cripto","Wallet","Minar","Staking","Yield","Nodo","DEX","CEX",
     // Marketing Web3 Specific
-    "Community Building","Token Gating","Whitelist Marketing","Influencer NFTs","Creator Economy","Social Tokens","Fan Tokens","Loyalty Rewards","Gamification","Play-to-Earn","Engagement Mining","Creator Coins","Branded NFTs","Virtual Events","Metaverse Marketing",
+    "Community Building","Grown Marketing","Storytelling","Influencer","Creator Economy","Branding","Fan Tokens","Funnel","Gaming","Play-to-Earn","Engagement","Creator Coins","Trending","Virtual Events","Comunidad",
     // DeFi Marketing
-    "Yield Farming","Liquidity Mining","Staking Rewards","Protocol Incentives","Governance Tokens","Tokenomics Design","Airdrop Campaign","Retroactive Rewards","Fee Sharing","Revenue Share",
+    "Lending","Liquidez","Whitelist","Protocol Incentives","Governance Tokens","Tokenomics","Airdrop Campaign","Security","Fee","Revenue",
     // NFT Marketing
-    "Utility NFTs","PFP Project","Roadmap","Mint Strategy","Reveal Marketing","Floor Price","Trait Rarity","Collection Launch","Exclusive Access","Holder Benefits","Secondary Sales",
+    "Utility NFTs","PFP","Roadmap","Metadatos","Marketplace","Floor Price","DApps","Blue Chip","Exclusive Access","Holder","CC0",
     // Community & Social
-    "Discord Marketing","Twitter Spaces","Telegram Groups","Ambassador Program","Referral Program","Content Creation","Meme Marketing","Viral Campaigns","KOL Marketing","Community Rewards",
+    "Discord","X Spaces","Telegram Voice","Ambassador","Referral Program","Content Creation","Meme","Viral Campaigns","KOL","Identidad Digital",
     // Technology Terms
-    "Layer 1","Layer 2","Cross-chain","Interoperability","Scalability","Gas Optimization","Smart Contract Audit","Security Tokens","Compliance","KYC/AML","Regulatory Framework",
+    "Layer 1","Layer 2","Cross-chain","Interoperability","Scalability","Immutable","Smart Contract Audit","Security Tokens","Compliance","KYC","Oracle",
     // Trading & Finance
-    "Market Making","AMM","Order Book","Slippage","Impermanent Loss","APR","APY","TVL","Volume","Market Cap","Fully Diluted Value","Circulating Supply","Token Distribution",
+    "Swaps","Bridge","Order Book","Slippage","Impermanent Loss","APR","APY","TVL","Volumen","Market Cap","Spread","Circulating Supply","Scalping",
     // Trends & Culture
-    "HODL","FOMO","FUD","Diamond Hands","Paper Hands","Whale","Retail Investor","Institutional","Bull Market","Bear Market","ATH","ATL","Pump","Dump","Moon","Rekt"
+    "HODL","FOMO","FUD","DYOR","GM","Whale","Rug Pull","Fork","Bull Market","Bear Market","ATH","OG","Pump","Dump","To The Moon","Rekt"
   ];
   
   // ─────────────────────────────────────────────────────────────────────────────
@@ -378,7 +378,7 @@ const WEB3_MARKETING_TERMS = [
   }
   async function callNextTerm() {
     if (!currentRoom || !gameState.started) { alert('Primero inicia el juego'); return; }
-    if (gameState.currentIndex >= gameState.terms.length) { alert('Todos los términos han sido cantados'); return; }
+    if (gameState.currentIndex >= gameState.terms.length) { alert('Todos los términos han sido mencionados'); return; }
     try {
       const nextTerm = gameState.terms[gameState.currentIndex];
       const updatedCalledTerms = [...gameState.calledTerms, nextTerm];
@@ -387,7 +387,7 @@ const WEB3_MARKETING_TERMS = [
       console.log('Term called:', nextTerm);
     } catch (e) {
       console.error('Error calling next term:', e);
-      alert('Error al llamar el siguiente término: ' + e.message);
+      alert('Error al mostrar el siguiente término: ' + e.message);
     }
   }
   
@@ -406,22 +406,29 @@ const WEB3_MARKETING_TERMS = [
     const cardContainer = document.getElementById('playerCard');
     cardContainer.innerHTML = `
       <div class="card-header"><h3>${currentParticipant.name ?? ''}</h3></div>
-      <div class="card-grid">
-        ${cardTerms.map(term => `
-          <div class="card-cell" onclick="toggleCell(this, '${term.replace(/'/g,"\\'")}')">${term}</div>
-        `).join('')}
+      <div class="card-grid" role="grid" aria-label="Cartilla de Bingo">
+        ${cardTerms.map(term => {
+          const safe = term.replace(/'/g, "\\'");
+          const extraClass = safe === 'FREE' ? ' cell-free' : '';
+          return `
+            <button class="card-cell${extraClass}" role="gridcell" aria-pressed="false" title='${safe}' onclick="toggleCell(this, '${safe}')">
+              <span class="cell-text">${safe}</span>
+            </button>
+          `;
+        }).join('')}
       </div>
     `;
   }
   function toggleCell(cell, term) {
     if (term === 'FREE') return;
-    if (!gameState.calledTerms.includes(term)) { alert('⚠️ Este término aún no ha sido cantado'); return; }
+    if (!gameState.calledTerms.includes(term)) { alert('⚠️ Este término aún no ha sido mostrado'); return; }
     cell.classList.toggle('marked');
+    cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
     if (navigator.vibrate) navigator.vibrate(50);
   }
   function claimBingo() {
     if (!currentParticipant) return;
-    alert(`¡${currentParticipant.name ?? 'Jugador'} ha cantado BINGO! 🎉`);
+    alert(`¡${currentParticipant.name ?? 'Jugador'} hizo BINGO! 🎉`);
     createCelebrationEffect();
   }
   function createCelebrationEffect() {
@@ -437,6 +444,32 @@ const WEB3_MARKETING_TERMS = [
     if (!document.getElementById('confetti-style')) {
       const s = document.createElement('style'); s.id='confetti-style'; s.textContent='@keyframes fall{to{transform:translateY(100vh) rotate(360deg)}}'; document.head.appendChild(s);
     }
+  }
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // UI-only Reset (no toca Firestore)
+  function resetGameUIOnly() {
+    // Estado UI del moderador
+    gameState.calledTerms = [];
+    gameState.currentIndex = 0;
+    const current = document.getElementById('currentTerm');
+    if (current) current.textContent = 'Registra participantes y asigna cartillas para comenzar';
+    const called = document.getElementById('calledTermsList');
+    if (called) called.innerHTML = '';
+    const calledCount = document.getElementById('termsCalledCount');
+    if (calledCount) calledCount.textContent = '0';
+    const remainCount = document.getElementById('termsRemainingCount');
+    if (remainCount) remainCount.textContent = String(WEB3_MARKETING_TERMS.length);
+
+    // Estado UI del participante
+    const playing = document.getElementById('playing-section');
+    const waiting = document.getElementById('waiting-section');
+    if (playing && waiting && !(currentParticipant && currentParticipant.cardId)) {
+      playing.classList.add('hidden');
+      waiting.classList.remove('hidden');
+    }
+
+    try { if (window.showToast) window.showToast('🔄 Interfaz reiniciada. (Los datos permanecen sin cambios)'); } catch(_) {}
   }
   
   // ─────────────────────────────────────────────────────────────────────────────
@@ -476,6 +509,7 @@ const WEB3_MARKETING_TERMS = [
     document.getElementById('startGameBtn').addEventListener('click', startGame);
     document.getElementById('nextTermBtn').addEventListener('click', callNextTerm);
     document.getElementById('deleteRoomBtn').addEventListener('click', () => deleteRoom(currentRoom));
+    document.getElementById('resetGameBtn')?.addEventListener('click', resetGameUIOnly);
   
     window.addEventListener('hashchange', () => handleRouteChange(getCurrentRoute()));
     handleRouteChange(getCurrentRoute());
