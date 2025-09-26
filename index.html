@@ -373,7 +373,8 @@
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
     import {
       getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
-      signInAnonymously, signOut, onAuthStateChanged
+      signInAnonymously, signOut, onAuthStateChanged,
+      setPersistence, browserLocalPersistence
     } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
     import {
       getFirestore, collection, addDoc, doc, onSnapshot, updateDoc, setDoc,
@@ -394,6 +395,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // Persistencia del auth (mantiene UID anónimo entre recargas)
+    try { await setPersistence(auth, browserLocalPersistence); } catch (e) { console.warn('Auth persistence warning:', e?.message || e); }
+
     // Exponer para app.js
     window.firebaseAuth = auth;
     window.firebaseDb = db;
@@ -402,6 +406,7 @@
     window.firebaseSignOut = signOut;
     window.firebaseSignInAnonymously = signInAnonymously;
     window.firebaseOnAuthStateChanged = onAuthStateChanged;
+    // No exponemos setPersistence/browserLocalPersistence, se aplica arriba una vez
     window.firebaseCollection = collection;
     window.firebaseAddDoc = addDoc;
     window.firebaseDoc = doc;
