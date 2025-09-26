@@ -29,6 +29,17 @@ const WEB3_MARKETING_TERMS = [
   let participantsListener = null;
   let gameStateListener = null;
   
+  // Garantiza una única sesión anónima por pestaña
+  let anonSignInPromise = null;
+  async function ensureAnonymous() {
+    const auth = window.firebaseAuth;
+    if (auth.currentUser) return auth.currentUser;
+    if (!anonSignInPromise) {
+      anonSignInPromise = window.firebaseSignInAnonymously(auth).then(() => auth.currentUser);
+    }
+    return anonSignInPromise;
+  }
+
   // ─────────────────────────────────────────────────────────────────────────────
   // Utils
   function fisherYates(arr) {
@@ -244,9 +255,8 @@ const WEB3_MARKETING_TERMS = [
   // Participant Functions
   async function joinRoomAsParticipant(roomId) {
     try {
-      // Garantiza auth anónima y refresca currentUser (clave para UID)
-      if (!window.firebaseAuth.currentUser) { await window.firebaseSignInAnonymously(window.firebaseAuth); }
-      currentUser = window.firebaseAuth.currentUser;
+      // Garantiza auth anónima con UID estable
+      currentUser = await ensureAnonymous();
       if (!currentUser) throw new Error('AUTH_NOT_READY');
   
       const participantRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
@@ -281,9 +291,10 @@ const WEB3_MARKETING_TERMS = [
     try {
       const auth = window.firebaseAuth;
       const db = window.firebaseDb;
-  
-      if (!auth.currentUser) await window.firebaseSignInAnonymously(auth);
-      const uid = auth.currentUser.uid;
+
+      // UID congelado: una sola sesión anónima
+      const user = await ensureAnonymous();
+      const uid = user.uid;
   
       const name = (rawName ?? "").trim().slice(0, 40);
       if (!name) { alert('El nombre no puede estar vacío'); return; }
@@ -291,10 +302,7 @@ const WEB3_MARKETING_TERMS = [
       const pRef = window.firebaseDoc(db, `rooms/${route.roomId}/participants/${uid}`);
       const snap = await window.firebaseGetDoc(pRef);
   
-      console.log("JOIN ->", {
-        path: `rooms/${route.roomId}/participants/${uid}`,
-        payload: { uid, name, status: "waiting", cardId: null }
-      });
+      console.log("JOIN ->", { path: `rooms/${route.roomId}/participants/${uid}`, payload: { uid, name, status: "waiting", cardId: null } });
   
       if (!snap.exists()) {
         await window.firebaseSetDoc(pRef, {
