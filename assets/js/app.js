@@ -407,10 +407,6 @@ async function joinRoomAsParticipant(roomId) {
 
 async function registerParticipant() {
     const rawName = document.getElementById('participantName').value;
-    if (!rawName) {
-        alert('Por favor ingresa tu nombre');
-        return;
-    }
     
     const route = getCurrentRoute();
     if (route.type !== 'play') {
@@ -419,47 +415,30 @@ async function registerParticipant() {
     }
     
     try {
-        // 1) sesión anónima
-        if (!currentUser) {
-            await window.firebaseSignInAnonymously(window.firebaseAuth);
-        }
-        const uid = currentUser.uid;
+        // Snippet "a prueba de rules"
+        const auth = window.firebaseAuth;
+        const db = window.firebaseDb;
         
-        // 2) limpiar nombre y limitar longitud
-        const name = rawName.trim().slice(0, 40);
+        if (!auth.currentUser) await window.firebaseSignInAnonymously(auth);
+        const uid = auth.currentUser.uid;
+        
+        const name = (rawName ?? "").trim().slice(0, 40);
         if (!name) {
             alert('El nombre no puede estar vacío');
             return;
         }
         
-        // 3) docID = uid (¡clave para pasar la rule!)
-        const pRef = window.firebaseDoc(window.firebaseDb, `rooms/${route.roomId}/participants/${uid}`);
+        const path = `rooms/${route.roomId}/participants/${uid}`;
+        const payload = {
+            uid,
+            name,
+            joinedAt: window.firebaseServerTimestamp(),
+            status: "waiting",
+            cardId: null,
+        };
         
-        // Debug log
-        console.log({
-            roomId: route.roomId,
-            uid: currentUser?.uid,
-            path: `rooms/${route.roomId}/participants/${currentUser?.uid}`,
-            payload: {
-                uid: currentUser?.uid,
-                name: name,
-                status: "waiting",
-                cardId: null
-            }
-        });
-        
-        // 4) payload EXACTO que pide la rule
-        await window.firebaseSetDoc(
-            pRef,
-            {
-                uid: uid,
-                name: name,
-                joinedAt: window.firebaseServerTimestamp(),
-                status: "waiting",   // no cambies el string
-                cardId: null         // requerido o ausente, aquí lo ponemos null
-            },
-            { merge: true }
-        );
+        console.log("JOIN ->", { path, payload });
+        await window.firebaseSetDoc(window.firebaseDoc(db, path), payload, { merge: true });
         
         currentParticipant = { id: uid, name: name, status: "waiting", cardId: null };
         
