@@ -1089,7 +1089,7 @@ body::before {
 #participant-mode {
   display: grid;
   gap: 16px;
-  justify-items: center;     /* centra los hijos */
+  justify-items: center;    
   width: 100%;
 }
 
@@ -1105,14 +1105,14 @@ body::before {
 #playing-section {
   width: 100%;
   display: grid;
-  justify-items: center;      /* centra el contenido interno */
+  justify-items: center;    
 }
 
 /* Contenedor directo de la cartilla */
 .player-card {
   width: 100%;
   display: grid;
-  place-items: center;        /* centro perfecto */
+  place-items: center;       
 }
 
 /* La cartilla: centrada, cuadrada y responsiva */
@@ -1120,12 +1120,12 @@ body::before {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
-  width: min(560px, 92vw);    /* controla el ancho total */
-  margin-inline: auto;        /* centra el bloque */
+  width: min(560px, 92vw);   
+  margin-inline: auto;       
 }
 
 #playerCard .card-cell {
-  aspect-ratio: 1 / 1;        /* cada casilla es un cuadrado */
+  aspect-ratio: 1 / 1;       
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1145,7 +1145,7 @@ body::before {
 /* ====== Panel de moderación: layout más aireado ====== */
 #room-management {
   display: grid;
-  gap: 28px;               /* Más aire entre bloques grandes */
+  gap: 28px;               
 }
 
 /* Card estándar de cada bloque (Share, Participantes, Termino, Lista) */
@@ -1153,7 +1153,7 @@ body::before {
   background: rgba(7, 16, 36, 0.65);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 14px;
-  padding: 22px;           /* Más padding interno */
+  padding: 22px;           
   box-shadow: 0 6px 18px rgba(0,0,0,0.18);
 }
 
@@ -1164,8 +1164,8 @@ body::before {
   gap: 10px;
   font-weight: 700;
   letter-spacing: .3px;
-  color: #e7efff;          /* más claro que el texto base */
-  margin: 0 0 14px 0;      /* separación con el contenido */
+  color: #e7efff;        
+  margin: 0 0 14px 0;      
 }
 
 .section-title::before {
@@ -1270,11 +1270,11 @@ body::before {
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
-  margin-top: 10px;           /* despega del borde superior del card */
+  margin-top: 10px;           
 }
 
 .called-terms-list .called-term {
-  background: #0e2a16;        /* "pill" verde oscuro */
+  background: #0e2a16;        
   color: #b6ffd1;
   border: 1px solid #1f6d35;
   padding: 10px 14px;
@@ -1612,7 +1612,7 @@ body::before {
 
 /* Mensaje "No hay participantes…" más oscuro (contraste) */
 #participantsList .no-participants {
-  color: #8ea7cf;               /* antes muy claro sobre fondo blanco */
+  color: #8ea7cf;               
   font-weight: 500;
 }
 
@@ -1638,24 +1638,24 @@ body::before {
 
 /* La grilla queda centrada y no pegada a los bordes */
 .bingo-card {
-  --cardSize: min(92vw, 720px);            /* tamaño responsivo */
+  --cardSize: min(92vw, 720px);            
   width: var(--cardSize);
   max-width: 720px;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
-  padding: 18px;                           /* separa del borde del "box" */
+  padding: 18px;                          
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-auto-rows: 1fr;
-  gap: 16px;                               /* más aire entre casillas */
+  gap: 16px;                               
 }
 
 /* Casillas: mayor contraste de bordes, texto visible */
 .card-cell {
   border-radius: 14px;
-  border: 2px solid rgba(214, 230, 255, .22);   /* borde marcado */
-  background: #0f1a2c;                           /* oscuro, NO blanco */
-  color: #dfeaff;                                /* texto visible */
+  border: 2px solid rgba(214, 230, 255, .22);   
+  background: #0f1a2c;                           
+  color: #dfeaff;                                
   display: grid;
   place-items: center;
   padding: 6px 10px;
@@ -1679,9 +1679,9 @@ body::before {
 
 /* Estado MARCADO: pinta TODO el recuadro de verde claro */
 .card-cell.marked {
-  background: #1de3ae !important;                 /* verde claro sólido - FORZADO */
+  background: #1de3ae !important;                 
   border-color: #22f1bb !important;
-  color: #0b1020 !important;                       /* alto contraste - FORZADO */
+  color: #0b1020 !important;                      
   box-shadow: inset 0 0 0 2px rgba(11,16,32,.15), 0 8px 20px rgba(29,227,174,.25) !important;
 }
 

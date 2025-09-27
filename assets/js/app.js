@@ -113,8 +113,7 @@ function normTerm(s) {
     if (route.type === 'play') { showParticipantMode(); joinRoomAsParticipant(route.roomId); }
     else if (route.type === 'moderator-room') { (currentUser && !currentUser.isAnonymous) ? (showModeratorDashboard(), openRoomManagement(route.roomId)) : showModeratorLogin(); }
     else if (route.type === 'moderator') { (currentUser && !currentUser.isAnonymous) ? showModeratorDashboard() : showModeratorLogin(); }
-    else { (currentUser && !currentUser.isAnonymous) ? showModeratorDashboard() : showLandingPage(); }
-    // extra defensivo para participante ya registrado
+    else { (currentUser && !currentUser.isAnonymous) ? showModeratorDashboard() : showLandingPage(); }    
     if (route.type === 'play' && currentParticipant?.name) {
       setParticipantView(currentParticipant.cardId ? 'playing' : 'waiting', { name: currentParticipant.name });
     }
@@ -254,8 +253,7 @@ function subscribeRoomState(roomId){
       : 'Registra participantes y asigna cartillas para comenzar';
     document.getElementById('termsCalledCount').textContent = gameState.calledTerms.length;
     document.getElementById('termsRemainingCount').textContent = WEB3_MARKETING_TERMS.length - gameState.calledTerms.length;
-  document.getElementById('calledTermsList').innerHTML = gameState.calledTerms.map(t => `<div class="called-term">${t}</div>`).join('');
-  // sincroniza set normalizado para validaciones O(1)
+  document.getElementById('calledTermsList').innerHTML = gameState.calledTerms.map(t => `<div class="called-term">${t}</div>`).join(''); 
   calledTermsSet = new Set((gameState?.calledTerms ?? []).map(normTerm));
   }
   
@@ -319,8 +317,7 @@ function subscribeRoomState(roomId){
       const gsRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/state/current`);
       _unsubParticipantState = window.firebaseOnSnapshot(gsRef, (snap) => {
         if (snap.exists()) {
-          gameState = snap.data();
-          // Refresca set normalizado para validaciones O(1)
+          gameState = snap.data();          
           calledTermsSet = new Set((gameState.calledTerms ?? []).map(normTerm));
         } else {
           calledTermsSet = new Set();
@@ -615,10 +612,9 @@ function toggleCell(cell) {
     /* 3) Si alguna hoja antigua pisa colores/contraste, re-aplícalos al entrar en "playing" */
     const _oldDisplayPlayerCard = displayPlayerCard;
     displayPlayerCard = function(cardTerms) {
-      _oldDisplayPlayerCard(cardTerms);
-      // Forzar centradito/contraste al re-render
+      _oldDisplayPlayerCard(cardTerms);      
       document.querySelectorAll('.card-cell').forEach(el => {
-        el.style.background = ''; // deja que el CSS nuevo gobierne
+        el.style.background = ''; 
         el.style.color = '';
         el.style.borderColor = '';
       });
