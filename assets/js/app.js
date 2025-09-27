@@ -493,23 +493,62 @@ function displayPlayerCard(cardTerms) {
       </button>
     `;
   }).join('');
+  
+  checkBingoStatus();
 }
-function toggleCell(cell) {
-  const term = cell.dataset.term || '';
-  if (term === 'FREE') return;
-  if (!calledTermsSet.has(normTerm(term))) {
-    alert('⚠️ Este término aún no ha sido mostrado');
-    return;
+  function toggleCell(cell) {
+    const term = cell.dataset.term || '';
+    if (term === 'FREE') return;
+    if (!calledTermsSet.has(normTerm(term))) {
+      alert('⚠️ Este término aún no ha sido mostrado');
+      return;
+    }
+    cell.classList.toggle('marked');
+    cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
+    if (navigator.vibrate) navigator.vibrate(40);
+    
+    checkBingoStatus();
   }
-  cell.classList.toggle('marked');
-  cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
-  if (navigator.vibrate) navigator.vibrate(40);
-}
   function claimBingo() {
     if (!currentParticipant) return;
+    
+    if (!checkBingoStatus()) {
+      alert('⚠️ No tienes una línea completa para cantar BINGO');
+      return;
+    }
+    
     alert(`¡${currentParticipant.name ?? 'Jugador'} hizo BINGO! 🎉`);
     createCelebrationEffect();
   }
+  function checkBingoStatus() {
+    const cells = document.querySelectorAll('#playerCard .card-cell');
+    if (cells.length !== 25) return false;
+    
+    const markedCells = Array.from(cells).map(cell => cell.classList.contains('marked'));
+    
+    for (let i = 0; i < 5; i++) {
+      let rowComplete = true;
+      let colComplete = true;
+      
+      for (let j = 0; j < 5; j++) {
+        if (!markedCells[i * 5 + j]) rowComplete = false;
+        if (!markedCells[j * 5 + i]) colComplete = false;
+      }
+      
+      if (rowComplete || colComplete) return true;
+    }
+    
+    let diag1Complete = true;
+    let diag2Complete = true;
+    
+    for (let i = 0; i < 5; i++) {
+      if (!markedCells[i * 5 + i]) diag1Complete = false;
+      if (!markedCells[i * 5 + (4 - i)]) diag2Complete = false;
+    }
+    
+    return diag1Complete || diag2Complete;
+  }
+  
   function createCelebrationEffect() {
     const colors = ['#ff6b6b','#feca57','#48dbfb','#ff9ff3','#54a0ff'];
     for (let i = 0; i < 15; i++) {
