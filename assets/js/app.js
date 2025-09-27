@@ -595,6 +595,35 @@ function toggleCell(cell) {
   
     window.addEventListener('hashchange', () => handleRouteChange(getCurrentRoute()));
     handleRouteChange(getCurrentRoute());
+    
+    /* ====== Ajustes ligeros sin tocar la lógica ====== */
+    
+    /* 1) Pre-autenticar lo antes posible para evitar latencia al registrarse */
+    ensureAnonymous().catch(() => { /* no bloquear la UI si falla */ });
+    
+    /* 2) Asegurar que los textos NO se fuercen a minúsculas por algún estilo global */
+    (function fixTextTransform() {
+      const targets = [
+        '.player-banner', '.player-tip', '.bingo-card', '.bingo-card .cell-text',
+        '#waiting-section', '#participantsList .no-participants'
+      ];
+      targets.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.style.textTransform = 'none');
+      });
+    })();
+    
+    /* 3) Si alguna hoja antigua pisa colores/contraste, re-aplícalos al entrar en "playing" */
+    const _oldDisplayPlayerCard = displayPlayerCard;
+    displayPlayerCard = function(cardTerms) {
+      _oldDisplayPlayerCard(cardTerms);
+      // Forzar centradito/contraste al re-render
+      document.querySelectorAll('.card-cell').forEach(el => {
+        el.style.background = ''; // deja que el CSS nuevo gobierne
+        el.style.color = '';
+        el.style.borderColor = '';
+      });
+    };
+    
     console.log('App initialized');
   });
   
