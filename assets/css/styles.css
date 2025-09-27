@@ -1085,59 +1085,60 @@ body::before {
     }
 }
 
-/* ====== CENTRADO PERFECTO PARTICIPANTE ====== */
+/* ————— Centrado global del modo participante ————— */
 #participant-mode {
   display: grid;
   gap: 16px;
-  justify-items: center;
+  justify-items: center;     /* centra los hijos */
   width: 100%;
 }
 
-.player-banner { 
-  width: 100%; 
-  display: grid; 
-  place-items: center; 
+/* Centra el banner "Tu cartilla…" a la misma anchura que la cartilla */
+.player-banner,
+.player-tip,
+.player-cta {
+  width: min(560px, 92vw);
+  margin-inline: auto;
 }
-.player-banner .banner-card {
-  max-width: 860px;
-  width: calc(100% - 32px);
+
+/* ————— Área de juego del participante ————— */
+#playing-section {
+  width: 100%;
+  display: grid;
+  justify-items: center;      /* centra el contenido interno */
+}
+
+/* Contenedor directo de la cartilla */
+.player-card {
+  width: 100%;
+  display: grid;
+  place-items: center;        /* centro perfecto */
+}
+
+/* La cartilla: centrada, cuadrada y responsiva */
+#playerCard.card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  width: min(560px, 92vw);    /* controla el ancho total */
+  margin-inline: auto;        /* centra el bloque */
+}
+
+#playerCard .card-cell {
+  aspect-ratio: 1 / 1;        /* cada casilla es un cuadrado */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
-.player-area {
-  width: 100%;
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  width: min(520px, 92vw);
-  margin: 0 auto;
-}
-.card-cell {
-  aspect-ratio: 1 / 1;
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-}
-
-.player-tip, .player-cta {
-  width: min(520px, 92vw);
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-}
-
+/* Ajuste del estado "esperando" igualmente centrado */
 #waiting-section .participant-status {
-  display: grid; 
+  display: grid;
   place-items: center;
-  max-width: 680px; 
+  max-width: 560px;
   width: calc(100% - 32px);
-  margin: 0 auto;
+  margin-inline: auto;
   text-align: center;
 }
 
