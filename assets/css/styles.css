@@ -1246,7 +1246,7 @@ body::before {
   height: 44px;
 }
 
-/* Botón rojo "Eliminar Sala": lo separamos visualmente del resto */
+/* Botón rojo "Eliminar Sala" */
 #deleteRoomBtn {
   margin-top: 16px;
 }
@@ -1838,6 +1838,65 @@ body::before {
     border-radius: 14px;
     font-size: 14px;
     padding: 8px;
+  }
+}
+
+.game-controls .control-buttons{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(230px, 1fr));
+  gap: 22px 36px;
+  justify-items: center;
+  align-items: center;
+  max-width: 980px;
+  margin: 8px auto 0;
+}
+
+.game-controls .control-buttons .btn{
+  width: 260px;
+  max-width: 100%;
+  padding: 14px 18px;
+  box-sizing: border-box;
+}
+
+#assignCardsBtn { grid-column: 1; grid-row: 1; }
+#startGameBtn   { grid-column: 2; grid-row: 1; }
+#nextTermBtn    { grid-column: 3; grid-row: 1; }
+
+#resetGameBtn   { grid-column: 1; grid-row: 2; }
+#deleteRoomBtn  { grid-column: 2; grid-row: 2; }
+
+@media (max-width: 700px){
+  .game-controls .control-buttons{
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .game-controls .control-buttons .btn{
+    width: 100%;
+  }
+}
+
+.bingo-card .card-cell .cell-text{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.25;
+  padding: 0 10px;
+  font-weight: 600;
+  text-transform: none;
+  font-size: clamp(13px, 1.4vw, 18px);
+}
+
+.bingo-card .card-cell{
+  min-width: 110px;
+}
+
+@media (max-width: 480px){
+  .bingo-card .card-cell .cell-text{
+    font-size: clamp(14px, 3.8vw, 18px);
   }
 }
 
