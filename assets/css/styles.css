@@ -1085,4 +1085,59 @@ body::before {
     }
 }
 
+/* ====== CENTRADO PERFECTO PARTICIPANTE ====== */
+#participant-mode {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  width: 100%;
+}
+
+.player-banner { 
+  width: 100%; 
+  display: grid; 
+  place-items: center; 
+}
+.player-banner .banner-card {
+  max-width: 860px;
+  width: calc(100% - 32px);
+  text-align: center;
+}
+
+.player-area {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: min(520px, 92vw);
+  margin: 0 auto;
+}
+.card-cell {
+  aspect-ratio: 1 / 1;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+
+.player-tip, .player-cta {
+  width: min(520px, 92vw);
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
+
+#waiting-section .participant-status {
+  display: grid; 
+  place-items: center;
+  max-width: 680px; 
+  width: calc(100% - 32px);
+  margin: 0 auto;
+  text-align: center;
+}
 

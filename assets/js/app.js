@@ -29,6 +29,7 @@ const WEB3_MARKETING_TERMS = [
   let participantsListener = null;
   let gameStateListener = null;
 let calledTermsSet = new Set();
+let _unsubParticipantState = null;
   
   // Garantiza una única sesión anónima por pestaña
   let anonSignInPromise = null;
@@ -303,8 +304,24 @@ function normTerm(s) {
   // Participant Functions
   async function joinRoomAsParticipant(roomId) {
     try {
+      // 1) Garantiza sesión anónima única
       currentUser = await ensureAnonymous();
       if (!currentUser) throw new Error('AUTH_NOT_READY');
+
+      // 2) Suscripción del PARTICIPANTE al estado del juego
+      if (_unsubParticipantState) { _unsubParticipantState(); _unsubParticipantState = null; }
+      const gsRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/state/current`);
+      _unsubParticipantState = window.firebaseOnSnapshot(gsRef, (snap) => {
+        if (snap.exists()) {
+          gameState = snap.data();
+          // Refresca set normalizado para validaciones O(1)
+          calledTermsSet = new Set((gameState.calledTerms ?? []).map(normTerm));
+        } else {
+          calledTermsSet = new Set();
+        }
+      });
+
+      // 3) Lee/crea el documento del participante y ajusta la vista
       const pRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
       const snap = await window.firebaseGetDoc(pRef);
 
