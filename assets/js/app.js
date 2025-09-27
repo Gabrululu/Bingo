@@ -351,8 +351,8 @@ function subscribeRoomState(roomId){
   }
   
   async function registerParticipant() {
-    const btn = document.querySelector('.register-btn');
-    if (btn){ btn.disabled = true; btn.textContent = 'Registrando…'; }
+    const registerBtn = document.querySelector('.register-btn');
+    if (registerBtn) registerBtn.disabled = true;
 
     const rawName = document.getElementById('participantName').value;
     const route = getCurrentRoute();
@@ -404,7 +404,7 @@ function subscribeRoomState(roomId){
       console.error('JOIN_FAIL', { roomId: route.roomId, uid: currentUser?.uid, err: e });
       alert(`No pudimos registrarte: ${e.code || e.message}`);
     } finally {
-      if (btn){ btn.disabled = false; btn.textContent = '🚀 Registrarse'; }
+      if (registerBtn) registerBtn.disabled = false;
     }
   }
   
@@ -500,11 +500,13 @@ function displayPlayerCard(cardTerms) {
 function toggleCell(cell) {
   const term = cell.dataset.term || '';
   if (term === 'FREE') return;
-  const allowed = calledTermsSet.has(normTerm(term));
-  if (!allowed) { alert('⚠️ Este término aún no ha sido mostrado'); return; }
+  if (!calledTermsSet.has(normTerm(term))) {
+    alert('⚠️ Este término aún no ha sido mostrado');
+    return;
+  }
   cell.classList.toggle('marked');
   cell.setAttribute('aria-pressed', cell.classList.contains('marked') ? 'true' : 'false');
-  if (navigator.vibrate) navigator.vibrate(50);
+  if (navigator.vibrate) navigator.vibrate(40);
 }
   function claimBingo() {
     if (!currentParticipant) return;

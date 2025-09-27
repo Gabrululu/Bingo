@@ -1425,3 +1425,142 @@ body::before {
   padding: 10px 12px; border-radius: 10px; line-height: 1.2; margin-top: 8px;
 }
 
+/* ===== Paleta base (MKT Community) ===== */
+:root{
+  --mkt-bg: #0f1730;
+  --mkt-card: #121b39;
+  --mkt-surface: #0e1a34;
+  --mkt-text: #eaf3ff;
+  --mkt-dim: #a9b7d1;
+  --mkt-accent-1: linear-gradient(135deg,#ff9f6b 0%, #27e6c2 100%);
+  --mkt-accent-2: linear-gradient(135deg,#7aa8ff 0%, #a77bff 100%);
+  --mkt-accent-3: linear-gradient(135deg,#ffd36b 0%, #ff9f6b 100%);
+  --mkt-chip: #21d07a;
+  --mkt-chip-600:#19b868;
+  --mkt-stroke:#263256;
+  --mkt-shadow: 0 8px 28px rgba(0,0,0,.35);
+}
+
+/* ====== Panel de moderación: botones ====== */
+#assignCardsBtn{
+  background: var(--mkt-accent-2);
+  border: none;
+  color: #0b1022;
+  font-weight: 700;
+}
+#nextTermBtn{
+  background: var(--mkt-accent-2);
+  border: none;
+  color: #0b1022;
+  font-weight: 700;
+}
+
+.game-controls .control-buttons{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px,1fr));
+  gap: 18px;
+  justify-items: center;
+}
+@media (max-width: 900px){
+  .game-controls .control-buttons{
+    grid-template-columns: 1fr;
+  }
+}
+#deleteRoomBtn{
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+/* ====== Cartilla del participante ====== */
+.player-card-container{
+  max-width: 980px;
+  margin-inline: auto;
+  padding: 18px 16px 32px;
+  background: var(--mkt-surface);
+  border: 1px solid var(--mkt-stroke);
+  border-radius: 16px;
+  box-shadow: var(--mkt-shadow);
+}
+
+.bingo-card{
+  margin: 14px auto 8px;
+  width: min(92vw, 860px);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  justify-items: stretch;
+}
+
+.card-cell{
+  display: grid;
+  place-items: center;
+  min-height: clamp(68px, 10.8vw, 130px);
+  border-radius: 14px;
+  border: 1px solid var(--mkt-stroke);
+  background: rgba(255,255,255,0.03);
+  color: #1a1a1a;
+  font-weight: 700;
+  letter-spacing: .2px;
+  text-align: center;
+  padding: 10px;
+  box-shadow: 0 2px 0 rgba(0,0,0,.15) inset;
+  transition: transform .12s ease, background-color .12s ease, box-shadow .12s ease;
+}
+
+.card-cell .cell-text{ 
+  text-transform: none;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.card-cell:not(.cell-free):hover,
+.card-cell:not(.cell-free):focus{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  outline: none;
+}
+
+.cell-free{
+  background: linear-gradient(135deg, rgba(39,230,194,.12), rgba(122,168,255,.10));
+  border: 1px dashed #2a8e79;
+  color: #dff8f3;
+}
+
+.card-cell.marked{
+  background: rgba(33,208,122,0.25);
+  color: #1a1a1a;
+  border-color: rgba(33,208,122,0.6);
+  box-shadow: 0 0 0 2px rgba(33,208,122,.15), 0 8px 22px rgba(33,208,122,.2);
+}
+
+.player-banner{
+  max-width: 980px;
+  margin: 10px auto 14px;
+}
+
+.card-cell .cell-text{
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.3));
+}
+
+#registration-section + .player-card-container{ margin-top: 18px; }
+
+@media (max-width: 560px){
+  .bingo-card{
+    gap: 10px;
+    width: 94vw;
+  }
+  .card-cell{
+    min-height: clamp(64px, 16vw, 110px);
+    font-size: 13.5px;
+    padding: 8px;
+  }
+}
+
+.room-section .current-term-section,
+.room-section .called-terms-section{
+  padding: 18px;
+}
+#calledTermsList{
+  margin-top: 10px;
+}
+
