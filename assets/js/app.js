@@ -214,22 +214,28 @@ function normTerm(s) {
     document.getElementById('room-management').classList.remove('hidden');
     const shareUrl = `${window.location.origin}${window.location.pathname}#/play/${roomId}`;
     document.getElementById('shareLink').value = shareUrl;
-    setupRoomListeners(roomId);
-  }
-  function setupRoomListeners(roomId) {
     if (participantsListener) participantsListener();
-    if (gameStateListener) gameStateListener();
     const participantsRef = window.firebaseCollection(window.firebaseDb, `rooms/${roomId}/participants`);
     participantsListener = window.firebaseOnSnapshot(participantsRef, (snap) => {
       participants = [];
       snap.forEach(doc => participants.push({ id: doc.id, ...doc.data() }));
       updateParticipantsList();
     });
-    const gameStateRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/state/current`);
-    gameStateListener = window.firebaseOnSnapshot(gameStateRef, (snap) => {
-      if (snap.exists()) { gameState = snap.data(); updateGameDisplay(); }
-    });
+    subscribeRoomState(roomId);
   }
+function subscribeRoomState(roomId){
+  if (gameStateListener) gameStateListener();
+  const ref = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/state/current`);
+  gameStateListener = window.firebaseOnSnapshot(ref, (snap)=>{
+    if (!snap.exists()) return;
+    gameState = snap.data();
+
+    calledTermsSet = new Set((gameState.calledTerms ?? []).map(normTerm));
+
+    const isModeratorUI = !!document.getElementById('calledTermsList');
+    if (isModeratorUI) updateGameDisplay();
+  });
+}
   function updateParticipantsList() {
     const container = document.getElementById('participantsList');
     const countSpan = document.getElementById('participantCount');
@@ -337,6 +343,7 @@ function normTerm(s) {
       } else {
         setParticipantView('form');
       }
+      subscribeRoomState(roomId);
     } catch (e) {
       console.error('Error joining room:', e);
       setParticipantView('form');
@@ -344,26 +351,28 @@ function normTerm(s) {
   }
   
   async function registerParticipant() {
+    const btn = document.querySelector('.register-btn');
+    if (btn){ btn.disabled = true; btn.textContent = 'Registrando…'; }
+
     const rawName = document.getElementById('participantName').value;
     const route = getCurrentRoute();
     if (route.type !== 'play') { alert('No estás en una sala válida'); return; }
-  
+
     try {
       const auth = window.firebaseAuth;
       const db = window.firebaseDb;
 
-      // UID congelado: una sola sesión anónima
       const user = await ensureAnonymous();
       const uid = user.uid;
-  
+
       const name = (rawName ?? "").trim().slice(0, 40);
       if (!name) { alert('El nombre no puede estar vacío'); return; }
-  
+
       const pRef = window.firebaseDoc(db, `rooms/${route.roomId}/participants/${uid}`);
       const snap = await window.firebaseGetDoc(pRef);
-  
+
       console.log("JOIN ->", { path: `rooms/${route.roomId}/participants/${uid}`, payload: { uid, name, status: "waiting", cardId: null } });
-  
+
       if (!snap.exists()) {
         await window.firebaseSetDoc(pRef, {
           uid, name,
@@ -386,14 +395,16 @@ function normTerm(s) {
           status: "waiting"
         });
       }
-  
+
       currentParticipant = { id: uid, name, status: "waiting", cardId: null };
       setParticipantView('waiting', { name });
       console.log('Participant registered successfully:', name);
-  
+
     } catch (e) {
       console.error('JOIN_FAIL', { roomId: route.roomId, uid: currentUser?.uid, err: e });
       alert(`No pudimos registrarte: ${e.code || e.message}`);
+    } finally {
+      if (btn){ btn.disabled = false; btn.textContent = '🚀 Registrarse'; }
     }
   }
   

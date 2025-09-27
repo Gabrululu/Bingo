@@ -365,14 +365,20 @@
           </div>
 
           <div class="section-card controls-wrapper">
-            <h4 class="controls-title">🎮 Controles del Juego</h4>
-            <div class="control-buttons">
-              <button id="assignCardsBtn" class="ctl-btn ctl-btn--ghost">Asignar Cartillas</button>
-              <button id="startGameBtn" class="ctl-btn ctl-btn--primary">Iniciar Juego</button>
-              <button id="nextTermBtn" class="ctl-btn ctl-btn--ghost">Siguiente Término</button>
-              <button id="resetGameBtn" class="ctl-btn ctl-btn--warn">Reiniciar Todo</button>
+            <div class="controls-wrap">
+              <div class="controls-title">🎮 Controles del Juego</div>
+
+              <div class="controls-row">
+                <button id="assignCardsBtn" class="btn">Asignar Cartillas</button>
+                <button id="startGameBtn" class="btn btn-primary">Iniciar Juego</button>
+                <button id="nextTermBtn" class="btn">Siguiente Término</button>
+                <button id="resetGameBtn" class="btn btn-warn">Reiniciar Todo</button>
+              </div>
+
+              <div class="controls-danger">
+                <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
+              </div>
             </div>
-            <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
           </div>
 
           <div class="section-card current-term-section">
@@ -420,16 +426,16 @@
           </div>
 
           <!-- Área centrada de jugador -->
-          <div class="player-card-container">
+          <div class="player-card-wrapper">
             <div id="playerCard" class="bingo-card" role="grid" aria-label="Cartilla de Bingo"></div>
-            
-            <div class="player-tip">
-              <span>💡 Tip: Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.</span>
-            </div>
+          </div>
+          
+          <div class="player-tip">
+            <span>💡 Tip: Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.</span>
+          </div>
 
-            <div class="player-cta">
-              <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
-            </div>
+          <div class="player-cta">
+            <button class="bingo-btn" onclick="claimBingo()">🎉 ¡BINGO!</button>
           </div>
         </div>
       </section>
