@@ -682,7 +682,7 @@ body::before {
     }
     
     .form-group input {
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 16px; 
         padding: 15px;
     }
     
@@ -1177,7 +1177,7 @@ body::before {
   box-shadow: 0 0 10px rgba(45,212,191,.35);
 }
 
-/* Subtítulo / descriptor (ej. "Comparte este enlace…") */
+/* Subtítulo / descriptor  */
 .section-sub {
   margin-top: -6px;
   margin-bottom: 6px;
@@ -1296,7 +1296,7 @@ body::before {
   }
 }
 
-/* === 1) Forzar mayúsculas originales (desactivar transformaciones globales) === */
+/* === 1) Forzar mayúsculas originales  === */
 .bingo-card, 
 .bingo-card .card-cell, 
 .bingo-card .cell-text {
@@ -1560,7 +1560,7 @@ body::before {
    Ajustes de panel moderador
    ======================= */
 
-/* Título "Controles del Juego" más legible */
+/* Título "Controles del Juego" */
 .controls-title,
 #room-management h4,
 #my-rooms-section h3 {
@@ -1590,12 +1590,12 @@ body::before {
   box-shadow: 0 6px 16px rgba(127,156,255,.22);
 }
 
-/* Iniciar Juego – respetar tu gradiente actual (no cambiar) */
+/* Iniciar Juego – respetar tu gradiente actual */
 #startGameBtn {
   color: #0b1020;
 }
 
-/* Reiniciar Todo – azul claro (legible) */
+/* Reiniciar Todo – azul claro */
 #resetGameBtn {
   background: linear-gradient(135deg, #9dd6ff 0%, #bfe8ff 100%);
   color: #0b1020;
@@ -1605,12 +1605,12 @@ body::before {
 
 /* Eliminar Sala centrado y con ancho consistente */
 #deleteRoomBtn {
-  grid-column: 1 / -1;           /* ocupa la fila completa */
+  grid-column: 1 / -1;           
   justify-self: center;
   min-width: 260px;
 }
 
-/* Mensaje "No hay participantes…" más oscuro (contraste) */
+/* Mensaje "No hay participantes…" más oscuro */
 #participantsList .no-participants {
   color: #8ea7cf;               
   font-weight: 500;
@@ -1699,85 +1699,92 @@ body::before {
   max-width: 760px;
 }
 
-/* =======================
-   Controles del Juego — centrado perfecto
-   ======================= */
-
-/* Contenedor de botones */
-.game-controls .control-buttons {
+/* === Controles del Juego  === */
+.control-buttons {
   display: grid;
-  grid-template-columns: repeat(3, minmax(200px, 1fr)); /* 3 columnas simétricas */
-  gap: 22px 28px;
-  justify-content: center;      /* centra la grilla dentro del card */
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-auto-rows: 64px;                
+  gap: 22px;                           
   align-items: center;
-  max-width: 940px;             /* ancho visual cómodo */
-  margin: 8px auto 6px;         /* centra horizontalmente */
+  justify-items: center;
+  max-width: 980px;                    
+  margin: 10px auto 0;                 
+  padding: 0 8px;
 }
 
-/* Coloca cada botón en su celda de la primera fila */
-#assignCardsBtn { grid-column: 1; }
-#startGameBtn   { grid-column: 2; }
-#nextTermBtn    { grid-column: 3; }
-
-/* Segunda fila: Reiniciar centrado, abarcando las 3 columnas */
-#resetGameBtn {
-  grid-column: 1 / -1;          /* ocupa toda la fila */
-  justify-self: center;         /* centrado del propio botón */
-  width: clamp(220px, 40%, 360px);
+/* Botones con tamaño uniforme sin tocar colores existentes */
+.control-buttons .btn {
+  width: 100%;
+  height: 64px;
+  min-width: 220px;
+  border-radius: 14px;
+  font-weight: 600;
 }
 
-/* Tercera fila: Eliminar centrado, igual ancho que Reiniciar */
-#deleteRoomBtn {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: clamp(220px, 40%, 360px);
-  margin-top: 4px;
-}
+/* Ubicación exacta en la grilla:
+   Fila 1: [Asignar] [Iniciar] [Siguiente]
+   Fila 2: [Reiniciar] [   —   ] [Eliminar]    
+*/
+#assignCardsBtn  { grid-column: 1; grid-row: 1; }
+#startGameBtn    { grid-column: 2; grid-row: 1; }
+#nextTermBtn     { grid-column: 3; grid-row: 1; }
 
-/* Responsive: en móviles, apílalos a una columna */
-@media (max-width: 640px) {
-  .game-controls .control-buttons {
-    grid-template-columns: 1fr;
-    max-width: 520px;
-    gap: 14px;
+#resetGameBtn    { grid-column: 1; grid-row: 2; }
+#deleteRoomBtn   { grid-column: 3; grid-row: 2; }
+
+/* Responsive: en pantallas pequeñas apila manteniendo proporciones */
+@media (max-width: 720px) {
+  .control-buttons {
+    grid-template-columns: minmax(220px, 1fr);
+    grid-auto-rows: 56px;
+    gap: 16px;
   }
-  #assignCardsBtn, #startGameBtn, #nextTermBtn,
-  #resetGameBtn, #deleteRoomBtn {
-    grid-column: 1 !important;  /* todos en una sola columna */
+  /* el orden visual queda natural al apilarse */
+  .control-buttons .btn {
+    min-width: 0;
     width: 100%;
-    justify-self: stretch;
+    height: 56px;
   }
 }
 
-/* ===== Centrado y tamaño de la cartilla ===== */
+/* ===== Centrado y respiración uniforme de la cartilla ===== */
 
-/* Contenedor que envuelve la cartilla del jugador */
+/* Contenedor visual que envuelve la cartilla del jugador */
 .player-card-container{
   display:flex;
-  justify-content:center;   /* centra todo el bloque */
-  align-items:flex-start;
-  padding-inline: clamp(8px, 2vw, 20px);
+  justify-content:center;
+  align-items:flex-start;       
+  padding: 28px 24px 40px;      
+  overflow: visible;           
 }
 
-/* Grid de celdas (id que renderiza el JS) */
+/* Si tu sección participante tiene overflow oculto, lo abrimos */
+#participant-mode,
+#playing-section{
+  overflow: visible;
+}
+
+/* Tablero de la cartilla */
 #playerCard{
   display:grid;
-  grid-template-columns: repeat(5, minmax(120px, 1fr)); /* 5 columnas simétricas */
-  gap: clamp(10px, 1.8vw, 18px);                        /* espacios proporcionales */
-  width: min(92vw, 980px);                              /* ancho máximo centrado */
-  margin: 16px auto 28px;                               /* centra horizontalmente */
-  justify-content:center;                               /* asegura centrado del grid */
-  align-content:start;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;                            
+  width: min(92vw, 980px);              
+  margin: 0 auto;                       
+  padding: 20px;                        
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);   
+  box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+  overflow: visible;                     
 }
 
-/* Cada celda ocupa toda su columna y queda perfectamente cuadrada */
-#playerCard .card-cell{
+/* Botón/celda de la cartilla */
+.card-cell{
+  aspect-ratio: 1 / 1;       
   width: 100%;
-  aspect-ratio: 1 / 1;                                  /* cuadrado perfecto */
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
+  border-radius: 14px;
+  margin: 0;              
+  
 }
 
 /* Ajuste para pantallas pequeñas: mantener centrado y legible */
