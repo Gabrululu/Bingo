@@ -1881,23 +1881,58 @@ body::before {
   justify-content: center;
   white-space: normal;
   word-break: keep-all;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: manual;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.2;
   padding: 0 10px;
   font-weight: 600;
   text-transform: none;
-  font-size: clamp(13px, 1.4vw, 18px);
+  font-size: clamp(13px, 1.2vw, 18px);
 }
 
 .bingo-card .card-cell{
   min-width: 110px;
 }
 
-@media (max-width: 480px){
-  .bingo-card .card-cell .cell-text{
-    font-size: clamp(14px, 3.8vw, 18px);
+/* ── Controles del juego: grilla 3 columnas + 2 botones centrados debajo ── */
+.control-buttons{
+  --gap: 24px;
+  --btnw: clamp(220px, 26vw, 280px); /* mismo ancho para TODOS */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: auto;
+  gap: var(--gap);
+  align-items: center;
+  justify-items: center;
+  margin-top: 20px;
+}
+
+/* mismo ancho visual para todos los botones dentro del bloque */
+.control-buttons .btn{
+  width: var(--btnw);
+}
+
+/* Posiciones: fila 1 */
+#assignCardsBtn{ grid-column: 1; grid-row: 1; }
+#startGameBtn{  grid-column: 2; grid-row: 1; }
+#nextTermBtn{   grid-column: 3; grid-row: 1; }
+
+/* Fila 2: los dos botones alineados debajo de "Iniciar Juego" (col 2) */
+#resetGameBtn{  grid-column: 1; grid-row: 2; }
+#deleteRoomBtn{ grid-column: 3; grid-row: 2; }
+
+/* Responsivo: en pantallas estrechas, apilar en una columna centrada */
+@media (max-width: 720px){
+  .control-buttons{
+    grid-template-columns: 1fr;
+    justify-items: center;
   }
+  #assignCardsBtn{ grid-column: 1; grid-row: 1; }
+  #startGameBtn{  grid-column: 1; grid-row: 2; }
+  #nextTermBtn{   grid-column: 1; grid-row: 3; }
+  #resetGameBtn{  grid-column: 1; grid-row: 4; }
+  #deleteRoomBtn{ grid-column: 1; grid-row: 5; }
 }
 
 
