@@ -1142,3 +1142,212 @@ body::before {
   text-align: center;
 }
 
+/* ====== Panel de moderación: layout más aireado ====== */
+#room-management {
+  display: grid;
+  gap: 28px;               /* Más aire entre bloques grandes */
+}
+
+/* Card estándar de cada bloque (Share, Participantes, Termino, Lista) */
+#room-management .section-card {
+  background: rgba(7, 16, 36, 0.65);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 22px;           /* Más padding interno */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+/* Títulos de sección: mejor contraste + barra decorativa */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: #e7efff;          /* más claro que el texto base */
+  margin: 0 0 14px 0;      /* separación con el contenido */
+}
+
+.section-title::before {
+  content: "";
+  width: 8px;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #8a5cf6, #2dd4bf);
+  box-shadow: 0 0 10px rgba(45,212,191,.35);
+}
+
+/* Subtítulo / descriptor (ej. "Comparte este enlace…") */
+.section-sub {
+  margin-top: -6px;
+  margin-bottom: 6px;
+  color: rgba(231,239,255,0.75);
+  font-size: 14px;
+}
+
+/* ====== Compartir Sala ====== */
+.share-link-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+}
+.share-link-row input {
+  height: 44px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  color: #e7efff;
+}
+
+/* ====== Participantes ====== */
+.participants-card {
+  min-height: 96px;
+}
+.participant-item {
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.02);
+}
+
+/* ====== Controles del juego: mejor legibilidad del título + barra ====== */
+.controls-wrapper.section-card {
+  padding: 24px 24px 18px;
+}
+.controls-title {
+  font-weight: 800;
+  color: #f2f6ff;
+  margin: 0 0 14px 0;
+  letter-spacing: .4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.controls-title::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 2px;
+  margin-left: 12px;
+  background: linear-gradient(90deg, rgba(138,92,246,.6), rgba(45,212,191,0));
+  border-radius: 2px;
+}
+
+/* Barra de botones: centrada, con wrap y separación consistente */
+.control-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  padding: 10px 6px 0;
+}
+.control-buttons .btn {
+  min-width: 180px;
+  height: 44px;
+}
+
+/* Botón rojo "Eliminar Sala": lo separamos visualmente del resto */
+#deleteRoomBtn {
+  margin-top: 16px;
+}
+
+/* ====== Término actual ====== */
+.current-term-section .current-term {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: rgba(113, 161, 255, 0.1);
+  border: 1px solid rgba(113,161,255,0.2);
+  color: #bcd6ff;
+  font-weight: 700;
+}
+
+/* ====== Términos mostrados (lista) ====== */
+.called-terms-section .game-stats {
+  margin: 6px 0 12px;
+}
+
+.called-terms-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 10px;           /* despega del borde superior del card */
+}
+
+.called-terms-list .called-term {
+  background: #0e2a16;        /* "pill" verde oscuro */
+  color: #b6ffd1;
+  border: 1px solid #1f6d35;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* ====== Responsivo ====== */
+@media (max-width: 720px) {
+  #room-management {
+    gap: 22px;
+  }
+  .share-link-row {
+    grid-template-columns: 1fr;
+  }
+  .control-buttons .btn {
+    min-width: 100%;
+  }
+}
+
+/* === 1) Forzar mayúsculas originales (desactivar transformaciones globales) === */
+.bingo-card, 
+.bingo-card .card-cell, 
+.bingo-card .cell-text {
+  text-transform: none !important;
+  font-variant: normal;
+}
+
+/* === 2) Centrar de verdad la cartilla bajo el banner ======================= */
+
+.player-banner {
+  max-width: 980px;
+  margin: 0 auto 16px auto;
+}
+
+.player-card-container {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#playerCard {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin: 0 auto;
+}
+
+#playerCard .card-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+}
+
+#playerCard .cell-text {
+  text-align: center;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+@media (max-width: 720px) {
+  .player-banner,
+  .player-card-container { max-width: 92vw; }
+  #playerCard { gap: 12px; }
+  #playerCard .card-cell { padding: 8px; }
+}
+

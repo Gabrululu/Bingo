@@ -348,44 +348,41 @@
             <button id="backToRoomsBtn" class="btn btn-small btn-secondary">← Volver a Mis Salas</button>
           </div>
 
-          <div class="share-section">
-            <h4 style="margin:0">📤 Compartir Sala</h4>
-            <div class="share-link-container">
-              <input type="text" id="shareLink" readonly aria-label="Enlace para compartir" />
+          <div id="share-section" class="section-card">
+            <h4 class="section-title">📤 Compartir Sala</h4>
+            <p class="section-sub">Comparte este enlace con los participantes. Ellos solo ingresan su nombre.</p>
+            <div class="share-link-row">
+              <input id="shareLink" type="text" readonly aria-label="Enlace para compartir" />
               <button id="copyLinkBtn" class="btn btn-secondary">Copiar</button>
             </div>
-            <p class="subtitle">Comparte este enlace con los participantes. Ellos solo ingresan su nombre.</p>
           </div>
 
-          <div class="participants-section stack">
-            <h4 style="margin:0">👥 Participantes (<span id="participantCount">0</span>)</h4>
+          <div class="section-card participants-card">
+            <h4 class="section-title">👥 Participantes (<span id="participantCount">0</span>)</h4>
             <div id="participantsList" class="participants-list">
               <p class="no-participants">No hay participantes registrados</p>
             </div>
           </div>
 
-          <div class="game-controls stack">
-            <h4 style="margin:0">🎮 Controles del Juego</h4>
-            <div class="controls-bar">
+          <div class="section-card controls-wrapper">
+            <h4 class="controls-title">🎮 Controles del Juego</h4>
+            <div class="control-buttons">
               <button id="assignCardsBtn" class="ctl-btn ctl-btn--ghost">Asignar Cartillas</button>
               <button id="startGameBtn" class="ctl-btn ctl-btn--primary">Iniciar Juego</button>
               <button id="nextTermBtn" class="ctl-btn ctl-btn--ghost">Siguiente Término</button>
               <button id="resetGameBtn" class="ctl-btn ctl-btn--warn">Reiniciar Todo</button>
-              <button id="deleteRoomBtn" class="ctl-btn ctl-btn--danger">Eliminar Sala</button>
             </div>
+            <button id="deleteRoomBtn" class="btn btn-danger">Eliminar Sala</button>
           </div>
 
-          <div class="current-term-section stack">
-            <h4 style="margin:0">🎯 Término Actual</h4>
+          <div class="section-card current-term-section">
+            <h4 class="section-title">🎯 Término Actual</h4>
             <div id="currentTerm" class="current-term">Registra participantes y asigna cartillas para comenzar</div>
           </div>
 
-          <div class="called-terms-section stack">
-            <h4 style="margin:0">📋 Términos Mostrados</h4>
-            <div class="game-stats" style="display:flex; gap:14px; color:var(--muted)">
-              <span>Llamados: <strong id="termsCalledCount">0</strong></span>
-              <span>Restantes: <strong id="termsRemainingCount">0</strong></span>
-            </div>
+          <div class="section-card called-terms-section">
+            <h4 class="section-title">📋 Términos Mostrados</h4>
+            <div class="game-stats">Llamados: <strong id="termsCalledCount">0</strong> &nbsp; Restantes: <strong id="termsRemainingCount">0</strong></div>
             <div id="calledTermsList" class="called-terms-list"></div>
           </div>
         </section>
@@ -423,11 +420,9 @@
           </div>
 
           <!-- Área centrada de jugador -->
-          <div class="player-area">
-            <div class="player-card">
-              <div id="playerCard" class="card-grid" role="grid" aria-label="Cartilla de Bingo"></div>
-            </div>
-
+          <div class="player-card-container">
+            <div id="playerCard" class="bingo-card" role="grid" aria-label="Cartilla de Bingo"></div>
+            
             <div class="player-tip">
               <span>💡 Tip: Toca las casillas para marcarlas. Rota tu dispositivo si necesitas más espacio.</span>
             </div>
