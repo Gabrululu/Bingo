@@ -1699,3 +1699,93 @@ body::before {
   max-width: 760px;
 }
 
+/* =======================
+   Controles del Juego — centrado perfecto
+   ======================= */
+
+/* Contenedor de botones */
+.game-controls .control-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(200px, 1fr)); /* 3 columnas simétricas */
+  gap: 22px 28px;
+  justify-content: center;      /* centra la grilla dentro del card */
+  align-items: center;
+  max-width: 940px;             /* ancho visual cómodo */
+  margin: 8px auto 6px;         /* centra horizontalmente */
+}
+
+/* Coloca cada botón en su celda de la primera fila */
+#assignCardsBtn { grid-column: 1; }
+#startGameBtn   { grid-column: 2; }
+#nextTermBtn    { grid-column: 3; }
+
+/* Segunda fila: Reiniciar centrado, abarcando las 3 columnas */
+#resetGameBtn {
+  grid-column: 1 / -1;          /* ocupa toda la fila */
+  justify-self: center;         /* centrado del propio botón */
+  width: clamp(220px, 40%, 360px);
+}
+
+/* Tercera fila: Eliminar centrado, igual ancho que Reiniciar */
+#deleteRoomBtn {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: clamp(220px, 40%, 360px);
+  margin-top: 4px;
+}
+
+/* Responsive: en móviles, apílalos a una columna */
+@media (max-width: 640px) {
+  .game-controls .control-buttons {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    gap: 14px;
+  }
+  #assignCardsBtn, #startGameBtn, #nextTermBtn,
+  #resetGameBtn, #deleteRoomBtn {
+    grid-column: 1 !important;  /* todos en una sola columna */
+    width: 100%;
+    justify-self: stretch;
+  }
+}
+
+/* ===== Centrado y tamaño de la cartilla ===== */
+
+/* Contenedor que envuelve la cartilla del jugador */
+.player-card-container{
+  display:flex;
+  justify-content:center;   /* centra todo el bloque */
+  align-items:flex-start;
+  padding-inline: clamp(8px, 2vw, 20px);
+}
+
+/* Grid de celdas (id que renderiza el JS) */
+#playerCard{
+  display:grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr)); /* 5 columnas simétricas */
+  gap: clamp(10px, 1.8vw, 18px);                        /* espacios proporcionales */
+  width: min(92vw, 980px);                              /* ancho máximo centrado */
+  margin: 16px auto 28px;                               /* centra horizontalmente */
+  justify-content:center;                               /* asegura centrado del grid */
+  align-content:start;
+}
+
+/* Cada celda ocupa toda su columna y queda perfectamente cuadrada */
+#playerCard .card-cell{
+  width: 100%;
+  aspect-ratio: 1 / 1;                                  /* cuadrado perfecto */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+/* Ajuste para pantallas pequeñas: mantener centrado y legible */
+@media (max-width: 640px){
+  #playerCard{
+    grid-template-columns: repeat(5, minmax(64px, 1fr));
+    gap: 8px;
+    width: min(96vw, 560px);
+  }
+}
+
