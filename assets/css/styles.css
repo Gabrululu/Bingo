@@ -1984,7 +1984,7 @@ body::before {
   margin-inline: auto;
   padding-inline: 20px;
   box-sizing: border-box;
-  isolation: isolate;          /* crea contexto y evita overlays raros */
+  isolation: isolate;          /
 }
 
 /* 2) Cada bloque del panel se apila sin posiciones "pegajosas" */
@@ -1994,7 +1994,7 @@ body::before {
 #room-management .controls-section,
 #room-management .current-term-section,
 #room-management .called-terms-section{
-  position: static;            /* elimina sticky/absolute heredados */
+  position: static;            
   z-index: 1;
   background: rgba(10, 18, 40, .9);
   border-radius: 16px;
