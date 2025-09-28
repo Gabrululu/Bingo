@@ -477,6 +477,7 @@ function displayPlayerCard(cardTerms) {
   const grid = document.getElementById('playerCard');
   grid.innerHTML = cardTerms.map(term => {
     const isFree = term === 'FREE';
+    const singleWord = !/\s/.test(String(term));
     const safeText = String(term).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     const dataAttr = String(term).replace(/"/g,'&quot;');
     return `
@@ -489,7 +490,7 @@ function displayPlayerCard(cardTerms) {
         role="gridcell"
         title="${safeText}"
       >
-        <span class="cell-text">${safeText}</span>
+        <span class="cell-text${singleWord ? ' no-wrap' : ''}">${safeText}</span>
       </button>
     `;
   }).join('');

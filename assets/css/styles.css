@@ -1895,6 +1895,44 @@ body::before {
   min-width: 110px;
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+   Cartilla: evitar cortes de letras y mantener palabras legibles
+   (parche tipográfico sin tocar layout/colores/lógica)
+   ─────────────────────────────────────────────────────────────────────────── */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:14px;
+}
+
+.card-cell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  border-radius:14px;
+  text-transform:none !important;
+}
+
+.card-cell .cell-text{
+  display:block;
+  max-width:95%;
+  margin:0 auto;
+  text-align:center;
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  line-height:1.18;
+  letter-spacing:0;
+  font-weight:600;
+  font-size:clamp(13px, 1.05vw + .2rem, 18px);
+}
+
+.card-cell .cell-text.no-wrap{
+  white-space:nowrap !important;
+}
+
 /* ── Controles del juego: grilla 3 columnas + 2 botones centrados debajo ── */
 .control-buttons{
   --gap: 24px;
@@ -1933,6 +1971,67 @@ body::before {
   #nextTermBtn{   grid-column: 1; grid-row: 3; }
   #resetGameBtn{  grid-column: 1; grid-row: 4; }
   #deleteRoomBtn{ grid-column: 1; grid-row: 5; }
+}
+
+/* =======================
+   FIX layout Panel Moderador
+   ======================= */
+
+/* 1) Contenedor centrado y con aislamiento para evitar superposiciones */
+#room-management,
+#moderator-dashboard{
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 20px;
+  box-sizing: border-box;
+  isolation: isolate;          /* crea contexto y evita overlays raros */
+}
+
+/* 2) Cada bloque del panel se apila sin posiciones "pegajosas" */
+#room-management .room-header,
+#room-management .share-section,
+#room-management .participants-section,
+#room-management .controls-section,
+#room-management .current-term-section,
+#room-management .called-terms-section{
+  position: static;            /* elimina sticky/absolute heredados */
+  z-index: 1;
+  background: rgba(10, 18, 40, .9);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+
+/* 3) Evita que el grid de los botones "estire" el contenedor */
+.control-buttons{
+  width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* 4) Asegura que nada desborde por errores de box-sizing */
+#room-management *{
+  box-sizing: border-box;
+}
+
+/* 5) Cabecera de sala bien alineada */
+#room-management .room-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+#room-management .room-header > *{
+  flex: 0 0 auto;
+}
+
+/* 6) En pantallas pequeñas, todo centrado y sin solaparse */
+@media (max-width: 768px){
+  #room-management,
+  #moderator-dashboard{ padding-inline: 12px; }
+  #room-management .room-header{ justify-content: center; gap: 10px; }
 }
 
 
