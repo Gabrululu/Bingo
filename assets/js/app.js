@@ -464,6 +464,35 @@ function subscribeRoomState(roomId){
   
   // ─────────────────────────────────────────────────────────────────────────────
   // Participant Card Display
+  function fitCellText(el, { min = 11, max = 18 } = {}) {
+    const parent = el.parentElement;
+    el.style.fontSize = max + 'px';
+    el.style.whiteSpace = 'normal';
+    const guard = 30;
+    let steps = 0;
+    while (
+      steps < guard &&
+      (el.scrollWidth > parent.clientWidth - 8 || el.scrollHeight > parent.clientHeight - 8) &&
+      max > min
+    ) {
+      max -= 1;
+      el.style.fontSize = max + 'px';
+      steps++;
+    }
+  }
+
+  function fitAllCardTexts() {
+    document.querySelectorAll('#playerCard .cell-text').forEach((el) => fitCellText(el));
+  }
+
+  let playerCardRO;
+  function observePlayerCardResize() {
+    const grid = document.getElementById('playerCard');
+    if (!grid) return;
+    if (playerCardRO) playerCardRO.disconnect();
+    playerCardRO = new ResizeObserver(() => fitAllCardTexts());
+    playerCardRO.observe(grid);
+  }
   function showPlayerCard() {
     if (!currentParticipant || !currentParticipant.cardId) return;
     const cardRef = window.firebaseDoc(window.firebaseDb, `rooms/${getCurrentRoute().roomId}/cards/${currentParticipant.cardId}`);
@@ -494,6 +523,10 @@ function displayPlayerCard(cardTerms) {
       </button>
     `;
   }).join('');
+  requestAnimationFrame(() => {
+    fitAllCardTexts();
+    observePlayerCardResize();
+  });
   
   checkBingoStatus();
 }
