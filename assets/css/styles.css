@@ -1752,10 +1752,15 @@ body::before {
 /* ===== Centrado y respiración uniforme de la cartilla ===== */
 
 /* Contenedor visual que envuelve la cartilla del jugador */
-.player-card-container{
+.player-card-container {
   display: grid;
   place-items: center;
-  padding: 12px 16px;
+  padding: 18px 16px;
+  background: rgba(10, 18, 40, 0.9);
+  border-radius: 16px;
+  width: min(96vw, 760px);
+  margin: 12px auto;
+  box-sizing: border-box;
 }
 
 #playing-section .bingo-card{
@@ -1828,16 +1833,19 @@ body::before {
   text-wrap: balance;
 }
 
-@media (max-width: 640px){
-  #playing-section .bingo-card{
+@media (max-width: 640px) {
+  .player-card-container {
     width: min(94vw, 560px);
-    gap: 10px;
     padding: 14px;
   }
-  #playing-section .bingo-card .card-cell{
-    border-radius: 14px;
-    font-size: 14px;
-    padding: 8px;
+  
+  .card-cell {
+    min-height: 70px;
+    padding: 6px 4px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: clamp(11px, 2.2vw, 15px);
   }
 }
 
@@ -1920,13 +1928,13 @@ body::before {
   margin:0 auto;
   text-align:center;
   white-space:normal !important;
-  word-break:normal !important;
-  overflow-wrap:normal !important;
+  word-break:keep-all !important;
+  overflow-wrap:break-word !important;
   hyphens:none !important;
-  line-height:1.18;
+  line-height:1.2;
   letter-spacing:0;
   font-weight:600;
-  font-size:clamp(13px, 1.05vw + .2rem, 18px);
+  font-size:clamp(12px, 1.1vw, 17px);
 }
 
 .card-cell .cell-text.no-wrap{
@@ -2085,13 +2093,48 @@ body::before {
   max-width: 100%;
 }
 
-@media (max-width: 640px) {
-  #moderator-dashboard,
-  .moderator-section.wrapper,
-  .panel-moderator-container {
-    width: 100%;
-    padding-inline: 12px;
-  }
+#moderator-dashboard .panel-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+#my-rooms-section,
+.rooms-card {
+  width: 100%;
+  max-width: none;
+}
+
+.rooms-wrapper,
+.dashboard-row {
+  display: block;
+}
+.rooms-card {
+  align-self: stretch;
+}
+
+.rooms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+#roomsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.room-item {
+  height: 100%;
+}
+
+#my-rooms-section.right-rail,
+#my-rooms-section.aside {
+  float: none;
+  width: 100% !important;
+  max-width: none !important;
 }
 
 /* 6) En pantallas pequeñas, todo centrado y sin solaparse */
@@ -2099,6 +2142,15 @@ body::before {
   #room-management,
   #moderator-dashboard{ padding-inline: 12px; }
   #room-management .room-header{ justify-content: center; gap: 10px; }
+}
+
+#moderator-dashboard,
+#room-management {
+  max-width: 1100px;
+  width: min(96vw, 1100px);
+  margin: 24px auto;
+  padding-inline: 20px;
+  box-sizing: border-box;
 }
 
 

@@ -320,25 +320,29 @@
 
       <!-- D A S H B O A R D  M O D E R A D O R -->
       <section id="moderator-dashboard" class="hidden stack" aria-label="Panel de moderador">
-        <div class="dashboard-header">
-          <h2 style="margin:0">🎮 Panel de Moderador</h2>
-          <div class="user-info">
-            <span id="moderatorName"></span>
-            <button id="logoutBtn" class="btn btn-small btn-secondary">Cerrar Sesión</button>
+        <div class="panel-inner">
+          <div class="dashboard-header">
+            <h2 style="margin:0">🎮 Panel de Moderador</h2>
+            <div class="user-info">
+              <span id="moderatorName"></span>
+              <button id="logoutBtn" class="btn btn-small btn-secondary">Cerrar Sesión</button>
+            </div>
           </div>
-        </div>
 
-        <!-- Mis salas -->
-        <section id="my-rooms-section" class="stack section" aria-label="Mis salas">
-          <h3 style="margin:0">🏠 Mis Salas</h3>
-          <div class="rooms-actions">
-            <button id="createRoomBtn" class="btn btn-primary">🎯 Crear Nueva Sala</button>
-            <button id="refreshRoomsBtn" class="btn btn-secondary">🔄 Actualizar Lista</button>
-          </div>
-          <div id="roomsList" class="rooms-list">
-            <p class="no-rooms">No tienes salas creadas</p>
-          </div>
-        </section>
+          <!-- Mis salas -->
+          <section id="my-rooms-section" class="stack section" aria-label="Mis salas">
+            <div class="rooms-header">
+              <h3 style="margin:0">🏠 Mis Salas</h3>
+              <div class="rooms-actions">
+                <button id="createRoomBtn" class="btn btn-primary">🎯 Crear Nueva Sala</button>
+                <button id="refreshRoomsBtn" class="btn btn-secondary">🔄 Actualizar Lista</button>
+              </div>
+            </div>
+            <div id="roomsList" class="rooms-list">
+              <p class="no-rooms">No tienes salas creadas</p>
+            </div>
+          </section>
+        </div>
 
         <!-- Gestión de sala -->
         <section id="room-management" class="hidden stack section" aria-label="Gestión de sala">
