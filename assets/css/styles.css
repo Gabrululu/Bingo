@@ -1922,23 +1922,59 @@ body::before {
   text-transform:none !important;
 }
 
-.card-cell .cell-text{
-  display:block;
-  max-width:95%;
-  margin:0 auto;
-  text-align:center;
-  white-space:normal !important;
-  word-break:keep-all !important;
-  overflow-wrap:break-word !important;
-  hyphens:none !important;
-  line-height:1.2;
-  letter-spacing:0;
-  font-weight:600;
-  font-size:clamp(12px, 1.1vw, 17px);
+.card-cell .cell-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 6px;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  hyphens: manual;
+  line-height: 1.15;
+  font-weight: 600;
+  font-size: clamp(11px, 2vw, 15px);
+  text-transform: none;
 }
 
 .card-cell .cell-text.no-wrap{
   white-space:nowrap !important;
+}
+
+/* Ajuste para palabras largas compuestas */
+.card-cell .cell-text {
+  word-spacing: -0.05em;
+}
+
+/* Celda contenedora con mejor padding */
+.card-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 6px;
+  min-height: 75px;
+  overflow: hidden;
+}
+
+/* Responsive móvil */
+@media (max-width: 640px) {
+  .card-cell {
+    min-height: 68px;
+    padding: 6px 4px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: clamp(10px, 2.2vw, 14px);
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-cell .cell-text {
+    font-size: clamp(9px, 2.5vw, 13px);
+  }
 }
 
 /* ── Controles del juego: grilla 3 columnas + 2 botones centrados debajo ── */
@@ -2147,10 +2183,21 @@ body::before {
 #moderator-dashboard,
 #room-management {
   max-width: 1100px;
-  width: min(96vw, 1100px);
+  width: 100%;
   margin: 24px auto;
-  padding-inline: 20px;
+  padding: 0 20px;
   box-sizing: border-box;
+}
+
+/* Forzar centrado sin importar clases parent */
+#moderator-dashboard,
+#room-management {
+  position: static !important;
+  transform: none !important;
+  left: auto !important;
+  right: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 
