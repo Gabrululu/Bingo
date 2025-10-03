@@ -1731,14 +1731,14 @@ body::before {
 
 /* ===== Centrado y respiración uniforme de la cartilla ===== */
 
-/* Contenedor: permite scroll horizontal en móvil */
+/* Contenedor: permite scroll horizontal en móvil con fondo completo */
 .player-card-container {
   display: grid;
   place-items: center;
   padding: 20px 16px;
   background: rgba(10, 18, 40, 0.95);
-  border-radius: 0;
-  width: 100%;
+  border-radius: 16px;
+  width: 100vw;
   min-height: 100vh;
   margin: 0;
   box-sizing: border-box;
@@ -1934,11 +1934,15 @@ body::before {
   white-space:nowrap !important;
 }
 
-/* Mobile: permite scroll horizontal */
+/* Mobile: permite scroll horizontal con fondo completo */
 @media (max-width: 768px) {
   .player-card-container {
     padding: 16px 8px;
     justify-items: start;
+    border-radius: 0;
+    width: 100vw;
+    min-height: 100vh;
+    max-width: 100vw;
   }
   
   /* Cartilla mantiene 700px, el usuario hace scroll */
@@ -1951,6 +1955,27 @@ body::before {
 @media (max-width: 520px) {
   .player-card-container {
     padding: 12px 4px;
+    border-radius: 0;
+    width: 100vw;
+    min-height: 100vh;
+  }
+}
+
+/* Asegurar fondo completo en todos los viewports móviles */
+@media (max-width: 480px) {
+  .player-card-container {
+    width: 100vw;
+    min-height: 100vh;
+    border-radius: 0;
+    padding: 8px 2px;
+  }
+}
+
+@media (orientation: portrait) {
+  .player-card-container {
+    width: 100vw;
+    min-height: 100vh;
+    border-radius: 0;
   }
 }
 
