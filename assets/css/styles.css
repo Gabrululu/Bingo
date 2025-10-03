@@ -1731,26 +1731,28 @@ body::before {
 
 /* ===== Centrado y respiración uniforme de la cartilla ===== */
 
-/* Contenedor visual que envuelve la cartilla del jugador */
+/* Contenedor: permite scroll horizontal en móvil */
 .player-card-container {
   display: grid;
   place-items: center;
   padding: 20px 16px;
   background: rgba(10, 18, 40, 0.95);
   border-radius: 0;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   margin: 0;
   box-sizing: border-box;
-  position: relative;
+  overflow-x: auto;
+  overflow-y: visible;
 }
 
+/* Cartilla mantiene tamaño fijo, no se achica */
 #playing-section .bingo-card {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  width: min(95vw, 700px);
-  max-width: 700px;
+  width: 700px;
+  min-width: 700px;
   margin: 0 auto;
   padding: 16px;
   box-sizing: border-box;
@@ -1932,40 +1934,23 @@ body::before {
   white-space:nowrap !important;
 }
 
-/* Mobile: pantalla completa */
+/* Mobile: permite scroll horizontal */
 @media (max-width: 768px) {
   .player-card-container {
-    padding: 16px 12px;
-    border-radius: 0;
-    min-height: calc(100vh - 60px);
+    padding: 16px 8px;
+    justify-items: start;
   }
   
+  /* Cartilla mantiene 700px, el usuario hace scroll */
   #playing-section .bingo-card {
-    width: 92vw;
-    gap: 12px;
-    padding: 14px;
-  }
-  
-  #playing-section .bingo-card .card-cell {
-    min-height: 70px;
-    padding: 8px 4px;
+    width: 700px;
+    min-width: 700px;
   }
 }
 
 @media (max-width: 520px) {
   .player-card-container {
-    padding: 12px 8px;
-  }
-  
-  #playing-section .bingo-card {
-    width: 94vw;
-    gap: 10px;
-    padding: 12px;
-  }
-  
-  #playing-section .bingo-card .card-cell {
-    min-height: 65px;
-    padding: 6px 3px;
+    padding: 12px 4px;
   }
 }
 
