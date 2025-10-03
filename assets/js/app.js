@@ -466,20 +466,29 @@ function subscribeRoomState(roomId){
   // Participant Card Display
   function fitCellText(el, { min = 8, max = 14 } = {}) {
     const parent = el.parentElement;
-    const text = el.textContent;
+    let text = el.textContent;
     
-    // Reset to initial state
+    // Si el texto tiene múltiples palabras, agregar salto de línea entre ellas
+    if (text.includes(' ')) {
+      const words = text.split(' ');
+      // Máximo 3 palabras (líneas)
+      const wordsToShow = words.slice(0, 3);
+      text = wordsToShow.join('\n');
+      el.textContent = text;
+    }
+    
+    // Reset CSS
     el.style.fontSize = max + 'px';
-    el.style.whiteSpace = 'normal';
+    el.style.whiteSpace = 'pre-line';
     
-    // Quick adjustment for very long text
-    if (text.length > 20) {
+    // Ajuste rápido para texto muy largo
+    if (text.replace(/\n/g, '').length > 20) {
       el.style.fontSize = (max - 2) + 'px';
-    } else if (text.length > 15) {
+    } else if (text.replace(/\n/g, '').length > 15) {
       el.style.fontSize = (max - 1) + 'px';
     }
     
-    // Fine adjustment if text still overflows
+    // Ajuste fino si aún desborda
     let attempts = 0;
     while (attempts < 8 && el.scrollHeight > parent.clientHeight - 6) {
       const currentSize = parseFloat(el.style.fontSize);

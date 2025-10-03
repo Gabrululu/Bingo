@@ -1781,7 +1781,7 @@ body::before {
   box-shadow:
     0 4px 12px rgba(15,23,42,.08),
     0 1px 0 rgba(255,255,255,.6) inset;
-  padding: 8px;
+  padding: 12px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1792,9 +1792,23 @@ body::before {
 
 .card-cell .cell-text {
   font-size: clamp(11px, 1.5vw, 14px);
-  line-height: 1.2;
+  line-height: 1.3;
   width: 100%;
   max-width: 100%;
+  text-align: center;
+  
+  /* Una palabra por línea (manejo inteligente) */
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: none;
+  
+  /* Mostrar hasta 3 líneas máximo */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 #playing-section .bingo-card .card-cell:not(.cell-free):hover{
@@ -1945,35 +1959,66 @@ body::before {
   white-space:nowrap !important;
 }
 
-/* Mobile */
+/* Mobile con scroll horizontal */
 @media (max-width: 768px) {
   #playing-section {
-    padding: 16px;
+    padding: 16px 8px;
+    overflow-x: auto;
+    overflow-y: visible;
+    justify-content: center;
+    align-items: center;
   }
   
   .player-card-container {
     max-width: 95vw;
+    width: fit-content;
   }
   
   #playing-section .bingo-card {
-    max-width: 90vw;
+    width: 420px;
+    min-width: 420px;
     gap: 10px;
     padding: 12px;
-  }
-  
-  .card-cell .cell-text {
-    font-size: clamp(10px, 2.2vw, 13px);
-  }
-}
-
-@media (max-width: 520px) {
-  #playing-section .bingo-card {
-    gap: 8px;
-    padding: 10px;
+    aspect-ratio: 1;
   }
   
   .card-cell .cell-text {
     font-size: clamp(9px, 2.5vw, 12px);
+    line-height: 1.2;
+  }
+}
+
+@media (max-width: 520px) {
+  #playing-section {
+    padding: 12px 4px;
+  }
+  
+  #playing-section .bingo-card {
+    width: 400px;
+    min-width: 400px;
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  #playing-section .bingo-card .card-cell {
+    padding: 10px 6px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: clamp(8px, 2.8vw, 11px);
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 420px) {
+  #playing-section .bingo-card {
+    width: 380px;
+    min-width: 380px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: clamp(7px, 3vw, 10px);
+    line-height: 1.1;
   }
 }
 
