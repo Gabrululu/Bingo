@@ -1912,8 +1912,8 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 4px;
-  min-height: 90px;
+  padding: 8px 4px;
+  min-height: 80px;
   overflow: hidden;
   border-radius: 14px;
   text-transform: none !important;
@@ -1921,50 +1921,50 @@ body::before {
 
 .card-cell .cell-text {
   width: 100%;
+  max-width: 100%;
   text-align: center;
   line-height: 1.15;
   font-weight: 600;
-  font-size: clamp(6px, 1.5vw, 12px);
+  font-size: clamp(10px, 1.8vw, 14px);
   text-transform: none;
   
-  /* Mejor manejo de texto largo */
+  /* Mantener palabras juntas pero permitir wrap */
   white-space: normal;
   word-break: normal;
   overflow-wrap: break-word;
-  hyphens: auto;
+  hyphens: none;
   
-  /* Contenido completo sin cortes */
-  display: block;
+  /* Mostrar hasta 3 líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  max-height: 100%;
 }
 
 .card-cell .cell-text.no-wrap{
   white-space:nowrap !important;
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .card-cell {
-    min-height: 80px;
-    padding: 6px 4px;
+    min-height: 72px;
+    padding: 6px 3px;
   }
   
   .card-cell .cell-text {
-    font-size: clamp(5px, 1.8vw, 10px);
+    font-size: clamp(9px, 2.3vw, 13px);
     line-height: 1.1;
   }
 }
 
 @media (max-width: 480px) {
   .card-cell {
-    min-height: 70px;
-    padding: 4px 3px;
+    min-height: 68px;
   }
   
   .card-cell .cell-text {
-    font-size: clamp(4px, 1.6vw, 9px);
-    line-height: 1.05;
+    font-size: clamp(8.5px, 2.6vw, 12px);
   }
 }
 
@@ -1999,8 +1999,8 @@ body::before {
 #startGameBtn{  grid-column: 2; grid-row: 1; }
 #nextTermBtn{   grid-column: 3; grid-row: 1; }
 
-/* Fila 2: centrados debajo */
-#resetGameBtn{  grid-column: 2; grid-row: 2; }
+/* Fila 2: alineación original */
+#resetGameBtn{  grid-column: 1; grid-row: 2; }
 #deleteRoomBtn{ grid-column: 3; grid-row: 2; }
 
 /* Responsive móvil */
@@ -2014,8 +2014,8 @@ body::before {
   #assignCardsBtn{grid-column: 1; grid-row: 1;}
   #startGameBtn {grid-column: 2; grid-row: 1;}
   #nextTermBtn  {grid-column: 1; grid-row: 2;}
-  #resetGameBtn {grid-column: 2; grid-row: 2;}
-  #deleteRoomBtn{grid-column: 1 / -1; grid-row: 3;}
+  #resetGameBtn {grid-column: 1; grid-row: 3;}
+  #deleteRoomBtn{grid-column: 2; grid-row: 3;}
 }
 
 @media (max-width: 480px){
