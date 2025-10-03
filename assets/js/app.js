@@ -464,36 +464,36 @@ function subscribeRoomState(roomId){
   
   // ─────────────────────────────────────────────────────────────────────────────
   // Participant Card Display
-  function fitCellText(el, { min = 9, max = 16 } = {}) {
+  function fitCellText(el, { min = 7, max = 14 } = {}) {
     const parent = el.parentElement;
     const text = el.textContent;
     
-    // Si tiene guión, intentar mantener en una línea
-    if (text.includes('-')) {
-      el.style.whiteSpace = 'nowrap';
-      el.style.fontSize = max + 'px';
+    // Establecer tamaño inicial más pequeño
+    el.style.whiteSpace = 'normal';
+    el.style.fontSize = max + 'px';
+    el.style.lineHeight = '1.2';
+    
+    // Reducir hasta que quepa completamente sin truncar
+    let size = max;
+    let attempt = 0;
+    
+    while (attempt < 15 && size > min) {
+      const rect = el.getBoundingClientRect();
+      const parentRect = parent.getBoundingClientRect();
       
-      let size = max;
-      while (size > min && el.scrollWidth > parent.clientWidth - 16) {
-        size -= 0.5;
+      // Si el texto se sale verticalmente o horizontalmente
+      if (rect.height > parentRect.height - 10 || rect.width > parentRect.width - 10) {
+        size -= 0.3;
         el.style.fontSize = size + 'px';
+        attempt++;
+      } else {
+        break; // Texto cabe perfectamente
       }
-      
-      // Si no cabe, permitir wrap
-      if (size <= min) {
-        el.style.whiteSpace = 'normal';
-        el.style.fontSize = min + 'px';
-      }
-    } else {
-      // Texto normal
-      el.style.whiteSpace = 'normal';
-      el.style.fontSize = max + 'px';
-      
-      let size = max;
-      while (size > min && el.scrollHeight > parent.clientHeight - 16) {
-        size -= 0.5;
-        el.style.fontSize = size + 'px';
-      }
+    }
+    
+    // Si aún no cabe, usar tamaño mínimo
+    if (size <= min) {
+      el.style.fontSize = min + 'px';
     }
   }
 
