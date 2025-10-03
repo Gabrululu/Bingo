@@ -1469,24 +1469,9 @@ body::before {
 }
 
 /* ====== Cartilla del participante ====== */
-.player-card-container{
-  max-width: 980px;
-  margin-inline: auto;
-  padding: 18px 16px 32px;
-  background: var(--mkt-surface);
-  border: 1px solid var(--mkt-stroke);
-  border-radius: 16px;
-  box-shadow: var(--mkt-shadow);
-}
+/* Definición duplicada eliminada */ .player-card-container-old{ display: none; }
 
-.bingo-card{
-  margin: 14px auto 8px;
-  width: min(92vw, 860px);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-  justify-items: stretch;
-}
+/* Definición duplicada del bingo-card eliminada */
 
 .card-cell{
   display: grid;
@@ -1750,28 +1735,30 @@ body::before {
 .player-card-container {
   display: grid;
   place-items: center;
-  padding: 18px 16px;
-  background: rgba(10, 18, 40, 0.9);
-  border-radius: 16px;
-  width: min(96vw, 760px);
-  margin: 12px auto;
+  padding: 20px 16px;
+  background: rgba(10, 18, 40, 0.95);
+  border-radius: 0;
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
   box-sizing: border-box;
+  position: relative;
 }
 
-#playing-section .bingo-card{
+#playing-section .bingo-card {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  width: min(92vw, 760px);
-  margin: 12px auto;
-  padding: 18px;
+  width: min(95vw, 700px);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 16px;
   box-sizing: border-box;
   border-radius: 18px;
   background: rgba(255,255,255,0.03);
   box-shadow:
     0 2px 14px rgba(0,0,0,.25),
     inset 0 0 0 1px rgba(255,255,255,.06);
-  overflow: visible;
 }
 
 #playing-section .bingo-card .card-cell{
@@ -1945,66 +1932,40 @@ body::before {
   white-space:nowrap !important;
 }
 
-/* === OPTIMIZACIÓN MÓVIL CARTILLA === */
-
+/* Mobile: pantalla completa */
 @media (max-width: 768px) {
-  /* Contenedor más espacioso */
   .player-card-container {
-    width: min(98vw, 600px);
-    padding: 20px 12px;
+    padding: 16px 12px;
+    border-radius: 0;
+    min-height: calc(100vh - 60px);
   }
   
-  /* Grid más amplio */
   #playing-section .bingo-card {
-    width: 100%;
-    gap: 10px;
-    padding: 12px;
+    width: 92vw;
+    gap: 12px;
+    padding: 14px;
   }
   
-  /* Celdas más grandes y legibles */
   #playing-section .bingo-card .card-cell {
-    min-height: 75px;
+    min-height: 70px;
     padding: 8px 4px;
-  }
-  
-  .card-cell .cell-text {
-    font-size: clamp(10.5px, 2.8vw, 14px);
-    line-height: 1.25;
   }
 }
 
 @media (max-width: 520px) {
   .player-card-container {
-    width: 100vw;
-    padding: 16px 8px;
-    border-radius: 0;
+    padding: 12px 8px;
   }
   
   #playing-section .bingo-card {
-    gap: 8px;
-    padding: 10px;
+    width: 94vw;
+    gap: 10px;
+    padding: 12px;
   }
   
   #playing-section .bingo-card .card-cell {
-    min-height: 68px;
+    min-height: 65px;
     padding: 6px 3px;
-    border-radius: 10px;
-  }
-  
-  .card-cell .cell-text {
-    font-size: clamp(10px, 3vw, 13px);
-    line-height: 1.2;
-  }
-}
-
-/* Pantallas muy pequeñas */
-@media (max-width: 380px) {
-  #playing-section .bingo-card {
-    gap: 6px;
-  }
-  
-  .card-cell .cell-text {
-    font-size: clamp(9px, 3.2vw, 12px);
   }
 }
 
