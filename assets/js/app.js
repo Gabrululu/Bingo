@@ -324,7 +324,7 @@ function subscribeRoomState(roomId){
         }
       });
 
-      // 3) Lee/crea el documento del participante y ajusta la vista
+      // 3) Lee/crea el documento del participante
       const pRef = window.firebaseDoc(window.firebaseDb, `rooms/${roomId}/participants/${currentUser.uid}`);
       const snap = await window.firebaseGetDoc(pRef);
 
@@ -466,38 +466,31 @@ function subscribeRoomState(roomId){
   // Participant Card Display
   function fitCellText(el, { min = 8, max = 14 } = {}) {
     const parent = el.parentElement;
-    let text = el.textContent;
+    const text = el.textContent.trim();
     
-    // Si el texto tiene múltiples palabras, agregar salto de línea entre ellas
-    if (text.includes(' ')) {
-      const words = text.split(' ');
-      // Máximo 3 palabras (líneas)
-      const wordsToShow = words.slice(0, 3);
-      text = wordsToShow.join('\n');
-      el.textContent = text;
-    }
-    
-    // Reset CSS
+    // Reset inicial
     el.style.fontSize = max + 'px';
-    el.style.whiteSpace = 'pre-line';
+    el.style.whiteSpace = 'normal';
     
-    // Ajuste rápido para texto muy largo
-    if (text.replace(/\n/g, '').length > 20) {
-      el.style.fontSize = (max - 2) + 'px';
-    } else if (text.replace(/\n/g, '').length > 15) {
-      el.style.fontSize = (max - 1) + 'px';
+    let fontSize = max;
+    let attempts = 0;
+    const maxAttempts = 30;
+    
+    // Reducir tamaño hasta que quepa sin overflow
+    while (
+      attempts < maxAttempts &&
+      fontSize > min &&
+      (el.scrollHeight > parent.clientHeight - 12 || 
+       el.scrollWidth > parent.clientWidth - 12)
+    ) {
+      fontSize -= 0.5;
+      el.style.fontSize = fontSize + 'px';
+      attempts++;
     }
     
-    // Ajuste fino si aún desborda
-    let attempts = 0;
-    while (attempts < 8 && el.scrollHeight > parent.clientHeight - 6) {
-      const currentSize = parseFloat(el.style.fontSize);
-      if (currentSize > min) {
-        el.style.fontSize = (currentSize - 0.5) + 'px';
-      } else {
-        break;
-      }
-      attempts++;
+    // Si aún no cabe, forzar tamaño mínimo
+    if (fontSize <= min) {
+      el.style.fontSize = min + 'px';
     }
   }
 

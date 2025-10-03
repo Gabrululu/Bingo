@@ -1791,19 +1791,21 @@ body::before {
 }
 
 .card-cell .cell-text {
-  font-size: clamp(11px, 1.5vw, 14px);
-  line-height: 1.3;
   width: 100%;
-  max-width: 100%;
   text-align: center;
+  line-height: 1.25;
+  font-weight: 600;
+  /* Tamaño inicial, JS lo ajustará */
+  font-size: 13px;
+  text-transform: none;
   
-  /* Una palabra por línea (manejo inteligente) */
-  white-space: pre-line;
+  /* NO romper palabras */
+  white-space: normal;
   word-break: keep-all;
-  overflow-wrap: break-word;
+  overflow-wrap: normal;
   hyphens: none;
   
-  /* Mostrar hasta 3 líneas máximo */
+  /* Máximo 3 líneas */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -1967,11 +1969,16 @@ body::before {
     overflow-y: visible;
     justify-content: center;
     align-items: center;
+    width: 100vw; /* ocupar el viewport para permitir scroll */
+    -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
+    overscroll-behavior-x: contain;
+    touch-action: pan-x; /* habilitar gesto horizontal */
   }
   
   .player-card-container {
     max-width: 95vw;
-    width: fit-content;
+    width: auto;
+    min-width: max-content; /* no comprimir ancho interno */
   }
   
   #playing-section .bingo-card {
@@ -1980,6 +1987,7 @@ body::before {
     gap: 10px;
     padding: 12px;
     aspect-ratio: 1;
+    margin: 0; /* evitar centrado que corte scroll */
   }
   
   .card-cell .cell-text {
