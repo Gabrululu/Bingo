@@ -11,7 +11,7 @@ const WEB3_MARKETING_TERMS = [
     // Community & Social
     "Discord","X Spaces","Telegram Voice","Ambassador","Referral Program","Content Creation","Meme","Viral Campaigns","KOL","Identidad Digital",
     // Technology Terms
-    "Layer 1","Layer 2","Cross-chain","Interoperability","Scalability","Immutable","Smart Contract Audit","Security Tokens","Compliance","KYC","Oracle",
+    "Layer 1","Layer 2","Cross-chain","Interoperabilidad","Scalability","Immutable","Smart Contract Audit","Security Tokens","Compliance","KYC","Oracle",
     // Trading & Finance
     "Swaps","Bridge","Order Book","Slippage","Impermanent Loss","APR","APY","TVL","Volumen","Market Cap","Spread","Circulating Supply","Scalping",
     // Trends & Culture
@@ -464,37 +464,51 @@ function subscribeRoomState(roomId){
   
   // ─────────────────────────────────────────────────────────────────────────────
   // Participant Card Display
-  function fitCellText(el, { min = 7, max = 14 } = {}) {
+  function fitCellText(el, { min = 6, max = 12 } = {}) {
     const parent = el.parentElement;
-    const text = el.textContent;
+    const originalText = el.textContent;
     
-    // Establecer tamaño inicial más pequeño
+    // Reset styles
     el.style.whiteSpace = 'normal';
     el.style.fontSize = max + 'px';
-    el.style.lineHeight = '1.2';
+    el.style.lineHeight = '1.15';
+    el.style.overflow = 'hidden';
     
-    // Reducir hasta que quepa completamente sin truncar
+    // Medir si el texto cabe naturalmente
     let size = max;
-    let attempt = 0;
+    let iterations = 0;
     
-    while (attempt < 15 && size > min) {
-      const rect = el.getBoundingClientRect();
-      const parentRect = parent.getBoundingClientRect();
+    // Función para verificar si el texto cabe
+    const checkTextFits = () => {
+      const textHeight = el.scrollHeight;
+      const textWidth = el.scrollWidth;
+      const parentHeight = parent.clientHeight - 8; // Margen de seguridad
+      const parentWidth = parent.clientWidth - 8;
       
-      // Si el texto se sale verticalmente o horizontalmente
-      if (rect.height > parentRect.height - 10 || rect.width > parentRect.width - 10) {
-        size -= 0.3;
-        el.style.fontSize = size + 'px';
-        attempt++;
-      } else {
-        break; // Texto cabe perfectamente
+      return textHeight <= parentHeight && textWidth <= parentWidth;
+    };
+    
+    // Reducir tamaño hasta que quepa completamente
+    while (iterations < 20 && size > min && !checkTextFits()) {
+      size = Math.max(min, size - 0.4);
+      el.style.fontSize = size + 'px';
+      iterations++;
+    }
+    
+    // Si aún no cabe con tamaño mínimo, usar estrategia especial
+    if (!checkTextFits() && size === min) {
+      // Para palabras muy largas, permitir wrap pero aumentar altura mínima de celda
+      el.style.fontSize = (min - 1) + 'px';
+      el.style.lineHeight = '1.1';
+      
+      // Si el texto es muy largo, hacerlo aún más pequeño
+      if (originalText.length > 15) {
+        el.style.fontSize = (min - 2) + 'px';
       }
     }
     
-    // Si aún no cabe, usar tamaño mínimo
-    if (size <= min) {
-      el.style.fontSize = min + 'px';
-    }
+    // Asegurar que el texto sea completamente visible
+    el.style.fontSize = size + 'px';
   }
 
   function fitAllCardTexts() {
