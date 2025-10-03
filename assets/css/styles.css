@@ -1731,61 +1731,70 @@ body::before {
 
 /* ===== Centrado y respiración uniforme de la cartilla ===== */
 
-/* Contenedor principal: scroll en ambas direcciones */
+/* === CARTILLA: RESPONSIVE Y CENTRADA === */
+
 #playing-section {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: rgba(10, 18, 40, 0.95);
   padding: 20px;
   box-sizing: border-box;
-  overflow: auto;
 }
 
 .player-card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 40px);
-  width: fit-content;
+  width: 100%;
+  max-width: 760px;
   margin: 0 auto;
+  padding: 0;
+  background: transparent;
 }
 
-/* Cartilla tamaño fijo para PC y móvil */
 #playing-section .bingo-card {
   display: grid;
-  grid-template-columns: repeat(5, 130px);
-  gap: 14px;
-  padding: 16px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: 14px;
   border-radius: 18px;
   background: rgba(255,255,255,0.03);
   box-shadow:
     0 2px 14px rgba(0,0,0,.25),
     inset 0 0 0 1px rgba(255,255,255,.06);
+  box-sizing: border-box;
 }
 
 #playing-section .bingo-card .card-cell {
-  width: 130px;
-  height: 130px;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
   background: #ffffff;
   color: #0f172a;
-  border: 2px solid rgba(15,23,42,.12);
-  border-radius: 16px;
+  border: 2px solid rgba(15,23,42,.10);
+  border-radius: 14px;
   box-shadow:
-    0 6px 14px rgba(15,23,42,.08),
+    0 4px 12px rgba(15,23,42,.08),
     0 1px 0 rgba(255,255,255,.6) inset;
-  padding: 12px;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   font-weight: 600;
-  line-height: 1.25;
-  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+  box-sizing: border-box;
 }
 
 .card-cell .cell-text {
-  font-size: 13px;
+  font-size: clamp(11px, 1.5vw, 14px);
   line-height: 1.2;
+  width: 100%;
+  max-width: 100%;
 }
 
 #playing-section .bingo-card .card-cell:not(.cell-free):hover{
@@ -1936,27 +1945,35 @@ body::before {
   white-space:nowrap !important;
 }
 
+/* Mobile */
 @media (max-width: 768px) {
   #playing-section {
     padding: 16px;
   }
   
-  /* Banner y tip centrados */
-  .player-banner,
-  .player-tip {
-    max-width: 90vw;
-    text-align: center;
-    margin: 0 auto 16px;
+  .player-card-container {
+    max-width: 95vw;
   }
-}
-
-@media (max-width: 520px) {
-  #playing-section {
+  
+  #playing-section .bingo-card {
+    max-width: 90vw;
+    gap: 10px;
     padding: 12px;
   }
   
   .card-cell .cell-text {
-    font-size: 12px;
+    font-size: clamp(10px, 2.2vw, 13px);
+  }
+}
+
+@media (max-width: 520px) {
+  #playing-section .bingo-card {
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: clamp(9px, 2.5vw, 12px);
   }
 }
 
