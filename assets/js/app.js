@@ -464,20 +464,36 @@ function subscribeRoomState(roomId){
   
   // ─────────────────────────────────────────────────────────────────────────────
   // Participant Card Display
-  function fitCellText(el, { min = 11, max = 18 } = {}) {
+  function fitCellText(el, { min = 9, max = 16 } = {}) {
     const parent = el.parentElement;
-    el.style.fontSize = max + 'px';
-    el.style.whiteSpace = 'normal';
-    const guard = 30;
-    let steps = 0;
-    while (
-      steps < guard &&
-      (el.scrollWidth > parent.clientWidth - 8 || el.scrollHeight > parent.clientHeight - 8) &&
-      max > min
-    ) {
-      max -= 1;
+    const text = el.textContent;
+    
+    // Si tiene guión, intentar mantener en una línea
+    if (text.includes('-')) {
+      el.style.whiteSpace = 'nowrap';
       el.style.fontSize = max + 'px';
-      steps++;
+      
+      let size = max;
+      while (size > min && el.scrollWidth > parent.clientWidth - 16) {
+        size -= 0.5;
+        el.style.fontSize = size + 'px';
+      }
+      
+      // Si no cabe, permitir wrap
+      if (size <= min) {
+        el.style.whiteSpace = 'normal';
+        el.style.fontSize = min + 'px';
+      }
+    } else {
+      // Texto normal
+      el.style.whiteSpace = 'normal';
+      el.style.fontSize = max + 'px';
+      
+      let size = max;
+      while (size > min && el.scrollHeight > parent.clientHeight - 16) {
+        size -= 0.5;
+        el.style.fontSize = size + 'px';
+      }
     }
   }
 

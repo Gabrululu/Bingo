@@ -1913,67 +1913,64 @@ body::before {
   gap:14px;
 }
 
-.card-cell{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px;
+.card-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  min-height: 80px;
+  overflow: hidden;
   border-radius:14px;
   text-transform:none !important;
 }
 
 .card-cell .cell-text {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  padding: 4px 6px;
+  max-width: 100%;
   text-align: center;
-  white-space: normal;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-  hyphens: manual;
-  line-height: 1.15;
+  line-height: 1.2;
   font-weight: 600;
-  font-size: clamp(11px, 2vw, 15px);
+  font-size: 14px;
   text-transform: none;
+  
+  /* Evitar partición de palabras */
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  
+  /* Permitir guiones pero no partir palabras */
+  word-spacing: normal;
+}
+
+/* Ajuste específico para términos con guiones */
+.card-cell .cell-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card-cell .cell-text.no-wrap{
   white-space:nowrap !important;
 }
 
-/* Ajuste para palabras largas compuestas */
-.card-cell .cell-text {
-  word-spacing: -0.05em;
-}
-
-/* Celda contenedora con mejor padding */
-.card-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 6px;
-  min-height: 75px;
-  overflow: hidden;
-}
-
-/* Responsive móvil */
 @media (max-width: 640px) {
   .card-cell {
-    min-height: 68px;
-    padding: 6px 4px;
+    min-height: 70px;
+    padding: 8px 6px;
   }
   
   .card-cell .cell-text {
-    font-size: clamp(10px, 2.2vw, 14px);
-    padding: 2px 4px;
+    font-size: 12px;
+    line-height: 1.15;
   }
 }
 
 @media (max-width: 480px) {
   .card-cell .cell-text {
-    font-size: clamp(9px, 2.5vw, 13px);
+    font-size: 11px;
   }
 }
 
@@ -2045,6 +2042,9 @@ body::before {
   box-shadow: 0 12px 30px rgba(0,0,0,.28);
   padding: 16px 20px;
   margin: 18px 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* 3) Evita que el grid de los botones "estire" el contenedor */
@@ -2057,6 +2057,22 @@ body::before {
 /* 4) Asegura que nada desborde por errores de box-sizing */
 #room-management *{
   box-sizing: border-box;
+}
+
+/* Evitar desbordamiento en todos los hijos */
+#room-management *,
+#moderator-dashboard * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Inputs y elementos específicos */
+#room-management input,
+#room-management .share-link-row,
+#room-management .code-display {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* 5) Cabecera de sala bien alineada */
