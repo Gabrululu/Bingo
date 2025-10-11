@@ -526,16 +526,6 @@ body::before {
         padding: 10px 15px;
     }
     
-    /* Mobile Bingo Card Optimizations */
-    .player-card-container {
-        max-width: 100%;
-        padding: 0 5px;
-    }
-    
-    .bingo-card {
-        margin: 0 auto;
-        max-width: 350px;
-    }
     
     .bingo-grid {
         gap: 1px;
@@ -658,79 +648,6 @@ body::before {
     border: 3px solid #3498db;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
-
-/* Enhanced Mobile UX */
-@media (max-width: 768px) {
-    .bingo-cell {
-        font-size: 11px;
-        padding: 8px 4px;
-        min-height: 45px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        word-break: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    
-    .bingo-cell.free {
-        font-size: 10px;
-        font-weight: bold;
-    }
-    
-    .form-group input {
-        font-size: 16px; 
-        padding: 15px;
-    }
-    
-    .register-btn {
-        padding: 15px 25px;
-        font-size: 18px;
-        width: 100%;
-        margin-top: 15px;
-    }
-    
-    .participant-item {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 15px;
-    }
-    
-    .participant-name {
-        font-size: 16px;
-        margin-bottom: 4px;
-    }
-    
-    .participant-status-badge {
-        margin-top: 8px;
-        align-self: flex-end;
-    }
-    
-    .game-stats {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .stat-item {
-        text-align: center;
-    }
-    
-    .mode-btn {
-        min-height: 48px;
-        padding: 12px 20px;
-    }
-    
-    .control-btn {
-        min-height: 48px;
-        padding: 12px 20px;
-    }
-    
-    .bingo-cell {
-        min-height: 48px;
-    }
 }
 
 /* Toast notifications */
@@ -1046,16 +963,6 @@ body::before {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Mobile optimizations for share section */
-@media (max-width: 768px) {
-    .share-section {
-        padding: 15px;
-        margin: 15px 0;
-    }
-    
-    .share-section h3 {
-        font-size: 20px;
-    }
     
     .share-controls {
         flex-direction: column;
@@ -1078,12 +985,6 @@ body::before {
         max-width: 280px;
         font-size: 12px;
     }
-    
-    .qr-code canvas {
-        width: 120px;
-        height: 120px;
-    }
-}
 
 /* ————— Centrado global del modo participante ————— */
 #participant-mode {
@@ -1974,33 +1875,7 @@ body::before {
 #resetGameBtn{  grid-column: 1; grid-row: 2; }
 #deleteRoomBtn{ grid-column: 3; grid-row: 2; }
 
-/* Responsive móvil */
-@media (max-width: 720px){
-  .game-controls .control-buttons,
-  .control-buttons {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: auto auto auto;
-    gap: 14px;
-  }
-  #assignCardsBtn{grid-column: 1; grid-row: 1;}
-  #startGameBtn {grid-column: 2; grid-row: 1;}
-  #nextTermBtn  {grid-column: 1; grid-row: 2;}
-  #resetGameBtn {grid-column: 1; grid-row: 3;}
-  #deleteRoomBtn{grid-column: 2; grid-row: 3;}
-}
 
-@media (max-width: 480px){
-  .game-controls .control-buttons,
-  .control-buttons {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  #assignCardsBtn{grid-column: 1; grid-row: 1;}
-  #startGameBtn {grid-column: 1; grid-row: 2;}
-  #nextTermBtn  {grid-column: 1; grid-row: 3;}
-  #resetGameBtn {grid-column: 1; grid-row: 4;}
-  #deleteRoomBtn{grid-column: 1; grid-row: 5;}
-}
 
 /* =======================
    FIX layout Panel Moderador
