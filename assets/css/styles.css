@@ -1612,15 +1612,20 @@ body::before {
 /* === CARTILLA: RESPONSIVE Y CENTRADA === */
 
 #playing-section {
-  width: 100%;
+  width: 100vw;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(10, 18, 40, 0.95);
+  background: radial-gradient(1200px 800px at 50% -20%, #101634, transparent 60%), #0b0f2a;
   padding: 20px;
   box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .player-card-container {
