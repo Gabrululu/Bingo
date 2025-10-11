@@ -2300,4 +2300,28 @@ body::before {
   box-sizing: border-box;
 }
 
+/* El área del jugador ocupa el alto real del dispositivo y puede hacer scroll si falta */
+#playing-section{
+  min-height: 100dvh;      /* usa el alto dinámico real en móvil */
+  overflow: auto;          /* permite desplazarse si aún así no cabe */
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+/* La cartilla toma un tamaño por variable (que fijaremos con JS). 
+   Si no hay JS, cae al tamaño de siempre basado en el ancho */
+#playing-section .bingo-card{
+  width: var(--cardSizePx, min(92vw, 560px));
+  height: var(--cardSizePx, min(92vw, 560px));
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+/* En móviles apretamos un poco el espaciado para ganar altura útil */
+@media (max-width: 768px){
+  .player-banner{ margin-bottom: 10px; }
+  .player-tip{ margin-top: 10px; }
+  #playing-section .bingo-card{ gap: 10px; padding: 10px; }
+  .player-cta{ margin-top: 12px; }
+}
+
 

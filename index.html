@@ -501,5 +501,45 @@
 
   <!-- Tu lógica -->
   <script src="assets/js/app.js"></script>
+  
+  <!-- Auto-dimensionamiento de cartilla móvil -->
+  <script>
+(function(){
+  function fitCard() {
+    const card = document.querySelector('#playing-section .bingo-card');
+    if(!card) return;
+
+    // alto de la ventana visible (dinámico en móvil)
+    const vh = window.innerHeight;
+
+    // desde dónde arranca la cartilla
+    const cardTop = card.getBoundingClientRect().top;
+
+    // reserva algo para el tip/botón inferior si existen
+    const tip = document.querySelector('.player-tip');
+    const cta = document.querySelector('.player-cta, .bingo-btn');
+    const tipH = tip ? tip.getBoundingClientRect().height : 0;
+    const ctaH = cta ? cta.getBoundingClientRect().height : 0;
+
+    const margen = 24; // respiración
+    const altoDisponible = vh - cardTop - tipH - ctaH - margen;
+
+    // ancho útil (respetando tu 92vw) 
+    const anchoDisponible = Math.min(window.innerWidth * 0.92, 560);
+
+    // tamaño final: el menor entre ancho y alto disponible (mínimo defensivo)
+    const size = Math.max(220, Math.floor(Math.min(anchoDisponible, altoDisponible)));
+
+    card.style.setProperty('--cardSizePx', size + 'px');
+  }
+
+  // ejecutar al cargar, al redimensionar y al cambiar orientación
+  window.addEventListener('resize', fitCard, {passive:true});
+  window.addEventListener('orientationchange', fitCard);
+  document.addEventListener('DOMContentLoaded', fitCard);
+  // por si el teclado móvil o UI cambian el viewport tras un tick
+  setTimeout(fitCard, 150);
+})();
+  </script>
 </body>
 </html>
