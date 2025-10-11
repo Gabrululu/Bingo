@@ -1344,12 +1344,6 @@ body::before {
   white-space: normal;
 }
 
-@media (max-width: 720px) {
-  .player-banner,
-  .player-card-container { max-width: 92vw; }
-  #playerCard { gap: 12px; }
-  #playerCard .card-cell { padding: 8px; }
-}
 
 /* ----- Cartilla centrada y responsiva ----- */
 .player-card-wrapper{ max-width: 920px; margin: 24px auto; padding: 0 12px; }
@@ -1358,12 +1352,6 @@ body::before {
   grid-template-columns: repeat(5, minmax(110px,1fr));
   gap:14px;
   margin: 0 auto;
-}
-@media (max-width: 920px){
-  .bingo-card{ grid-template-columns: repeat(5, minmax(76px,1fr)); gap:10px; }
-}
-@media (max-width: 560px){
-  .bingo-card{ grid-template-columns: repeat(5, minmax(60px,1fr)); gap:8px; }
 }
 
 .player-banner{ max-width: 920px; margin: 0 auto 14px; }
@@ -1521,17 +1509,6 @@ body::before {
 
 #registration-section + .player-card-container{ margin-top: 18px; }
 
-@media (max-width: 560px){
-  .bingo-card{
-    gap: 10px;
-    width: 94vw;
-  }
-  .card-cell{
-    min-height: clamp(64px, 16vw, 110px);
-    font-size: 13.5px;
-    padding: 8px;
-  }
-}
 
 .room-section .current-term-section,
 .room-section .called-terms-section{

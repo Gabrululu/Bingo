@@ -11,9 +11,9 @@ const WEB3_MARKETING_TERMS = [
     // Community & Social
     "Discord","X Spaces","Telegram Voice","Ambassador","Referral Program","Content Creation","Meme","Viral Campaigns","KOL","Identidad Digital",
     // Technology Terms
-    "Layer 1","Layer 2","Cross-chain","Interoperable","Scalability","Immutable","Smart Contract Audit","Security Tokens","Compliance","KYC","Oracle",
+    "Layer 1","Layer 2","Cross-chain","Interoperable","Escalable","Immutable","Smart Contract Audit","Security Tokens","Compliance","KYC","Oracle",
     // Trading & Finance
-    "Swaps","Bridge","Order Book","Slippage","Impermanent Loss","APR","APY","TVL","Volumen","Market Cap","Spread","Circulating Supply","Scalping",
+    "Swaps","Bridge","Order Book","Slippage","Base","APR","APY","TVL","Volumen","Market Cap","Spread","OORT","Scalping",
     // Trends & Culture
     "HODL","FOMO","FUD","DYOR","GM","Whale","Rug Pull","Fork","Bull Market","Bear Market","ATH","OG","Pump","Dump","To The Moon","Rekt"
   ];
