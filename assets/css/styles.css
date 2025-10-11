@@ -1964,69 +1964,70 @@ body::before {
 /* Mobile con scroll horizontal */
 @media (max-width: 768px) {
   #playing-section {
-    padding: 16px 8px;
-    overflow-x: auto;
-    overflow-y: visible;
-    justify-content: center;
-    align-items: center;
-    width: 100vw; /* ocupar el viewport para permitir scroll */
-    -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
-    overscroll-behavior-x: contain;
-    touch-action: pan-x; /* habilitar gesto horizontal */
+    padding: 20px 0;
+    overflow: visible;
+    min-height: auto;
+    display: block;
+  }
+  
+  .player-banner,
+  .player-tip {
+    max-width: 95vw;
+    margin: 0 auto 16px;
+    padding: 0 12px;
   }
   
   .player-card-container {
-    max-width: 95vw;
-    width: auto;
-    min-width: max-content; /* no comprimir ancho interno */
+    width: 100vw;
+    max-width: 100vw;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
   }
   
   #playing-section .bingo-card {
-    width: 420px;
-    min-width: 420px;
-    gap: 10px;
-    padding: 12px;
-    aspect-ratio: 1;
-    margin: 0; /* evitar centrado que corte scroll */
-  }
-  
-  .card-cell .cell-text {
-    font-size: clamp(9px, 2.5vw, 12px);
-    line-height: 1.2;
-  }
-}
-
-@media (max-width: 520px) {
-  #playing-section {
-    padding: 12px 4px;
-  }
-  
-  #playing-section .bingo-card {
-    width: 400px;
-    min-width: 400px;
-    gap: 8px;
-    padding: 10px;
+    width: 560px;
+    min-width: 560px;
+    margin: 0 auto;
+    gap: 12px;
+    padding: 16px;
   }
   
   #playing-section .bingo-card .card-cell {
+    min-height: 100px;
     padding: 10px 6px;
   }
   
   .card-cell .cell-text {
-    font-size: clamp(8px, 2.8vw, 11px);
-    line-height: 1.15;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 520px) {
+  #playing-section .bingo-card {
+    width: 480px;
+    min-width: 480px;
+    gap: 10px;
+  }
+  
+  #playing-section .bingo-card .card-cell {
+    min-height: 86px;
+  }
+  
+  .card-cell .cell-text {
+    font-size: 12px;
   }
 }
 
 @media (max-width: 420px) {
   #playing-section .bingo-card {
-    width: 380px;
-    min-width: 380px;
+    width: 420px;
+    min-width: 420px;
   }
   
   .card-cell .cell-text {
-    font-size: clamp(7px, 3vw, 10px);
-    line-height: 1.1;
+    font-size: 11px;
   }
 }
 
