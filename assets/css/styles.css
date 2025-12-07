@@ -289,19 +289,19 @@ input::placeholder {
 #playerCard {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: clamp(8px, 2vw, 14px);
+  gap: 10px;
   width: 100%;
   aspect-ratio: 1;
   margin: 0 auto;
-  padding: clamp(12px, 3vw, 20px);
+  padding: 15px;
   background: var(--bg-card);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  border: 2px solid;
-  border-image: var(--gradient-neon) 1;
+  border: 2px solid #FF1B8D;
   box-shadow:
     var(--shadow-card),
     inset 0 0 40px rgba(255, 27, 141, 0.05);
+  box-sizing: border-box;
 }
 
 .card-cell,
@@ -398,16 +398,17 @@ input::placeholder {
 /* Texto dentro de casillas */
 .cell-text {
   width: 100%;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  word-break: keep-all;
+  max-width: 100%;
+  display: block;
+  word-wrap: break-word;
+  word-break: break-word;
   overflow-wrap: break-word;
-  hyphens: manual;
+  white-space: normal;
+  hyphens: auto;
   text-transform: none;
-  padding: 0 2px;
+  padding: 0;
+  margin: 0;
+  line-height: 1.3;
 }
 
 /* ───────────────────────────────────────────────────────────────────────────
@@ -730,28 +731,33 @@ input::placeholder {
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   body {
-    padding: 10px;
+    padding: 12px;
   }
 
   .header {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
 
   .content {
-    padding: 20px;
+    padding: 16px;
+  }
+
+  .player-card-container {
+    max-width: calc(100vw - 24px);
   }
 
   .bingo-card,
   #playerCard {
-    max-width: calc(100vw - 40px);
-    gap: clamp(6px, 1.5vw, 10px);
-    padding: clamp(10px, 2.5vw, 16px);
+    gap: 8px;
+    padding: 12px;
+    border-width: 2px;
   }
 
   .card-cell,
   .bingo-cell {
-    font-size: clamp(9px, 1.8vw, 12px);
-    padding: clamp(4px, 1vw, 8px);
+    font-size: 11px;
+    padding: 6px;
+    border-radius: 8px;
   }
 
   .control-buttons {
@@ -768,25 +774,56 @@ input::placeholder {
 }
 
 @media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+
   .header h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+
+  .header .community-name {
+    font-size: 0.9rem;
+  }
+
+  .player-card-container {
+    max-width: 100vw;
+    padding: 0;
   }
 
   .bingo-card,
   #playerCard {
-    gap: 6px;
+    gap: 8px;
     padding: 10px;
+    border-radius: 16px;
   }
 
   .card-cell,
   .bingo-cell {
-    font-size: 9px;
-    padding: 4px;
+    font-size: 10px;
+    padding: 5px;
+    border-radius: 6px;
+  }
+
+  .cell-text {
+    font-size: 10px;
+    line-height: 1.2;
   }
 
   .bingo-btn {
-    padding: 16px 40px;
-    font-size: 18px;
+    padding: 14px 30px;
+    font-size: 16px;
+  }
+
+  .player-banner {
+    margin: 15px 8px;
+    padding: 16px;
+  }
+
+  .player-tip {
+    margin: 10px 8px;
+    font-size: 13px;
   }
 }
 
