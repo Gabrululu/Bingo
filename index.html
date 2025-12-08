@@ -40,11 +40,14 @@
     html,body{height:100%}
     body{
       margin:0;
+      padding:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
       background: radial-gradient(1200px 800px at 50% -20%, var(--bg-1), transparent 60%), var(--bg-0);
       color:var(--txt-1);
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      box-sizing:border-box;
+      overflow-x:hidden;
     }
 
     /* Contenedor principal centrado */
@@ -53,11 +56,12 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:24px;
+      padding:16px;
+      box-sizing:border-box;
     }
 
     /* Tarjeta central */
-    .card{width:min(980px, 100%);background:var(--bg-2);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow);padding:clamp(20px, 2.5vw, 28px)}
+    .card{width:100%;max-width:980px;background:var(--bg-2);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow);padding:clamp(16px, 4vw, 28px);box-sizing:border-box}
 
     /* Header principal */
     .header{
@@ -193,21 +197,20 @@
     .player-banner{margin:16px 0 8px}
     .banner-card{max-width:840px;width:100%;border-radius:12px;padding:16px 18px;text-align:center;border:1px solid rgba(255,255,255,.10);background:rgba(56,224,210,.10);color:#dff7f4}
     .banner-card.success h3{margin:0 0 6px;color:var(--ok)}
-    .player-area{max-width:840px;width:100%;padding:8px 12px 0;margin:0 auto}
+    .player-area{width:100%;display:grid;justify-items:center;gap:12px}
     .player-card{width:100%;display:grid;place-items:center;padding:8px 0}
     /* ====== GRID 5×5 ====== */
-    .card-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:min(520px,90vw)}
-    .card-cell{aspect-ratio:1/1;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.04);color:var(--txt-1);display:flex;align-items:center;justify-content:center;padding:6px;cursor:pointer;transition:.1s ease;outline:none}
+    .card-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:520px;margin:0 auto;box-sizing:border-box}
+    .card-cell{aspect-ratio:1/1;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.04);color:var(--txt-1);display:flex;align-items:center;justify-content:center;padding:8px;cursor:pointer;transition:.1s ease;outline:none;box-sizing:border-box}
     .card-cell:hover,.card-cell:focus-visible{transform:translateY(-1px);box-shadow:0 8px 22px rgba(0,0,0,.35);border-color:rgba(255,255,255,.25)}
     .card-cell:disabled{cursor:default}
     .card-cell.marked{background:rgba(91,228,155,.28);border-color:rgba(91,228,155,.75)}
     .cell-free{background:linear-gradient(180deg,rgba(56,224,210,.16),rgba(255,255,255,.04));border-color:rgba(56,224,210,.55)}
-    .cell-text{font-size:clamp(11px,1.8vw,14px);line-height:1.15;padding:0 4px;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .cell-text{font-size:clamp(11px,1.8vw,14px);line-height:1.2;padding:0;text-align:center;word-break:break-word;overflow-wrap:break-word;white-space:normal;display:block}
     /* Tip y CTA centrados */
-    .player-tip{margin:10px 0 14px;width:min(520px,90vw);border-radius:10px;padding:10px 12px;background:rgba(16,22,52,.75);border:1px solid rgba(255,255,255,.08);color:var(--txt-2);text-align:center;font-size:14px}
+    .player-tip{margin:0;width:100%;max-width:520px;margin-left:auto;margin-right:auto;border-radius:10px;padding:10px 12px;background:rgba(16,22,52,.75);border:1px solid rgba(255,255,255,.08);color:var(--txt-2);text-align:center;font-size:14px;box-sizing:border-box}
     .player-cta .bingo-btn{min-width:160px;padding:10px 14px;border-radius:12px;border:0;background:var(--grad-brand);color:#0b0f2a;font-weight:800;letter-spacing:.3px;box-shadow:0 8px 22px rgba(0,0,0,.35);transition:transform .1s ease, filter .12s ease}
     .player-cta .bingo-btn:hover{transform:translateY(-1px);filter:saturate(1.05)}
-    @media(max-width:480px){.card-grid{gap:8px;width:92vw}.player-tip{width:92vw;font-size:13px}}
     /* ====== THEME GLOBAL ====== */
     .section,.dashboard-container,.rooms-section,.room-section{background:var(--bg-1);border:var(--border);border-radius:var(--br);box-shadow:var(--shadow)}
     .card,.participants-section,.share-section,.game-controls,.current-term-section,.called-terms-section{background:var(--bg-2);border:var(--border);border-radius:var(--br)}
